@@ -1,0 +1,6 @@
+summary: Notion API resources and shared configuration
+display_name: notion
+owners:
+  - u/geoffyulongli
+extra_perms:
+  u/geoffyulongli: true
