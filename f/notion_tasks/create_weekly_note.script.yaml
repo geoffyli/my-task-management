@@ -1,0 +1,21 @@
+summary: ''
+description: ''
+lock: '!inline f/notion_tasks/create_weekly_note.script.lock'
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties:
+    notion:
+      type: object
+      description: ''
+      default: null
+      format: resource-notion
+    weekly_notes_database_id:
+      type: string
+      description: ''
+      default: null
+      originalType: string
+  required:
+    - notion
+    - weekly_notes_database_id
