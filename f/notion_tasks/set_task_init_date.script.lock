@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "@notionhq/client": "latest",
+    "windmill-client": "latest"
+  }
+}
+//bun.lock
+{
+  "lockfileVersion": 1,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "dependencies": {
+        "@notionhq/client": "latest",
+        "windmill-client": "latest",
+      },
+    },
+  },
+  "packages": {
+    "@notionhq/client": ["@notionhq/client@5.16.0", "", {}, "sha512-0mxHJNQBLbcG2Y4+oM+XNySr/3zKtK7FKjWhrUo8TB3WCdwtUMhvuooNmEjOo8NLL9qmKm7cCR4GtEsuTD+SNg=="],
+
+    "windmill-client": ["windmill-client@1.677.0", "", {}, "sha512-2W2P8uhvZFO350ZLCL1vCI+UbKDuZo0LYiQ1CAiYg0vN/3WseXcww2tvabm943LvTPT6AUwIkTAERygtuB6SXA=="],
+  }
+}
