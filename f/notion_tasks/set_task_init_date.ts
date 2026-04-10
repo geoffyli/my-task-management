@@ -1,8 +1,10 @@
 import { Client } from "@notionhq/client";
 import * as wmill from "windmill-client";
 
-const TASKS_DATABASE_ID = "a43c2d3d-11e5-4a66-be42-dd411a1d9727";
-const TASKS_DATABASE_ID_NORMALIZED = TASKS_DATABASE_ID.replace(/-/g, "").toLowerCase();
+// Data source ID for the Tasks database (a43c2d3d-11e5-4a66-be42-dd411a1d9727).
+// Notion webhooks (API v2025-09-03+) send the data source ID in parent.id, not the database ID.
+const TASKS_DATA_SOURCE_ID = "8ff49260-77c2-4fc7-8727-c822af980aa1";
+const TASKS_DATA_SOURCE_ID_NORMALIZED = TASKS_DATA_SOURCE_ID.replace(/-/g, "").toLowerCase();
 
 type Event = {
   kind: "webhook" | "http" | "websocket" | "kafka" | "email" | "nats" | "postgres" | "sqs" | "mqtt" | "gcp";
@@ -30,8 +32,8 @@ export async function preprocessor(event: Event) {
 
   // Validate this is for our Tasks database
   const parentId = body?.data?.parent?.id;
-  if (!parentId || normalizeDatabaseId(parentId) !== TASKS_DATABASE_ID_NORMALIZED) {
-    throw new Error(`Ignoring event for database: ${parentId ?? "unknown"}`);
+  if (!parentId || normalizeDatabaseId(parentId) !== TASKS_DATA_SOURCE_ID_NORMALIZED) {
+    throw new Error(`Ignoring event for data source: ${parentId ?? "unknown"}`);
   }
 
   // Extract page ID
