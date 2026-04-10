@@ -25,9 +25,10 @@ export async function preprocessor(event: Event) {
     return { page_id: "__verification__", verification_token: body.verification_token };
   }
 
-  // Validate event type
+  // Validate event type — skip silently so Windmill doesn't log a failure
   if (body?.type !== "page.properties_updated") {
-    throw new Error(`Ignoring event type: ${body?.type ?? "unknown"}`);
+    console.log(`Skipping non-target event type: ${body?.type ?? "unknown"}`);
+    return { page_id: "__skip__" };
   }
 
   // Validate this is for our Tasks database
@@ -69,6 +70,11 @@ export async function main(page_id: string, verification_token?: string) {
   if (page_id === "__verification__" && verification_token) {
     console.log("Verification handshake completed");
     return { verification_token };
+  }
+
+  // Skip irrelevant event types (filtered in preprocessor)
+  if (page_id === "__skip__") {
+    return { action: "skipped", reason: "irrelevant_event_type" };
   }
 
   // Fetch Notion credentials from Windmill resource
