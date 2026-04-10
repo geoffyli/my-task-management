@@ -2,7 +2,7 @@ import { Client } from "@notionhq/client";
 import * as wmill from "windmill-client";
 
 // Data source ID for the Tasks database (a43c2d3d-11e5-4a66-be42-dd411a1d9727).
-// Notion webhooks (API v2025-09-03+) send the data source ID in parent.id, not the database ID.
+// Notion webhooks (API v2025-09-03+) include both parent.id (database ID) and parent.data_source_id.
 const TASKS_DATA_SOURCE_ID = "8ff49260-77c2-4fc7-8727-c822af980aa1";
 const TASKS_DATA_SOURCE_ID_NORMALIZED = TASKS_DATA_SOURCE_ID.replace(/-/g, "").toLowerCase();
 
@@ -13,7 +13,7 @@ type Event = {
   query: Record<string, string>;
 };
 
-function normalizeDatabaseId(id: string): string {
+function normalizeUuid(id: string): string {
   return id.replace(/-/g, "").toLowerCase();
 }
 
@@ -31,9 +31,16 @@ export async function preprocessor(event: Event) {
   }
 
   // Validate this is for our Tasks database
-  const parentId = body?.data?.parent?.id;
-  if (!parentId || normalizeDatabaseId(parentId) !== TASKS_DATA_SOURCE_ID_NORMALIZED) {
+  const parentId = body?.data?.parent?.data_source_id;
+  if (!parentId || normalizeUuid(parentId) !== TASKS_DATA_SOURCE_ID_NORMALIZED) {
     throw new Error(`Ignoring event for data source: ${parentId ?? "unknown"}`);
+  }
+
+  // Only process webhooks where "Assigned Date" actually changed (avoids bounce-back
+  // from our own writes to "Initial Assigned Date")
+  const updatedProps: unknown[] = body?.data?.updated_properties ?? [];
+  if (!updatedProps.includes("Assigned Date")) {
+    throw new Error(`Ignoring: updated properties do not include Assigned Date`);
   }
 
   // Extract page ID
@@ -60,7 +67,7 @@ function extractDateProperty(properties: Record<string, any>, name: string): str
 export async function main(page_id: string, verification_token?: string) {
   // Handle one-time Notion webhook verification handshake
   if (page_id === "__verification__" && verification_token) {
-    console.log(`Verification token: ${verification_token}`);
+    console.log("Verification handshake completed");
     return { verification_token };
   }
 
