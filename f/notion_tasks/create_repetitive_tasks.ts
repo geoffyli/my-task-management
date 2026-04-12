@@ -14,12 +14,13 @@ interface RepetitiveTaskConfig {
   projects: string[];
 }
 
+function formatDateCST(date: Date): string {
+  const d = new Date(date.getTime() + CST_OFFSET_MS);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+}
+
 function getTodayCST(): string {
-  const now = new Date(Date.now() + CST_OFFSET_MS);
-  const y = now.getUTCFullYear();
-  const m = String(now.getUTCMonth() + 1).padStart(2, "0");
-  const d = String(now.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+  return formatDateCST(new Date());
 }
 
 function isDateInRange(today: string, start: string | null, end: string | null): boolean {
@@ -55,10 +56,7 @@ function shouldCronTriggerToday(cronExpr: string, todayStr: string): boolean {
       tz: "Asia/Shanghai",
     });
     const prev = interval.prev();
-    // cron-parser with tz:"Asia/Shanghai" returns fire times in CST;
-    // format the date portion in CST for comparison
-    const prevDate = prev.toLocaleString("en-CA", { timeZone: "Asia/Shanghai" }).slice(0, 10);
-    return prevDate === todayStr;
+    return formatDateCST(prev) === todayStr;
   } catch {
     return false;
   }

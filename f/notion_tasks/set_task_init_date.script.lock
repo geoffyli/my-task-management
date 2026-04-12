@@ -19,6 +19,6 @@
   "packages": {
     "@notionhq/client": ["@notionhq/client@5.17.0", "", {}, "sha512-hSNm3VUW5+Qs9vPOmegS6r1RT8O1jtTE/22wmSmiJc9kkb2YyddWr8SBQruvp06rALn2r2RAh9mLPirUUonsvw=="],
 
-    "windmill-client": ["windmill-client@1.681.0", "", {}, "sha512-135a5+IR4edy4LYWfQV0KTGBMdRBLcR9yljET8jUs6SRYKkmdyY3AAc8mJeDOgp5UNP0OX744oiWKtdGmFC/lw=="],
+    "windmill-client": ["windmill-client@1.682.0", "", {}, "sha512-5pICDY8E/6HYYYxxqiQLSOqBmFErtSYnB+629wbosSScihKRRdp7wqMh5ZZF3aB7o3cJT9nJkjwg4DbX3/WUwg=="],
   }
 }
