@@ -1,10 +1,14 @@
 import { Client } from "@notionhq/client";
 import * as wmill from "windmill-client";
 
-// Data source ID for the Tasks database (a43c2d3d-11e5-4a66-be42-dd411a1d9727).
-// Notion webhooks (API v2025-09-03+) include both parent.id (database ID) and parent.data_source_id.
-const TASKS_DATA_SOURCE_ID = "8ff49260-77c2-4fc7-8727-c822af980aa1";
-const TASKS_DATA_SOURCE_ID_NORMALIZED = TASKS_DATA_SOURCE_ID.replace(/-/g, "").toLowerCase();
+// Notion Tasks database — stable container ID (parent.id in webhook payloads).
+// Unlike data_source_id (which has changed multiple times), database_id is stable.
+const TASKS_DATABASE_ID = "a43c2d3d-11e5-4a66-be42-dd411a1d9727";
+const TASKS_DATABASE_ID_NORMALIZED = TASKS_DATABASE_ID.replace(/-/g, "").toLowerCase();
+
+// Notion property ID for "Assigned Date" (retrieved from database schema via API).
+// Webhook updated_properties arrays contain property IDs, not human-readable names.
+const ASSIGNED_DATE_PROP_ID = "lMKd";
 
 type Event = {
   kind: "webhook" | "http" | "websocket" | "kafka" | "email" | "nats" | "postgres" | "sqs" | "mqtt" | "gcp";
@@ -31,17 +35,19 @@ export async function preprocessor(event: Event) {
     return { page_id: "__skip__" };
   }
 
-  // Validate this is for our Tasks database
-  const parentId = body?.data?.parent?.data_source_id;
-  if (!parentId || normalizeUuid(parentId) !== TASKS_DATA_SOURCE_ID_NORMALIZED) {
-    throw new Error(`Ignoring event for data source: ${parentId ?? "unknown"}`);
+  // Validate this is for our Tasks database (using the stable database container ID)
+  const parent = body?.data?.parent;
+  if (parent?.type !== "database" || !parent?.id || normalizeUuid(parent.id) !== TASKS_DATABASE_ID_NORMALIZED) {
+    console.log(`Skipping event for non-target database: type=${parent?.type}, id=${parent?.id ?? "unknown"}`);
+    return { page_id: "__skip__" };
   }
 
-  // Only process webhooks where "Assigned Date" actually changed (avoids bounce-back
-  // from our own writes to "Initial Assigned Date")
+  // Only process webhooks where "Assigned Date" (lMKd) actually changed.
+  // This also prevents bounce-back from our own writes to "Initial Assigned Date" (nJET).
   const updatedProps: unknown[] = body?.data?.updated_properties ?? [];
-  if (!updatedProps.includes("Assigned Date")) {
-    throw new Error(`Ignoring: updated properties do not include Assigned Date`);
+  if (!updatedProps.includes(ASSIGNED_DATE_PROP_ID)) {
+    console.log(`Skipping: updated properties ${JSON.stringify(updatedProps)} do not include Assigned Date (${ASSIGNED_DATE_PROP_ID})`);
+    return { page_id: "__skip__" };
   }
 
   // Extract page ID
