@@ -74,6 +74,87 @@ function shouldCreateIntervalTask(
   return diffDays >= intervalDays;
 }
 
+const UNSUPPORTED_BLOCK_TYPES = new Set([
+  "child_database",
+  "child_page",
+  "column_list",
+  "column",
+  "link_preview",
+  "table_of_contents",
+]);
+
+function sanitizeBlock(block: any): any | null {
+  const type: string = block.type;
+  if (UNSUPPORTED_BLOCK_TYPES.has(type)) return null;
+  const content = block[type];
+  if (!content) return null;
+  const sanitized: any = { type, [type]: { ...content } };
+  delete sanitized[type].children;
+  return sanitized;
+}
+
+async function fetchBlockChildren(
+  client: Client,
+  blockId: string,
+  maxDepth: number = 3
+): Promise<any[]> {
+  const blocks: any[] = [];
+  let cursor: string | undefined;
+
+  do {
+    const response = await client.blocks.children.list({
+      block_id: blockId,
+      start_cursor: cursor,
+      page_size: 100,
+    });
+    for (const block of response.results as any[]) {
+      const sanitized = sanitizeBlock(block);
+      if (!sanitized) continue;
+      if (block.has_children && maxDepth > 1) {
+        const children = await fetchBlockChildren(client, block.id, maxDepth - 1);
+        if (children.length > 0) {
+          sanitized[sanitized.type].children = children;
+        }
+      }
+      blocks.push(sanitized);
+    }
+    cursor = response.has_more ? (response as any).next_cursor : undefined;
+  } while (cursor);
+
+  return blocks;
+}
+
+async function findTemplateBlocks(
+  client: Client,
+  configPageId: string
+): Promise<any[] | null> {
+  let cursor: string | undefined;
+
+  do {
+    const response = await client.blocks.children.list({
+      block_id: configPageId,
+      start_cursor: cursor,
+      page_size: 100,
+    });
+    for (const block of response.results as any[]) {
+      if (
+        block.type === "heading_2" &&
+        block.has_children &&
+        block.heading_2?.rich_text
+          ?.map((t: any) => t.plain_text)
+          .join("")
+          .trim() === "Template"
+      ) {
+        const children = await fetchBlockChildren(client, block.id);
+        return children.length > 0 ? children : null;
+      }
+    }
+    cursor = response.has_more ? (response as any).next_cursor : undefined;
+  } while (cursor);
+
+  return null;
+}
+
 async function getDataSourceId(client: Client, databaseId: string): Promise<string> {
   const db = await client.databases.retrieve({ database_id: databaseId });
   const dsId = (db as any).data_sources?.[0]?.id;
@@ -162,6 +243,7 @@ export async function main(
   console.log(`Found ${configs.length} valid config(s)`);
 
   let created = 0;
+  let templated = 0;
   let skipped = 0;
   let failed = 0;
   const errors: string[] = [];
@@ -238,11 +320,27 @@ export async function main(
         continue;
       }
 
-      const page = await client.pages.create({
+      let templateBlocks: any[] | null = null;
+      try {
+        templateBlocks = await findTemplateBlocks(client, config.id);
+        if (templateBlocks) {
+          console.log(`"${config.name}": found ${templateBlocks.length} template block(s)`);
+        }
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        console.warn(`"${config.name}": template fetch failed, creating without body: ${msg}`);
+      }
+
+      const createParams: any = {
         parent: { database_id: tasks_database_id },
         properties: buildTaskProperties(config, today),
-      });
+      };
+      if (templateBlocks && templateBlocks.length > 0) {
+        createParams.children = templateBlocks;
+      }
+      const page = await client.pages.create(createParams);
 
+      if (templateBlocks && templateBlocks.length > 0) templated++;
       created++;
       console.log(`Created: "[Repetitive] ${config.name}" (${page.id})`);
     } catch (e) {
@@ -253,12 +351,13 @@ export async function main(
     }
   }
 
-  console.log(`Done: ${created} created, ${skipped} skipped, ${failed} failed`);
+  console.log(`Done: ${created} created (${templated} with template), ${skipped} skipped, ${failed} failed`);
 
   return {
     execution_date: today,
     configs_found: configs.length,
     tasks_created: created,
+    tasks_with_template: templated,
     skipped,
     failed,
     errors: errors.length > 0 ? errors : undefined,
