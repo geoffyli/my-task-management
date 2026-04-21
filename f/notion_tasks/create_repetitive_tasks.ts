@@ -77,20 +77,54 @@ function shouldCreateIntervalTask(
 const UNSUPPORTED_BLOCK_TYPES = new Set([
   "child_database",
   "child_page",
-  "column_list",
-  "column",
   "link_preview",
-  "table_of_contents",
+  "meeting_notes",
+  "unsupported",
 ]);
+
+const RESPONSE_ONLY_CONTENT_KEYS = new Set([
+  "children",
+  "list_start_index",
+  "list_format",
+]);
+
+function sanitizeRichTextItem(item: any): any {
+  if (item.type === "mention") {
+    const mentionType = item.mention?.type;
+    if (mentionType === "link_mention" || mentionType === "link_preview") {
+      const href =
+        item.mention[mentionType]?.href ||
+        item.mention[mentionType]?.url ||
+        item.href;
+      const label = item.plain_text || href || "";
+      return {
+        type: "text",
+        text: { content: label, ...(href ? { link: { url: href } } : {}) },
+        ...(item.annotations ? { annotations: item.annotations } : {}),
+      };
+    }
+  }
+  const { plain_text, href, ...rest } = item;
+  return rest;
+}
 
 function sanitizeBlock(block: any): any | null {
   const type: string = block.type;
   if (UNSUPPORTED_BLOCK_TYPES.has(type)) return null;
   const content = block[type];
   if (!content) return null;
-  const sanitized: any = { type, [type]: { ...content } };
-  delete sanitized[type].children;
-  return sanitized;
+
+  const cleaned: Record<string, any> = {};
+  for (const [k, v] of Object.entries(content)) {
+    if (RESPONSE_ONLY_CONTENT_KEYS.has(k)) continue;
+    if (v === null) continue;
+    if (k === "rich_text" && Array.isArray(v)) {
+      cleaned[k] = v.map(sanitizeRichTextItem);
+    } else {
+      cleaned[k] = v;
+    }
+  }
+  return { type, [type]: cleaned };
 }
 
 async function fetchBlockChildren(
