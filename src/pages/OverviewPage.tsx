@@ -1,34 +1,40 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
-import { ListChecks, AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import { ListChecks, AlertTriangle, CheckCircle, Clock, Ban } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { useTasks } from "@/api/queries";
 import { StatCard } from "@/components/cards/StatCard";
 import { ChartContainer } from "@/components/shared/ChartContainer";
 import { TimeRangeSelector } from "@/components/shared/TimeRangeSelector";
+import { ErrorFallback } from "@/components/shared/ErrorFallback";
+import { EmptyState } from "@/components/shared/EmptyState";
 import {
-  getActiveTasks, getOverdueTasks, getCompletedThisWeek, getAverageAge,
+  getActiveTasks, getOverviewStats, getBlockedTasksSummary,
   getThroughputData, getBurndownData, getPriorityCounts, getStatusCounts,
 } from "@/lib/metrics";
-import { STATUS_COLORS, PRIORITY_COLORS, TOOLTIP_STYLE, type TimeRange } from "@/lib/constants";
+import { downloadCSV } from "@/lib/csv-export";
+import { STATUS_COLORS, PRIORITY_COLORS, TOOLTIP_STYLE, TIME_RANGES, type TimeRange } from "@/lib/constants";
+
+function formatTrend(current: number, previous: number): string | undefined {
+  if (current > previous) return `↑ ${current - previous} vs last week`;
+  if (current < previous) return `↓ ${previous - current} vs last week`;
+  return undefined;
+}
 
 export function OverviewPage() {
-  const { data: tasks, isLoading } = useTasks();
-  const [range, setRange] = useState<TimeRange>("90d");
+  const { data: tasks, isLoading, isError, refetch } = useTasks();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const rawRange = searchParams.get("range");
+  const range: TimeRange = TIME_RANGES.some((r) => r.value === rawRange) ? (rawRange as TimeRange) : "90d";
+  const setRange = (v: TimeRange) => setSearchParams((p) => { p.set("range", v); return p; });
 
   const activeTasks = useMemo(() => (tasks ? getActiveTasks(tasks) : []), [tasks]);
 
-  const stats = useMemo(() => {
-    if (!tasks) return null;
-    return {
-      active: activeTasks.length,
-      overdue: getOverdueTasks(tasks).length,
-      completedWeek: getCompletedThisWeek(tasks).length,
-      avgAge: getAverageAge(activeTasks),
-    };
-  }, [tasks, activeTasks]);
+  const stats = useMemo(() => (tasks ? getOverviewStats(tasks) : null), [tasks]);
+  const blocked = useMemo(() => (tasks ? getBlockedTasksSummary(tasks) : null), [tasks]);
 
   const throughput = useMemo(
     () => (tasks ? getThroughputData(tasks, range) : []),
@@ -54,6 +60,10 @@ export function OverviewPage() {
     return <div className="flex h-full items-center justify-center text-muted-foreground">Loading...</div>;
   }
 
+  if (isError) {
+    return <ErrorFallback message="Failed to load tasks" onRetry={() => refetch()} />;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -61,7 +71,7 @@ export function OverviewPage() {
         <TimeRangeSelector value={range} onChange={setRange} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard title="Active Tasks" value={stats.active} icon={ListChecks} />
         <StatCard
           title="Overdue"
@@ -69,12 +79,14 @@ export function OverviewPage() {
           icon={AlertTriangle}
           accent={stats.overdue > 0 ? "red" : "default"}
         />
-        <StatCard title="Completed This Week" value={stats.completedWeek} icon={CheckCircle} accent="green" />
+        <StatCard title="Completed This Week" value={stats.completedWeek} icon={CheckCircle} accent="green" trend={formatTrend(stats.completedWeek, stats.completedPrevWeek)} />
         <StatCard title="Avg Age (days)" value={stats.avgAge} icon={Clock} />
+        <StatCard title="Blocked" value={blocked?.blockedCount ?? 0} icon={Ban} accent={blocked && blocked.blockedCount > 0 ? "red" : "default"} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <ChartContainer title="Throughput" description="Tasks created vs completed per week">
+        <ChartContainer title="Throughput" description="Tasks created vs completed per week" onExport={() => downloadCSV("throughput.csv", ["Week", "Created", "Completed"], throughput.map((d) => [d.week, d.created, d.completed]))}>
+          {throughput.length === 0 ? <EmptyState message="No throughput data for this time range" /> : (
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={throughput} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -86,9 +98,11 @@ export function OverviewPage() {
               <Line type="monotone" dataKey="completed" stroke="#22c55e" strokeWidth={2} dot={false} name="Completed" />
             </LineChart>
           </ResponsiveContainer>
+          )}
         </ChartContainer>
 
         <ChartContainer title="Burndown" description="Open tasks over time">
+          {burndown.length === 0 ? <EmptyState message="No burndown data for this time range" /> : (
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={burndown} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -98,11 +112,13 @@ export function OverviewPage() {
               <Area type="monotone" dataKey="open" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.2} strokeWidth={2} name="Open Tasks" />
             </AreaChart>
           </ResponsiveContainer>
+          )}
         </ChartContainer>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ChartContainer title="Priority Distribution" description="Active tasks by priority">
+          {priorities.length === 0 ? <EmptyState message="No active tasks" /> : (
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie
@@ -123,9 +139,11 @@ export function OverviewPage() {
               <Legend iconType="circle" iconSize={8} />
             </PieChart>
           </ResponsiveContainer>
+          )}
         </ChartContainer>
 
         <ChartContainer title="Status Breakdown" description="All tasks by status">
+          {statuses.length === 0 ? <EmptyState message="No tasks found" /> : (
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={statuses} layout="vertical" margin={{ top: 5, right: 20, left: 60, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -139,6 +157,7 @@ export function OverviewPage() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+          )}
         </ChartContainer>
       </div>
     </div>

@@ -4,13 +4,14 @@ import {
 } from "recharts";
 import { useTasks, useProjects, useAreas } from "@/api/queries";
 import { ChartContainer } from "@/components/shared/ChartContainer";
-import { STATUS_COLORS, AREA_COLORS, PRIORITY_COLORS, TOOLTIP_STYLE, isActiveTask } from "@/lib/constants";
+import { ErrorFallback } from "@/components/shared/ErrorFallback";
+import { STATUS_COLORS, AREA_COLORS, PRIORITY_COLORS, TOOLTIP_STYLE, isActiveTask, getAreaColor } from "@/lib/constants";
 import type { Task } from "@/api/types";
 
 export function AreasPage() {
-  const { data: tasks, isLoading: tasksLoading } = useTasks();
-  const { data: projects, isLoading: projectsLoading } = useProjects();
-  const { data: areas, isLoading: areasLoading } = useAreas();
+  const { data: tasks, isLoading: tasksLoading, isError: tasksError, refetch: refetchTasks } = useTasks();
+  const { data: projects, isLoading: projectsLoading, isError: projectsError, refetch: refetchProjects } = useProjects();
+  const { data: areas, isLoading: areasLoading, isError: areasError, refetch: refetchAreas } = useAreas();
 
   const areaTasksMap = useMemo(() => {
     if (!tasks || !projects || !areas) return new Map<string, Task[]>();
@@ -27,7 +28,7 @@ export function AreasPage() {
     const result = new Map<string, Task[]>();
     for (const area of areas) {
       const areaProjectIds = new Set(projectToArea.get(area.id) ?? []);
-      const areaTasks = tasks.filter((t) => t.projectId && areaProjectIds.has(t.projectId));
+      const areaTasks = tasks.filter((t) => t.projectIds.some((pid) => areaProjectIds.has(pid)));
       result.set(area.id, areaTasks);
     }
     return result;
@@ -65,6 +66,10 @@ export function AreasPage() {
     return <div className="flex h-full items-center justify-center text-muted-foreground">Loading...</div>;
   }
 
+  if (tasksError || projectsError || areasError) {
+    return <ErrorFallback message="Failed to load area data" onRetry={() => { refetchTasks(); refetchProjects(); refetchAreas(); }} />;
+  }
+
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-foreground">Areas</h2>
@@ -77,7 +82,7 @@ export function AreasPage() {
             <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
             <Tooltip
               contentStyle={TOOLTIP_STYLE}
-              labelFormatter={(label: string) => workload.find((w) => w.area === label)?.fullName ?? label}
+              labelFormatter={(label) => workload.find((w) => w.area === label)?.fullName ?? String(label)}
             />
             <Legend iconType="circle" iconSize={8} />
             <Bar dataKey="notStarted" stackId="status" fill={STATUS_COLORS["Not Started"]} name="Not Started" />
@@ -130,7 +135,7 @@ export function AreasPage() {
                 <div className="flex items-center gap-2">
                   <div
                     className="h-3 w-3 rounded-full"
-                    style={{ backgroundColor: AREA_COLORS[area.name] ?? "#6b7280" }}
+                    style={{ backgroundColor: getAreaColor(area.name) }}
                   />
                   <p className="text-sm font-medium text-foreground">{area.name}</p>
                 </div>

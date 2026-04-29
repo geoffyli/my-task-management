@@ -1,35 +1,43 @@
-import { differenceInDays, parseISO, format, eachWeekOfInterval } from "date-fns";
+import { differenceInDays, parseISO, format, eachWeekOfInterval, subDays } from "date-fns";
 import type { Task, Project } from "@/api/types";
 import type { TimeRange } from "@/lib/constants";
 import { isActiveTask } from "@/lib/constants";
 import { getTimeRangeStart } from "./date-utils";
 
+export interface OverviewStats {
+  active: number;
+  overdue: number;
+  completedWeek: number;
+  completedPrevWeek: number;
+  avgAge: number;
+}
+
+export function getOverviewStats(tasks: Task[]): OverviewStats {
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+  const oneWeekAgo = subDays(today, 7);
+  const twoWeeksAgo = subDays(today, 14);
+
+  let active = 0, overdue = 0, completedWeek = 0, completedPrevWeek = 0, totalAge = 0;
+
+  for (const t of tasks) {
+    if (isActiveTask(t)) {
+      active++;
+      totalAge += differenceInDays(today, parseISO(t.createdTime));
+      if (t.deadline && t.deadline < todayStr) overdue++;
+    }
+    if (t.status === "Done" && t.assignedDate) {
+      const doneDate = parseISO(t.assignedDate);
+      if (doneDate >= oneWeekAgo) completedWeek++;
+      else if (doneDate >= twoWeeksAgo) completedPrevWeek++;
+    }
+  }
+
+  return { active, overdue, completedWeek, completedPrevWeek, avgAge: active > 0 ? Math.round(totalAge / active) : 0 };
+}
+
 export function getActiveTasks(tasks: Task[]): Task[] {
   return tasks.filter(isActiveTask);
-}
-
-export function getOverdueTasks(tasks: Task[]): Task[] {
-  const today = new Date().toISOString().slice(0, 10);
-  return tasks.filter(
-    (t) => t.deadline && t.deadline < today && isActiveTask(t)
-  );
-}
-
-export function getCompletedThisWeek(tasks: Task[]): Task[] {
-  const weekAgo = new Date();
-  weekAgo.setDate(weekAgo.getDate() - 7);
-  return tasks.filter(
-    (t) => t.status === "Done" && parseISO(t.lastEditedTime) >= weekAgo
-  );
-}
-
-export function getAverageAge(activeTasks: Task[]): number {
-  if (activeTasks.length === 0) return 0;
-  const totalDays = activeTasks.reduce(
-    (sum, t) => sum + differenceInDays(new Date(), parseISO(t.createdTime)),
-    0
-  );
-  return Math.round(totalDays / activeTasks.length);
 }
 
 export function getStatusCounts(tasks: Task[]): { status: string; count: number }[] {
@@ -60,36 +68,33 @@ export function getThroughputData(tasks: Task[], range: TimeRange): ThroughputEn
   const end = new Date();
 
   const weeks = eachWeekOfInterval({ start, end }, { weekStartsOn: 1 });
+  if (weeks.length === 0) return [];
 
-  const createdByWeek = new Map<number, number>();
-  const completedByWeek = new Map<number, number>();
+  const firstWeekTs = weeks[0]!.getTime();
+  const msPerWeek = 7 * 86400000;
+  const createdByWeek = new Array<number>(weeks.length).fill(0);
+  const completedByWeek = new Array<number>(weeks.length).fill(0);
+
   for (const t of tasks) {
     const createdTs = parseISO(t.createdTime).getTime();
-    for (let i = 0; i < weeks.length; i++) {
-      const ws = weeks[i]!.getTime();
-      const we = ws + 6 * 86400000;
-      if (createdTs >= ws && createdTs <= we) {
-        createdByWeek.set(i, (createdByWeek.get(i) ?? 0) + 1);
-        break;
-      }
+    const weekIdx = Math.floor((createdTs - firstWeekTs) / msPerWeek);
+    if (weekIdx >= 0 && weekIdx < weeks.length) {
+      createdByWeek[weekIdx]!++;
     }
-    if (t.status === "Done") {
-      const doneTs = parseISO(t.lastEditedTime).getTime();
-      for (let i = 0; i < weeks.length; i++) {
-        const ws = weeks[i]!.getTime();
-        const we = ws + 6 * 86400000;
-        if (doneTs >= ws && doneTs <= we) {
-          completedByWeek.set(i, (completedByWeek.get(i) ?? 0) + 1);
-          break;
-        }
+
+    if (t.status === "Done" && t.assignedDate) {
+      const doneTs = parseISO(t.assignedDate).getTime();
+      const doneWeekIdx = Math.floor((doneTs - firstWeekTs) / msPerWeek);
+      if (doneWeekIdx >= 0 && doneWeekIdx < weeks.length) {
+        completedByWeek[doneWeekIdx]!++;
       }
     }
   }
 
   return weeks.map((weekStart, i) => ({
     week: format(weekStart, "MMM dd"),
-    created: createdByWeek.get(i) ?? 0,
-    completed: completedByWeek.get(i) ?? 0,
+    created: createdByWeek[i]!,
+    completed: completedByWeek[i]!,
   }));
 }
 
@@ -111,7 +116,9 @@ export function getBurndownData(tasks: Task[], range: TimeRange): BurndownEntry[
       const created = parseISO(t.createdTime).getTime();
       if (created > wsTime) return false;
       if (t.status === "Done" || t.status === "Cancelled") {
-        const closed = parseISO(t.lastEditedTime).getTime();
+        const closedStr = t.status === "Done" ? t.assignedDate : t.lastEditedTime;
+        if (!closedStr) return true;
+        const closed = parseISO(closedStr).getTime();
         return closed > wsTime;
       }
       return true;
@@ -198,28 +205,35 @@ export interface ProjectHealthEntry {
   notStarted: number;
   inProgress: number;
   done: number;
+  deferred: number;
+  cancelled: number;
 }
 
 export function getProjectHealth(tasks: Task[], projects: Project[]): ProjectHealthEntry[] {
   const tasksByProject = buildTasksByProjectIndex(tasks);
   return projects.map((p) => {
     const projectTasks = tasksByProject.get(p.id) ?? [];
-    return {
-      project: p.name,
-      notStarted: projectTasks.filter((t) => t.status === "Not Started").length,
-      inProgress: projectTasks.filter((t) => t.status === "In Progress").length,
-      done: projectTasks.filter((t) => t.status === "Done").length,
-    };
-  }).filter((p) => p.notStarted + p.inProgress + p.done > 0);
+    const counts = { notStarted: 0, inProgress: 0, done: 0, deferred: 0, cancelled: 0 };
+    for (const t of projectTasks) {
+      switch (t.status) {
+        case "Not Started": counts.notStarted++; break;
+        case "In Progress": counts.inProgress++; break;
+        case "Done": counts.done++; break;
+        case "Deferred": counts.deferred++; break;
+        case "Cancelled": counts.cancelled++; break;
+      }
+    }
+    return { project: p.name, ...counts };
+  }).filter((p) => p.notStarted + p.inProgress + p.done + p.deferred + p.cancelled > 0);
 }
 
 export function buildTasksByProjectIndex(tasks: Task[]): Map<string, Task[]> {
   const index = new Map<string, Task[]>();
   for (const t of tasks) {
-    if (t.projectId) {
-      const list = index.get(t.projectId);
+    for (const pid of t.projectIds) {
+      const list = index.get(pid);
       if (list) list.push(t);
-      else index.set(t.projectId, [t]);
+      else index.set(pid, [t]);
     }
   }
   return index;
@@ -230,16 +244,21 @@ export interface CalendarDayEntry {
   count: number;
 }
 
-export function getCalendarHeatmapData(tasks: Task[]): CalendarDayEntry[] {
+export function getCalendarHeatmapData(tasks: Task[], range?: TimeRange): CalendarDayEntry[] {
+  const rangeStart = range ? getTimeRangeStart(range) : null;
   const dayCounts: Record<string, number> = {};
 
   for (const t of tasks) {
-    const created = t.createdTime.slice(0, 10);
-    dayCounts[created] = (dayCounts[created] ?? 0) + 1;
+    const createdDate = t.createdTime.slice(0, 10);
+    if (!rangeStart || parseISO(createdDate) >= rangeStart) {
+      dayCounts[createdDate] = (dayCounts[createdDate] ?? 0) + 1;
+    }
 
-    if (t.status === "Done") {
-      const completed = t.lastEditedTime.slice(0, 10);
-      dayCounts[completed] = (dayCounts[completed] ?? 0) + 1;
+    if (t.status === "Done" && t.assignedDate) {
+      const completed = t.assignedDate.slice(0, 10);
+      if (!rangeStart || parseISO(completed) >= rangeStart) {
+        dayCounts[completed] = (dayCounts[completed] ?? 0) + 1;
+      }
     }
   }
 
@@ -266,4 +285,35 @@ export function getDeadlineProximity(tasks: Task[]): DeadlineEntry[] {
       priority: t.priority,
     }))
     .sort((a, b) => a.daysRemaining - b.daysRemaining);
+}
+
+export interface BlockedTasksSummary {
+  blockedCount: number;
+  blockedTasks: { name: string; blockedByCount: number; priority: string }[];
+}
+
+export function getBlockedTasksSummary(tasks: Task[]): BlockedTasksSummary {
+  const taskMap = new Map(tasks.map((t) => [t.id, t]));
+  const blockedTasks = tasks.filter((t) => {
+    if (!isActiveTask(t)) return false;
+    return t.dependencies.some((depId) => {
+      const dep = taskMap.get(depId);
+      return dep && isActiveTask(dep);
+    });
+  });
+
+  return {
+    blockedCount: blockedTasks.length,
+    blockedTasks: blockedTasks
+      .map((t) => ({
+        name: t.name,
+        blockedByCount: t.dependencies.filter((d) => {
+          const dep = taskMap.get(d);
+          return dep && isActiveTask(dep);
+        }).length,
+        priority: t.priority,
+      }))
+      .sort((a, b) => b.blockedByCount - a.blockedByCount)
+      .slice(0, 10),
+  };
 }

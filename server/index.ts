@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { readFileSync } from "fs";
+import { serveStatic } from "hono/bun";
+import { readFileSync, existsSync } from "fs";
 import { resolve } from "path";
 import { queryDatabase, type NotionPage } from "./notion";
 import type { Task, Project, Area } from "../src/api/types";
@@ -14,10 +15,16 @@ const DATA_SOURCES = {
   areas: "0b036eaf-a357-46ec-b479-b6bb88497b74",
 };
 
-const NOTION_KEY = readFileSync(
-  resolve(process.env.HOME || "~", ".config/notion/api_key"),
-  "utf-8"
-).trim();
+const NOTION_KEY = process.env.NOTION_API_KEY ?? (() => {
+  try {
+    return readFileSync(
+      resolve(process.env.HOME || "~", ".config/notion/api_key"),
+      "utf-8"
+    ).trim();
+  } catch {
+    throw new Error("NOTION_API_KEY env var not set and ~/.config/notion/api_key not found");
+  }
+})();
 
 function extractTitle(prop: any): string {
   return prop?.title?.[0]?.plain_text ?? "(untitled)";
@@ -42,7 +49,7 @@ function normalizeTask(page: NotionPage): Task {
     name: extractTitle(p["Task Name"]),
     status: (extractSelect(p["Status"]) as Task["status"]) ?? "Not Started",
     priority: (extractSelect(p["Priority"]) as Task["priority"]) ?? "Medium",
-    projectId: extractRelationIds(p["Project"])[0] ?? null,
+    projectIds: extractRelationIds(p["Project"]),
     assignedDate: extractDate(p["Assigned Date"]),
     initialAssignedDate: extractDate(p["Initial Assigned Date"]),
     deadline: extractDate(p["Deadline"]),
@@ -77,43 +84,72 @@ function normalizeArea(page: NotionPage): Area {
 
 const CACHE_TTL = 60_000;
 const cache = new Map<string, { data: unknown; expiry: number }>();
+const inFlight = new Map<string, Promise<unknown>>();
+
+let notionQueue = Promise.resolve();
+function withNotionLock<T>(fn: () => Promise<T>): Promise<T> {
+  const result = notionQueue.then(fn, fn);
+  notionQueue = result.then(() => {}, () => {});
+  return result;
+}
 
 async function getCached<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
   const now = Date.now();
   const cached = cache.get(key);
   if (cached && cached.expiry > now) return cached.data as T;
-  const data = await fetcher();
-  cache.set(key, { data, expiry: now + CACHE_TTL });
-  return data;
+
+  const existing = inFlight.get(key);
+  if (existing) return existing as Promise<T>;
+
+  const promise = fetcher().then((data) => {
+    cache.set(key, { data, expiry: Date.now() + CACHE_TTL });
+    inFlight.delete(key);
+    return data;
+  }).catch((err) => {
+    inFlight.delete(key);
+    throw err;
+  });
+
+  inFlight.set(key, promise);
+  return promise;
 }
 
 app.get("/api/tasks", async (c) => {
+  if (c.req.query("refresh") === "true") cache.delete("tasks");
   const tasks = await getCached("tasks", async () => {
-    const pages = await queryDatabase(NOTION_KEY, DATA_SOURCES.tasks, {});
+    const pages = await withNotionLock(() => queryDatabase(NOTION_KEY, DATA_SOURCES.tasks, {}));
     return pages.map(normalizeTask);
   });
   return c.json(tasks);
 });
 
 app.get("/api/projects", async (c) => {
+  if (c.req.query("refresh") === "true") cache.delete("projects");
   const projects = await getCached("projects", async () => {
-    const pages = await queryDatabase(NOTION_KEY, DATA_SOURCES.projects, {});
+    const pages = await withNotionLock(() => queryDatabase(NOTION_KEY, DATA_SOURCES.projects, {}));
     return pages.map(normalizeProject);
   });
   return c.json(projects);
 });
 
 app.get("/api/areas", async (c) => {
+  if (c.req.query("refresh") === "true") cache.delete("areas");
   const areas = await getCached("areas", async () => {
-    const pages = await queryDatabase(NOTION_KEY, DATA_SOURCES.areas, {});
+    const pages = await withNotionLock(() => queryDatabase(NOTION_KEY, DATA_SOURCES.areas, {}));
     return pages.map(normalizeArea);
   });
   return c.json(areas);
 });
 
+if (existsSync(resolve(import.meta.dir, "../dist"))) {
+  app.use("/*", serveStatic({ root: "./dist" }));
+}
+
+const port = Number(process.env.PORT) || 3456;
+
 export default {
-  port: 3456,
+  port,
   fetch: app.fetch,
 };
 
-console.log("Task Management Analytics API running on http://localhost:3456");
+console.log(`Task Management Analytics API running on http://localhost:${port}`);

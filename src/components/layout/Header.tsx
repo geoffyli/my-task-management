@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { RefreshCw, Sun, Moon } from "lucide-react";
 import { useState } from "react";
+import { setForceRefresh } from "@/api/client";
 
 export function Header() {
   const queryClient = useQueryClient();
@@ -14,6 +15,7 @@ export function Header() {
   }
 
   function refresh() {
+    setForceRefresh();
     queryClient.invalidateQueries();
   }
 

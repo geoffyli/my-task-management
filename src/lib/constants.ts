@@ -25,6 +25,23 @@ export const AREA_COLORS: Record<string, string> = {
   "Insights and Perspectives": "#14b8a6",
 };
 
+const AREA_PALETTE = [
+  "#f97316", "#6366f1", "#84cc16", "#a855f7", "#0ea5e9",
+  "#e11d48", "#10b981", "#d946ef", "#eab308", "#64748b",
+];
+
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+export function getAreaColor(name: string): string {
+  return AREA_COLORS[name] ?? AREA_PALETTE[hashString(name) % AREA_PALETTE.length]!;
+}
+
 export const TOOLTIP_STYLE: CSSProperties = {
   borderRadius: "8px",
   fontSize: "12px",

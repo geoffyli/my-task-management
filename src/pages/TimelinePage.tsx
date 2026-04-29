@@ -1,21 +1,26 @@
-import { useMemo, useState, memo } from "react";
+import { useMemo, memo } from "react";
 import {
   BarChart, Bar, ScatterChart, Scatter,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart, Line,
 } from "recharts";
+import { useSearchParams } from "react-router-dom";
 import { useTasks } from "@/api/queries";
 import { ChartContainer } from "@/components/shared/ChartContainer";
 import { TimeRangeSelector } from "@/components/shared/TimeRangeSelector";
+import { ErrorFallback } from "@/components/shared/ErrorFallback";
 import {
   getActiveTasks, getVelocityData, getAgingDistribution, getRescheduleDistribution,
   getCalendarHeatmapData, getDeadlineProximity,
 } from "@/lib/metrics";
-import { PRIORITY_COLORS, TOOLTIP_STYLE, type TimeRange } from "@/lib/constants";
+import { PRIORITY_COLORS, TOOLTIP_STYLE, TIME_RANGES, type TimeRange } from "@/lib/constants";
 import { parseISO, subDays, format, eachDayOfInterval, startOfWeek } from "date-fns";
 
 export function TimelinePage() {
-  const { data: tasks, isLoading } = useTasks();
-  const [range, setRange] = useState<TimeRange>("90d");
+  const { data: tasks, isLoading, isError, refetch } = useTasks();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const rawRange = searchParams.get("range");
+  const range: TimeRange = TIME_RANGES.some((r) => r.value === rawRange) ? (rawRange as TimeRange) : "90d";
+  const setRange = (v: TimeRange) => setSearchParams((p) => { p.set("range", v); return p; });
 
   const activeTasks = useMemo(() => (tasks ? getActiveTasks(tasks) : []), [tasks]);
 
@@ -35,8 +40,8 @@ export function TimelinePage() {
   );
 
   const heatmap = useMemo(
-    () => (tasks ? getCalendarHeatmapData(tasks) : []),
-    [tasks]
+    () => (tasks ? getCalendarHeatmapData(tasks, range) : []),
+    [tasks, range]
   );
 
   const deadlines = useMemo(
@@ -46,6 +51,10 @@ export function TimelinePage() {
 
   if (isLoading) {
     return <div className="flex h-full items-center justify-center text-muted-foreground">Loading...</div>;
+  }
+
+  if (isError) {
+    return <ErrorFallback message="Failed to load tasks" onRetry={() => refetch()} />;
   }
 
   return (
@@ -98,8 +107,8 @@ export function TimelinePage() {
         </ChartContainer>
       </div>
 
-      <ChartContainer title="Activity Calendar" description="Daily task creation and completion events (last 6 months)">
-        <CalendarHeatmap data={heatmap} />
+      <ChartContainer title="Activity Calendar" description="Daily task creation and completion events">
+        <CalendarHeatmap data={heatmap} range={range} />
       </ChartContainer>
 
       <ChartContainer title="Deadline Proximity" description="Upcoming deadlines — below zero line = overdue">
@@ -119,8 +128,8 @@ export function TimelinePage() {
             />
             <Tooltip
               contentStyle={TOOLTIP_STYLE}
-              formatter={(value: number, name: string) => [value, name === "daysRemaining" ? "Days left" : name]}
-              labelFormatter={(label: string) => `Deadline: ${label}`}
+              formatter={(value, name) => [value, name === "daysRemaining" ? "Days left" : name]}
+              labelFormatter={(label) => `Deadline: ${label}`}
             />
             <Scatter data={deadlines} fill="#3b82f6" />
           </ScatterChart>
@@ -130,9 +139,10 @@ export function TimelinePage() {
   );
 }
 
-const CalendarHeatmap = memo(function CalendarHeatmap({ data }: { data: { date: string; count: number }[] }) {
+const CalendarHeatmap = memo(function CalendarHeatmap({ data, range }: { data: { date: string; count: number }[]; range: TimeRange }) {
   const end = new Date();
-  const start = subDays(end, 182);
+  const daysBack = range === "30d" ? 30 : range === "90d" ? 90 : range === "6m" ? 182 : 365;
+  const start = subDays(end, daysBack);
   const maxCount = Math.max(...data.map((d) => d.count), 1);
   const countMap = new Map(data.map((d) => [d.date, d.count]));
 

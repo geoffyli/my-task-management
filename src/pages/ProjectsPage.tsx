@@ -4,16 +4,18 @@ import {
 } from "recharts";
 import { useTasks, useProjects } from "@/api/queries";
 import { ChartContainer } from "@/components/shared/ChartContainer";
+import { ErrorFallback } from "@/components/shared/ErrorFallback";
 import { getProjectHealth, buildTasksByProjectIndex } from "@/lib/metrics";
 import { STATUS_COLORS, TOOLTIP_STYLE } from "@/lib/constants";
 import { parseISO, differenceInDays, format } from "date-fns";
+import type { Task } from "@/api/types";
 
 export function ProjectsPage() {
-  const { data: tasks, isLoading: tasksLoading } = useTasks();
-  const { data: projects, isLoading: projectsLoading } = useProjects();
+  const { data: tasks, isLoading: tasksLoading, isError: tasksError, refetch: refetchTasks } = useTasks();
+  const { data: projects, isLoading: projectsLoading, isError: projectsError, refetch: refetchProjects } = useProjects();
 
   const tasksByProject = useMemo(
-    () => (tasks ? buildTasksByProjectIndex(tasks) : new Map()),
+    () => (tasks ? buildTasksByProjectIndex(tasks) : new Map<string, Task[]>()),
     [tasks]
   );
 
@@ -39,8 +41,17 @@ export function ProjectsPage() {
       .sort((a, b) => a.start.localeCompare(b.start));
   }, [projects]);
 
+  const maxDuration = useMemo(
+    () => Math.max(...timeline.map((p) => p.duration), 1),
+    [timeline]
+  );
+
   if (tasksLoading || projectsLoading) {
     return <div className="flex h-full items-center justify-center text-muted-foreground">Loading...</div>;
+  }
+
+  if (tasksError || projectsError) {
+    return <ErrorFallback message="Failed to load project data" onRetry={() => { refetchTasks(); refetchProjects(); }} />;
   }
 
   return (
@@ -58,6 +69,8 @@ export function ProjectsPage() {
             <Bar dataKey="notStarted" stackId="status" fill={STATUS_COLORS["Not Started"]} name="Not Started" />
             <Bar dataKey="inProgress" stackId="status" fill={STATUS_COLORS["In Progress"]} name="In Progress" />
             <Bar dataKey="done" stackId="status" fill={STATUS_COLORS["Done"]} name="Done" />
+            <Bar dataKey="deferred" stackId="status" fill={STATUS_COLORS["Deferred"]} name="Deferred" />
+            <Bar dataKey="cancelled" stackId="status" fill={STATUS_COLORS["Cancelled"]} name="Cancelled" />
           </BarChart>
         </ResponsiveContainer>
       </ChartContainer>
@@ -76,7 +89,7 @@ export function ProjectsPage() {
                       className="absolute h-5 rounded-full"
                       style={{
                         backgroundColor: p.status === "Completed" ? STATUS_COLORS.Done : STATUS_COLORS["In Progress"],
-                        width: `${Math.min((p.duration / 200) * 100, 100)}%`,
+                        width: `${Math.min((p.duration / maxDuration) * 100, 100)}%`,
                         opacity: 0.8,
                       }}
                     />
