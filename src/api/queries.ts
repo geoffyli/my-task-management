@@ -25,31 +25,28 @@ export function useAreas() {
   });
 }
 
-export function useAdminStatus(token: string) {
+export function useSyncStatus() {
   return useQuery({
-    queryKey: ["admin", "status"],
-    queryFn: () => api.getAdminStatus(token),
+    queryKey: ["sync", "status"],
+    queryFn: api.getSyncStatus,
     staleTime: 30 * 1000,
-    enabled: !!token,
     refetchInterval: 30000,
   });
 }
 
-export function useAdminEvents(token: string, limit: number, offset: number) {
+export function useSyncEvents(limit: number, offset: number) {
   return useQuery({
-    queryKey: ["admin", "events", limit, offset],
-    queryFn: () => api.getAdminEvents(token, limit, offset),
+    queryKey: ["sync", "events", limit, offset],
+    queryFn: () => api.getSyncEvents(limit, offset),
     staleTime: 30 * 1000,
-    enabled: !!token,
   });
 }
 
-export function useWebhookStatus(token: string) {
+export function useWebhookStatus() {
   return useQuery({
-    queryKey: ["admin", "webhook-status"],
-    queryFn: () => api.getWebhookStatus(token),
+    queryKey: ["webhook-status"],
+    queryFn: api.getWebhookStatus,
     staleTime: 30 * 1000,
-    enabled: !!token,
     refetchInterval: 30000,
   });
 }

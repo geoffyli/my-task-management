@@ -1,106 +1,44 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { RefreshCw, Clock, Database, Webhook, Activity, Key, Copy, CheckCircle2 } from "lucide-react";
+import { RefreshCw, Clock, Database, Webhook, Activity, Copy, CheckCircle2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { useAdminStatus, useAdminEvents, useWebhookStatus } from "@/api/queries";
+import { useSyncStatus, useSyncEvents, useWebhookStatus } from "@/api/queries";
 import { api } from "@/api/client";
 import { StatCard } from "@/components/cards/StatCard";
 import { ErrorFallback } from "@/components/shared/ErrorFallback";
 
-const STORAGE_KEY = "admin_token";
-
-function getStoredToken(): string {
-  return localStorage.getItem(STORAGE_KEY) ?? "";
-}
-
-export function AdminPage() {
-  const [token, setToken] = useState(getStoredToken);
-  const [tokenInput, setTokenInput] = useState("");
+export function SettingsPage() {
   const [syncing, setSyncing] = useState(false);
   const [page, setPage] = useState(0);
   const limit = 20;
 
   const queryClient = useQueryClient();
-  const { data: status, isLoading: statusLoading, isError: statusError } = useAdminStatus(token);
-  const { data: events, isLoading: eventsLoading } = useAdminEvents(token, limit, page * limit);
-  const { data: webhookStatus } = useWebhookStatus(token);
+  const { data: status, isLoading: statusLoading, isError: statusError } = useSyncStatus();
+  const { data: events, isLoading: eventsLoading } = useSyncEvents(limit, page * limit);
+  const { data: webhookStatus } = useWebhookStatus();
 
   const [copied, setCopied] = useState<string | null>(null);
+  const copyTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const copyToClipboard = useCallback((text: string, label: string) => {
     navigator.clipboard.writeText(text);
     setCopied(label);
-    setTimeout(() => setCopied(null), 2000);
-  }, []);
-
-  const handleLogin = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = tokenInput.trim();
-    if (trimmed) {
-      localStorage.setItem(STORAGE_KEY, trimmed);
-      setToken(trimmed);
-    }
-  }, [tokenInput]);
-
-  const handleLogout = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
-    setToken("");
-    setTokenInput("");
+    clearTimeout(copyTimer.current);
+    copyTimer.current = setTimeout(() => setCopied(null), 2000);
   }, []);
 
   const handleSync = useCallback(async () => {
     setSyncing(true);
     try {
-      await api.triggerSync(token);
+      await api.triggerSync();
       await queryClient.invalidateQueries();
     } finally {
       setSyncing(false);
     }
-  }, [token, queryClient]);
+  }, [queryClient]);
 
-  // Not authenticated — show token form
-  if (!token) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4 rounded-xl border border-border bg-card p-6">
-          <div className="flex items-center gap-2 text-foreground">
-            <Key size={20} />
-            <h2 className="text-lg font-semibold">Admin Access</h2>
-          </div>
-          <p className="text-sm text-muted-foreground">Enter your admin token to access sync controls.</p>
-          <input
-            type="password"
-            value={tokenInput}
-            onChange={(e) => setTokenInput(e.target.value)}
-            placeholder="Admin token"
-            className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-          />
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90"
-          >
-            Authenticate
-          </button>
-        </form>
-      </div>
-    );
-  }
-
-  // Auth error — likely bad token
   if (statusError) {
-    return (
-      <div className="space-y-4">
-        <ErrorFallback message="Failed to authenticate. Check your token." />
-        <div className="flex justify-center">
-          <button
-            onClick={handleLogout}
-            className="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-muted"
-          >
-            Clear Token
-          </button>
-        </div>
-      </div>
-    );
+    return <ErrorFallback message="Failed to load sync status." />;
   }
 
   if (statusLoading) {
@@ -110,26 +48,17 @@ export function AdminPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-foreground">Admin</h2>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleSync}
-            disabled={syncing}
-            className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 disabled:opacity-50"
-          >
-            <RefreshCw size={14} className={syncing ? "animate-spin" : ""} />
-            {syncing ? "Syncing..." : "Force Sync"}
-          </button>
-          <button
-            onClick={handleLogout}
-            className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
-          >
-            Logout
-          </button>
-        </div>
+        <h2 className="text-xl font-semibold text-foreground">Settings</h2>
+        <button
+          onClick={handleSync}
+          disabled={syncing}
+          className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 disabled:opacity-50"
+        >
+          <RefreshCw size={14} className={syncing ? "animate-spin" : ""} />
+          {syncing ? "Syncing..." : "Force Sync"}
+        </button>
       </div>
 
-      {/* Status Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard
           title="Last Full Sync"
@@ -159,7 +88,6 @@ export function AdminPage() {
         />
       </div>
 
-      {/* Webhook Setup */}
       <div className="rounded-xl border border-border bg-card p-5">
         <h3 className="mb-3 text-sm font-medium text-foreground">Webhook Setup</h3>
         <div className="space-y-3">
@@ -214,7 +142,6 @@ export function AdminPage() {
         </div>
       </div>
 
-      {/* Event Log */}
       <div className="rounded-xl border border-border bg-card p-5">
         <h3 className="mb-4 text-sm font-medium text-foreground">Event Log</h3>
 
