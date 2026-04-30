@@ -1,12 +1,12 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Clock, FolderKanban, Layers } from "lucide-react";
+import { CalendarDays, TrendingUp, FolderKanban, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { to: "/", label: "Overview", icon: LayoutDashboard },
-  { to: "/timeline", label: "Timeline", icon: Clock },
-  { to: "/projects", label: "Projects", icon: FolderKanban },
-  { to: "/areas", label: "Areas", icon: Layers },
+  { to: "/", label: "This Week", icon: CalendarDays },
+  { to: "/trends", label: "Trends", icon: TrendingUp },
+  { to: "/projects", label: "Projects & Areas", icon: FolderKanban },
+  { to: "/admin", label: "Admin", icon: Settings },
 ];
 
 export function Sidebar() {

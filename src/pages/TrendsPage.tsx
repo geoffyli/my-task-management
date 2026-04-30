@@ -1,21 +1,22 @@
 import { useMemo, memo } from "react";
 import {
-  BarChart, Bar, ScatterChart, Scatter,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart, Line,
+  LineChart, Line, BarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart,
 } from "recharts";
 import { useSearchParams } from "react-router-dom";
 import { useTasks } from "@/api/queries";
 import { ChartContainer } from "@/components/shared/ChartContainer";
 import { TimeRangeSelector } from "@/components/shared/TimeRangeSelector";
 import { ErrorFallback } from "@/components/shared/ErrorFallback";
+import { EmptyState } from "@/components/shared/EmptyState";
 import {
-  getActiveTasks, getVelocityData, getAgingDistribution, getRescheduleDistribution,
-  getCalendarHeatmapData, getDeadlineProximity,
+  getActiveTasks, getThroughputData, getVelocityData, getAgingDistribution,
+  getRescheduleDistribution, getCalendarHeatmapData,
 } from "@/lib/metrics";
 import { PRIORITY_COLORS, TOOLTIP_STYLE, TIME_RANGES, type TimeRange } from "@/lib/constants";
-import { parseISO, subDays, format, eachDayOfInterval, startOfWeek } from "date-fns";
+import { subDays, format, eachDayOfInterval, startOfWeek } from "date-fns";
 
-export function TimelinePage() {
+export function TrendsPage() {
   const { data: tasks, isLoading, isError, refetch } = useTasks();
   const [searchParams, setSearchParams] = useSearchParams();
   const rawRange = searchParams.get("range");
@@ -23,6 +24,11 @@ export function TimelinePage() {
   const setRange = (v: TimeRange) => setSearchParams((p) => { p.set("range", v); return p; });
 
   const activeTasks = useMemo(() => (tasks ? getActiveTasks(tasks) : []), [tasks]);
+
+  const throughput = useMemo(
+    () => (tasks ? getThroughputData(tasks, range) : []),
+    [tasks, range]
+  );
 
   const velocity = useMemo(
     () => (tasks ? getVelocityData(tasks, range) : []),
@@ -44,11 +50,6 @@ export function TimelinePage() {
     [tasks, range]
   );
 
-  const deadlines = useMemo(
-    () => (tasks ? getDeadlineProximity(tasks) : []),
-    [tasks]
-  );
-
   if (isLoading) {
     return <div className="flex h-full items-center justify-center text-muted-foreground">Loading...</div>;
   }
@@ -60,80 +61,77 @@ export function TimelinePage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-foreground">Timeline Analysis</h2>
+        <h2 className="text-xl font-semibold text-foreground">Trends</h2>
         <TimeRangeSelector value={range} onChange={setRange} />
       </div>
 
+      <ChartContainer title="Throughput" description="Tasks created vs completed per week">
+        {throughput.length === 0 ? <EmptyState message="No throughput data for this time range" /> : (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={throughput} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="week" tick={{ fontSize: 11 }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} />
+              <Legend iconType="circle" iconSize={8} />
+              <Line type="monotone" dataKey="created" stroke="#3b82f6" strokeWidth={2} dot={false} name="Created" />
+              <Line type="monotone" dataKey="completed" stroke="#22c55e" strokeWidth={2} dot={false} name="Completed" />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </ChartContainer>
+
       <ChartContainer title="Completion Velocity" description="Weekly completions with 4-week rolling average">
-        <ResponsiveContainer width="100%" height={300}>
-          <ComposedChart data={velocity} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="week" tick={{ fontSize: 11 }} />
-            <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-            <Tooltip contentStyle={TOOLTIP_STYLE} />
-            <Legend iconType="circle" iconSize={8} />
-            <Bar dataKey="completed" fill="#22c55e" fillOpacity={0.7} name="Completed" />
-            <Line type="monotone" dataKey="average" stroke="#f59e0b" strokeWidth={2} dot={false} name="4-wk avg" />
-          </ComposedChart>
-        </ResponsiveContainer>
+        {velocity.length === 0 ? <EmptyState message="No velocity data" /> : (
+          <ResponsiveContainer width="100%" height={300}>
+            <ComposedChart data={velocity} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="week" tick={{ fontSize: 11 }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} />
+              <Legend iconType="circle" iconSize={8} />
+              <Bar dataKey="completed" fill="#22c55e" fillOpacity={0.7} name="Completed" />
+              <Line type="monotone" dataKey="average" stroke="#f59e0b" strokeWidth={2} dot={false} name="4-wk avg" />
+            </ComposedChart>
+          </ResponsiveContainer>
+        )}
       </ChartContainer>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ChartContainer title="Task Aging Distribution" description="How long active tasks have been open, by priority">
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={aging} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="bucket" tick={{ fontSize: 11 }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} />
-              <Legend iconType="circle" iconSize={8} />
-              <Bar dataKey="high" stackId="age" fill={PRIORITY_COLORS.High} name="High" />
-              <Bar dataKey="medium" stackId="age" fill={PRIORITY_COLORS.Medium} name="Medium" />
-              <Bar dataKey="low" stackId="age" fill={PRIORITY_COLORS.Low} name="Low" />
-            </BarChart>
-          </ResponsiveContainer>
+          {aging.length === 0 ? <EmptyState message="No active tasks" /> : (
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={aging} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="bucket" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
+                <Legend iconType="circle" iconSize={8} />
+                <Bar dataKey="high" stackId="age" fill={PRIORITY_COLORS.High} name="High" />
+                <Bar dataKey="medium" stackId="age" fill={PRIORITY_COLORS.Medium} name="Medium" />
+                <Bar dataKey="low" stackId="age" fill={PRIORITY_COLORS.Low} name="Low" />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </ChartContainer>
 
         <ChartContainer title="Reschedule Patterns" description="How often tasks get pushed back">
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={reschedule} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="bucket" tick={{ fontSize: 11 }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} />
-              <Bar dataKey="count" fill="#8b5cf6" name="Tasks Rescheduled" />
-            </BarChart>
-          </ResponsiveContainer>
+          {reschedule.length === 0 ? <EmptyState message="No rescheduled tasks" /> : (
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={reschedule} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="bucket" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
+                <Bar dataKey="count" fill="#8b5cf6" name="Tasks Rescheduled" />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </ChartContainer>
       </div>
 
       <ChartContainer title="Activity Calendar" description="Daily task creation and completion events">
         <CalendarHeatmap data={heatmap} range={range} />
-      </ChartContainer>
-
-      <ChartContainer title="Deadline Proximity" description="Upcoming deadlines — below zero line = overdue">
-        <ResponsiveContainer width="100%" height={280}>
-          <ScatterChart margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="deadline"
-              tick={{ fontSize: 11 }}
-              tickFormatter={(v: string) => format(parseISO(v), "MMM dd")}
-              type="category"
-            />
-            <YAxis
-              dataKey="daysRemaining"
-              tick={{ fontSize: 11 }}
-              label={{ value: "Days left", angle: -90, position: "insideLeft", style: { fontSize: 11 } }}
-            />
-            <Tooltip
-              contentStyle={TOOLTIP_STYLE}
-              formatter={(value, name) => [value, name === "daysRemaining" ? "Days left" : name]}
-              labelFormatter={(label) => `Deadline: ${label}`}
-            />
-            <Scatter data={deadlines} fill="#3b82f6" />
-          </ScatterChart>
-        </ResponsiveContainer>
       </ChartContainer>
     </div>
   );

@@ -1,4 +1,4 @@
-import { differenceInDays, parseISO, format, eachWeekOfInterval, subDays } from "date-fns";
+import { differenceInDays, parseISO, format, eachWeekOfInterval, subDays, addDays } from "date-fns";
 import type { Task, Project } from "@/api/types";
 import type { TimeRange } from "@/lib/constants";
 import { isActiveTask } from "@/lib/constants";
@@ -316,4 +316,46 @@ export function getBlockedTasksSummary(tasks: Task[]): BlockedTasksSummary {
       .sort((a, b) => b.blockedByCount - a.blockedByCount)
       .slice(0, 10),
   };
+}
+
+export function getTasksThisWeek(tasks: Task[]): Task[] {
+  const today = format(new Date(), "yyyy-MM-dd");
+  const endDate = format(addDays(new Date(), 6), "yyyy-MM-dd");
+  return tasks.filter(t => t.assignedDate && t.assignedDate >= today && t.assignedDate <= endDate && t.status !== "Done" && t.status !== "Cancelled");
+}
+
+export function getCompletedThisWeek(tasks: Task[]): Task[] {
+  const today = format(new Date(), "yyyy-MM-dd");
+  const endDate = format(addDays(new Date(), 6), "yyyy-MM-dd");
+  return tasks.filter(t => t.status === "Done" && t.assignedDate && t.assignedDate >= today && t.assignedDate <= endDate);
+}
+
+export function getAtRiskProjects(tasks: Task[], projects: Project[]): { project: Project; reason: string }[] {
+  const tasksByProject = buildTasksByProjectIndex(tasks);
+  const results: { project: Project; reason: string }[] = [];
+  const todayStr = format(new Date(), "yyyy-MM-dd");
+
+  for (const project of projects) {
+    if (project.status === "Completed") continue;
+    const projectTasks = tasksByProject.get(project.id) || [];
+    const activeTasks = projectTasks.filter(t => t.status !== "Done" && t.status !== "Cancelled");
+
+    if (activeTasks.length === 0) continue;
+
+    const overdue = activeTasks.filter(t => t.deadline && t.deadline < todayStr);
+    if (overdue.length > activeTasks.length * 0.5) {
+      results.push({ project, reason: `${overdue.length}/${activeTasks.length} tasks overdue` });
+      continue;
+    }
+
+    // Check for staleness (no recent activity)
+    const lastEdit = projectTasks.reduce((latest, t) => {
+      return t.lastEditedTime > latest ? t.lastEditedTime : latest;
+    }, "");
+    if (lastEdit && differenceInDays(new Date(), new Date(lastEdit)) > 7) {
+      const staleDays = differenceInDays(new Date(), new Date(lastEdit));
+      results.push({ project, reason: `No activity for ${staleDays} days` });
+    }
+  }
+  return results;
 }

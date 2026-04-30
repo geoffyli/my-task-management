@@ -24,3 +24,32 @@ export function useAreas() {
     staleTime: 5 * 60 * 1000,
   });
 }
+
+export function useAdminStatus(token: string) {
+  return useQuery({
+    queryKey: ["admin", "status"],
+    queryFn: () => api.getAdminStatus(token),
+    staleTime: 30 * 1000,
+    enabled: !!token,
+    refetchInterval: 30000,
+  });
+}
+
+export function useAdminEvents(token: string, limit: number, offset: number) {
+  return useQuery({
+    queryKey: ["admin", "events", limit, offset],
+    queryFn: () => api.getAdminEvents(token, limit, offset),
+    staleTime: 30 * 1000,
+    enabled: !!token,
+  });
+}
+
+export function useWebhookStatus(token: string) {
+  return useQuery({
+    queryKey: ["admin", "webhook-status"],
+    queryFn: () => api.getWebhookStatus(token),
+    staleTime: 30 * 1000,
+    enabled: !!token,
+    refetchInterval: 30000,
+  });
+}

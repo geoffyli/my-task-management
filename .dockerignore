@@ -2,3 +2,10 @@ node_modules
 dist
 .git
 .claude
+.history
+.env
+.env.*
+data
+*.db
+*.db-wal
+*.db-shm
