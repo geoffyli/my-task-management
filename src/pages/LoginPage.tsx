@@ -1,6 +1,9 @@
 import { useState, useCallback } from "react";
 import { Lock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Card } from "@/components/ui/Card";
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -26,42 +29,47 @@ export function LoginPage() {
 
   return (
     <div className="flex h-screen items-center justify-center bg-background">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5 rounded-xl border border-border bg-card p-6">
-        <div className="flex items-center gap-2 text-foreground">
-          <Lock size={20} />
-          <h1 className="text-lg font-semibold">Task Analytics</h1>
-        </div>
-        <p className="text-sm text-muted-foreground">Enter your token to continue.</p>
+      <Card variant="elevated" className="w-full max-w-sm p-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="flex items-center gap-2.5 text-foreground">
+            <Lock size={18} strokeWidth={1.5} />
+            <h1 className="text-[20px] font-[590] tracking-[-0.24px]">Task Analytics</h1>
+          </div>
+          <p className="text-[14px] text-foreground-tertiary">
+            Enter your token to continue.
+          </p>
 
-        <input
-          type="password"
-          value={tokenInput}
-          onChange={(e) => setTokenInput(e.target.value)}
-          placeholder="Token"
-          autoFocus
-          className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-        />
-
-        <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
-          <input
-            type="checkbox"
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-            className="rounded border-border"
+          <Input
+            type="password"
+            value={tokenInput}
+            onChange={(e) => setTokenInput(e.target.value)}
+            placeholder="Token"
+            autoFocus
           />
-          Remember me for 7 days
-        </label>
 
-        {error && <p className="text-sm text-red-500">{error}</p>}
+          <label className="flex items-center gap-2 text-[13px] font-[510] text-foreground-tertiary cursor-pointer">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="rounded border-border-solid accent-accent"
+            />
+            Remember me for 7 days
+          </label>
 
-        <button
-          type="submit"
-          disabled={loading || !tokenInput.trim()}
-          className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 disabled:opacity-50"
-        >
-          {loading ? "Verifying..." : "Log in"}
-        </button>
-      </form>
+          {error && <p className="text-[13px] text-[#dc2626]">{error}</p>}
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            disabled={loading || !tokenInput.trim()}
+            className="w-full"
+          >
+            {loading ? "Verifying..." : "Log in"}
+          </Button>
+        </form>
+      </Card>
     </div>
   );
 }

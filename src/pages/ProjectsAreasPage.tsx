@@ -7,8 +7,10 @@ import { useTasks, useProjects, useAreas } from "@/api/queries";
 import { ChartContainer } from "@/components/shared/ChartContainer";
 import { ErrorFallback } from "@/components/shared/ErrorFallback";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingState } from "@/components/shared/LoadingState";
 import { getProjectHealth, buildTasksByProjectIndex, getAtRiskProjects } from "@/lib/metrics";
 import { STATUS_COLORS, TOOLTIP_STYLE } from "@/lib/constants";
+import { CHART_THEME } from "@/lib/chart-theme";
 import type { Task } from "@/api/types";
 
 export function ProjectsAreasPage() {
@@ -68,7 +70,7 @@ export function ProjectsAreasPage() {
   }, [areas, areaTasksMap]);
 
   if (tasksLoading || projectsLoading || areasLoading) {
-    return <div className="flex h-full items-center justify-center text-muted-foreground">Loading...</div>;
+    return <LoadingState />;
   }
 
   if (tasksError || projectsError || areasError) {
@@ -76,19 +78,19 @@ export function ProjectsAreasPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-foreground">Projects & Areas</h2>
+    <div className="space-y-8">
+      <h2 className="text-[20px] font-[590] text-foreground tracking-[-0.24px]">Projects & Areas</h2>
 
       {/* Project Health */}
       <ChartContainer title="Project Health" description="Task status distribution per project">
         {health.length === 0 ? <EmptyState message="No project data available" /> : (
           <ResponsiveContainer width="100%" height={Math.max(280, health.length * 40)}>
-            <BarChart data={health} layout="vertical" margin={{ top: 5, right: 20, left: 120, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
-              <YAxis type="category" dataKey="project" tick={{ fontSize: 11 }} width={110} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} />
-              <Legend iconType="circle" iconSize={8} />
+            <BarChart data={health} layout="vertical" margin={CHART_THEME.marginWide}>
+              <CartesianGrid {...CHART_THEME.grid} />
+              <XAxis type="number" allowDecimals={false} tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
+              <YAxis type="category" dataKey="project" tick={CHART_THEME.axisTick} width={110} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} cursor={CHART_THEME.cursorFill} />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={CHART_THEME.legend} />
               <Bar dataKey="notStarted" stackId="status" fill={STATUS_COLORS["Not Started"]} name="Not Started" />
               <Bar dataKey="inProgress" stackId="status" fill={STATUS_COLORS["In Progress"]} name="In Progress" />
               <Bar dataKey="done" stackId="status" fill={STATUS_COLORS["Done"]} name="Done" />
@@ -103,18 +105,19 @@ export function ProjectsAreasPage() {
       <ChartContainer title="Area Workload" description="Task status distribution across areas">
         {workload.length === 0 ? <EmptyState message="No area data available" /> : (
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={workload} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="area" tick={{ fontSize: 10 }} angle={-15} textAnchor="end" height={60} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+            <BarChart data={workload} margin={CHART_THEME.marginArea}>
+              <CartesianGrid {...CHART_THEME.grid} />
+              <XAxis dataKey="area" tick={CHART_THEME.axisTickSm} angle={-15} textAnchor="end" height={60} axisLine={CHART_THEME.axisLine} tickLine={false} />
+              <YAxis allowDecimals={false} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
+                cursor={CHART_THEME.cursorFill}
                 labelFormatter={(label) => workload.find((w) => w.area === label)?.fullName ?? String(label)}
               />
-              <Legend iconType="circle" iconSize={8} />
-              <Bar dataKey="notStarted" stackId="status" fill={STATUS_COLORS["Not Started"]} name="Not Started" />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={CHART_THEME.legend} />
+              <Bar dataKey="notStarted" stackId="status" fill={STATUS_COLORS["Not Started"]} name="Not Started" radius={[0, 0, 0, 0]} />
               <Bar dataKey="inProgress" stackId="status" fill={STATUS_COLORS["In Progress"]} name="In Progress" />
-              <Bar dataKey="done" stackId="status" fill={STATUS_COLORS["Done"]} name="Done" />
+              <Bar dataKey="done" stackId="status" fill={STATUS_COLORS["Done"]} name="Done" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -122,16 +125,16 @@ export function ProjectsAreasPage() {
 
       {/* At Risk */}
       {atRisk.length > 0 && (
-        <div className="rounded-xl border border-border bg-card p-5">
+        <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">
           <div className="mb-4 flex items-center gap-2">
-            <AlertTriangle size={16} className="text-red-500" />
-            <h3 className="text-sm font-medium text-foreground">At Risk Projects</h3>
+            <AlertTriangle size={16} strokeWidth={1.5} className="text-[#dc2626]" />
+            <h3 className="text-[14px] font-[510] text-foreground">At Risk Projects</h3>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {atRisk.map(({ project, reason }) => (
-              <div key={project.id} className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-950/20">
-                <p className="text-sm font-medium text-foreground">{project.name}</p>
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{reason}</p>
+              <div key={project.id} className="rounded-[8px] border border-[rgba(220,38,38,0.2)] bg-[rgba(220,38,38,0.05)] p-4">
+                <p className="text-[13px] font-[510] text-foreground">{project.name}</p>
+                <p className="mt-1 text-[12px] text-[#f87171]">{reason}</p>
               </div>
             ))}
           </div>
@@ -148,18 +151,18 @@ export function ProjectsAreasPage() {
             const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
             return (
-              <div key={p.id} className="rounded-lg border border-border bg-muted/50 p-4">
-                <p className="text-sm font-medium text-foreground">{p.name}</p>
-                <div className="mt-2 flex items-center gap-2">
-                  <div className="h-2 flex-1 rounded-full bg-muted">
+              <div key={p.id} className="rounded-[8px] border border-border-subtle bg-[rgba(255,255,255,0.02)] p-4 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]">
+                <p className="text-[13px] font-[510] text-foreground">{p.name}</p>
+                <div className="mt-2.5 flex items-center gap-2.5">
+                  <div className="h-1.5 flex-1 rounded-full bg-[rgba(255,255,255,0.06)]">
                     <div
-                      className="h-2 rounded-full bg-green-500 transition-all"
+                      className="h-1.5 rounded-full bg-success transition-all"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <span className="text-xs text-muted-foreground">{pct}%</span>
+                  <span className="text-[11px] font-mono text-foreground-tertiary">{pct}%</span>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1.5 text-[12px] text-foreground-quaternary">
                   {done}/{total} tasks done • {p.priority} priority
                 </p>
               </div>

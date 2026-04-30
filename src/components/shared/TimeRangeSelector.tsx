@@ -8,16 +8,16 @@ interface Props {
 
 export function TimeRangeSelector({ value, onChange }: Props) {
   return (
-    <div className="flex gap-1 rounded-lg bg-muted p-1">
+    <div className="flex gap-0.5 rounded-[8px] bg-[rgba(255,255,255,0.03)] p-1">
       {TIME_RANGES.map((range) => (
         <button
           key={range.value}
           onClick={() => onChange(range.value)}
           className={cn(
-            "rounded-md px-3 py-1 text-xs font-medium transition-colors",
+            "rounded-[6px] px-3 py-1.5 text-[12px] font-[510] transition-colors duration-150",
             value === range.value
               ? "bg-accent text-accent-foreground"
-              : "text-muted-foreground hover:text-foreground"
+              : "text-foreground-tertiary hover:text-foreground-secondary"
           )}
         >
           {range.label}

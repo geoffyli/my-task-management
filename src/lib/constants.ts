@@ -3,23 +3,23 @@ import type { Task } from "@/api/types";
 
 export const STATUS_COLORS: Record<Task["status"], string> = {
   "Not Started": "#6b7280",
-  "In Progress": "#3b82f6",
-  Done: "#22c55e",
-  Cancelled: "#ef4444",
-  Deferred: "#f59e0b",
+  "In Progress": "#5e6ad2",
+  Done: "#27a644",
+  Cancelled: "#dc2626",
+  Deferred: "#d97706",
 };
 
 export const PRIORITY_COLORS: Record<Task["priority"], string> = {
   High: "#ef4444",
-  Medium: "#f59e0b",
+  Medium: "#d97706",
   Low: "#6b7280",
 };
 
 export const AREA_COLORS: Record<string, string> = {
-  "Health & Fitness": "#22c55e",
-  Academics: "#3b82f6",
+  "Health & Fitness": "#27a644",
+  Academics: "#5e6ad2",
   Productivity: "#8b5cf6",
-  Career: "#f59e0b",
+  Career: "#d97706",
   Tech: "#06b6d4",
   "Investment and Wealth Management": "#ec4899",
   "Insights and Perspectives": "#14b8a6",
@@ -45,8 +45,10 @@ export function getAreaColor(name: string): string {
 export const TOOLTIP_STYLE: CSSProperties = {
   borderRadius: "8px",
   fontSize: "12px",
-  background: "var(--color-card)",
-  border: "1px solid var(--color-border)",
+  fontWeight: 510,
+  background: "#191a1b",
+  border: "1px solid rgba(255, 255, 255, 0.08)",
+  color: "#d0d6e0",
 };
 
 export type TimeRange = "30d" | "90d" | "6m" | "all";

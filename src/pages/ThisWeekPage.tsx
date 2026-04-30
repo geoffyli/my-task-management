@@ -5,6 +5,8 @@ import { useTasks } from "@/api/queries";
 import { StatCard } from "@/components/cards/StatCard";
 import { ErrorFallback } from "@/components/shared/ErrorFallback";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { Badge } from "@/components/ui/Badge";
 import {
   getTasksThisWeek,
   getCompletedThisWeek,
@@ -41,7 +43,6 @@ export function ThisWeekPage() {
     [tasks, today]
   );
 
-  // Group all week tasks (active + completed) by day
   const allWeekTasks = useMemo(() => {
     if (!tasks) return [];
     const endDate = format(addDays(new Date(), 6), "yyyy-MM-dd");
@@ -73,7 +74,7 @@ export function ThisWeekPage() {
   }, [tasks, today]);
 
   if (isLoading) {
-    return <div className="flex h-full items-center justify-center text-muted-foreground">Loading...</div>;
+    return <LoadingState />;
   }
 
   if (isError) {
@@ -81,8 +82,8 @@ export function ThisWeekPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-foreground">This Week</h2>
+    <div className="space-y-8">
+      <h2 className="text-[20px] font-[590] text-foreground tracking-[-0.24px]">This Week</h2>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard title="Tasks This Week" value={weekTasks.length + completedThisWeek.length} icon={CalendarDays} />
@@ -103,43 +104,40 @@ export function ThisWeekPage() {
       </div>
 
       {/* Week Tasks by Day */}
-      <div className="rounded-xl border border-border bg-card p-5">
-        <h3 className="text-sm font-medium text-foreground">Week Overview</h3>
-        <p className="mt-0.5 text-xs text-muted-foreground">
+      <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">
+        <h3 className="text-[14px] font-[510] text-foreground">Week Overview</h3>
+        <p className="mt-0.5 text-[13px] text-foreground-tertiary">
           {format(new Date(), "MMM d")} — {format(addDays(new Date(), 6), "MMM d, yyyy")}
         </p>
 
-        <div className="mt-4 space-y-5">
+        <div className="mt-5 space-y-5">
           {tasksByDay.map(({ date, label, tasks: dayTasks }) => (
             <div key={date}>
               <div className="mb-2 flex items-center gap-2">
-                <span className="text-xs font-medium text-foreground">{label}</span>
-                <span className="text-xs text-muted-foreground">({dayTasks.length})</span>
+                <span className="text-[12px] font-[510] text-foreground">{label}</span>
+                <span className="text-[12px] text-foreground-quaternary">({dayTasks.length})</span>
               </div>
               {dayTasks.length === 0 ? (
-                <div className="rounded-lg border border-border/30 bg-muted/10 px-3 py-2">
-                  <span className="text-xs text-muted-foreground">No tasks</span>
+                <div className="rounded-[6px] border border-border-subtle px-3 py-2">
+                  <span className="text-[12px] text-foreground-quaternary">No tasks</span>
                 </div>
               ) : (
                 <div className="space-y-1">
                   {dayTasks.map(task => (
                     <div
                       key={task.id}
-                      className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-3 py-2"
+                      className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]"
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2.5">
                         <div
                           className="h-2 w-2 rounded-full"
                           style={{ backgroundColor: STATUS_COLORS[task.status] }}
                         />
-                        <span className="text-sm text-foreground">{task.name}</span>
+                        <span className="text-[13px] text-foreground">{task.name}</span>
                       </div>
-                      <span
-                        className="rounded-md px-2 py-0.5 text-xs font-medium text-white"
-                        style={{ backgroundColor: PRIORITY_COLORS[task.priority] }}
-                      >
+                      <Badge variant="data" color={PRIORITY_COLORS[task.priority]}>
                         {task.priority}
-                      </span>
+                      </Badge>
                     </div>
                   ))}
                 </div>
@@ -150,9 +148,9 @@ export function ThisWeekPage() {
       </div>
 
       {/* Upcoming Deadlines */}
-      <div className="rounded-xl border border-border bg-card p-5">
-        <h3 className="text-sm font-medium text-foreground">Upcoming Deadlines</h3>
-        <p className="mt-0.5 text-xs text-muted-foreground">Tasks with deadlines in the next 14 days</p>
+      <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">
+        <h3 className="text-[14px] font-[510] text-foreground">Upcoming Deadlines</h3>
+        <p className="mt-0.5 text-[13px] text-foreground-tertiary">Tasks with deadlines in the next 14 days</p>
 
         {upcomingDeadlines.length === 0 ? (
           <EmptyState message="No upcoming deadlines" />
@@ -161,18 +159,15 @@ export function ThisWeekPage() {
             {upcomingDeadlines.map(task => (
               <div
                 key={task.id}
-                className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-3 py-2"
+                className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]"
               >
                 <div className="flex items-center gap-3">
-                  <span
-                    className="rounded-md px-2 py-0.5 text-xs font-medium text-white"
-                    style={{ backgroundColor: PRIORITY_COLORS[task.priority] }}
-                  >
+                  <Badge variant="data" color={PRIORITY_COLORS[task.priority]}>
                     {task.priority}
-                  </span>
-                  <span className="text-sm text-foreground">{task.name}</span>
+                  </Badge>
+                  <span className="text-[13px] text-foreground">{task.name}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-[12px] font-mono text-foreground-quaternary">
                   {format(parseISO(task.deadline!), "MMM d")}
                 </span>
               </div>
@@ -182,9 +177,9 @@ export function ThisWeekPage() {
       </div>
 
       {/* Blocked Tasks */}
-      <div className="rounded-xl border border-border bg-card p-5">
-        <h3 className="text-sm font-medium text-foreground">Blocked Tasks</h3>
-        <p className="mt-0.5 text-xs text-muted-foreground">Tasks waiting on unresolved dependencies</p>
+      <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">
+        <h3 className="text-[14px] font-[510] text-foreground">Blocked Tasks</h3>
+        <p className="mt-0.5 text-[13px] text-foreground-tertiary">Tasks waiting on unresolved dependencies</p>
 
         {!blocked || blocked.blockedTasks.length === 0 ? (
           <EmptyState message="No blocked tasks" />
@@ -193,18 +188,15 @@ export function ThisWeekPage() {
             {blocked.blockedTasks.map(task => (
               <div
                 key={task.name}
-                className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-3 py-2"
+                className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]"
               >
                 <div className="flex items-center gap-3">
-                  <span
-                    className="rounded-md px-2 py-0.5 text-xs font-medium text-white"
-                    style={{ backgroundColor: PRIORITY_COLORS[task.priority as keyof typeof PRIORITY_COLORS] }}
-                  >
+                  <Badge variant="data" color={PRIORITY_COLORS[task.priority as keyof typeof PRIORITY_COLORS]}>
                     {task.priority}
-                  </span>
-                  <span className="text-sm text-foreground">{task.name}</span>
+                  </Badge>
+                  <span className="text-[13px] text-foreground">{task.name}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-[12px] text-foreground-quaternary">
                   blocked by {task.blockedByCount} task{task.blockedByCount > 1 ? "s" : ""}
                 </span>
               </div>

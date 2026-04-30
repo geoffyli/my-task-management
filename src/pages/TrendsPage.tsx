@@ -9,11 +9,13 @@ import { ChartContainer } from "@/components/shared/ChartContainer";
 import { TimeRangeSelector } from "@/components/shared/TimeRangeSelector";
 import { ErrorFallback } from "@/components/shared/ErrorFallback";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingState } from "@/components/shared/LoadingState";
 import {
   getActiveTasks, getThroughputData, getVelocityData, getAgingDistribution,
   getRescheduleDistribution, getCalendarHeatmapData,
 } from "@/lib/metrics";
 import { PRIORITY_COLORS, TOOLTIP_STYLE, TIME_RANGES, type TimeRange } from "@/lib/constants";
+import { CHART_THEME } from "@/lib/chart-theme";
 import { subDays, format, eachDayOfInterval, startOfWeek } from "date-fns";
 
 export function TrendsPage() {
@@ -51,7 +53,7 @@ export function TrendsPage() {
   );
 
   if (isLoading) {
-    return <div className="flex h-full items-center justify-center text-muted-foreground">Loading...</div>;
+    return <LoadingState />;
   }
 
   if (isError) {
@@ -59,23 +61,23 @@ export function TrendsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-foreground">Trends</h2>
+        <h2 className="text-[20px] font-[590] text-foreground tracking-[-0.24px]">Trends</h2>
         <TimeRangeSelector value={range} onChange={setRange} />
       </div>
 
       <ChartContainer title="Throughput" description="Tasks created vs completed per week">
         {throughput.length === 0 ? <EmptyState message="No throughput data for this time range" /> : (
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={throughput} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="week" tick={{ fontSize: 11 }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} />
-              <Legend iconType="circle" iconSize={8} />
-              <Line type="monotone" dataKey="created" stroke="#3b82f6" strokeWidth={2} dot={false} name="Created" />
-              <Line type="monotone" dataKey="completed" stroke="#22c55e" strokeWidth={2} dot={false} name="Completed" />
+            <LineChart data={throughput} margin={CHART_THEME.margin}>
+              <CartesianGrid {...CHART_THEME.grid} />
+              <XAxis dataKey="week" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
+              <YAxis allowDecimals={false} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} cursor={CHART_THEME.cursor} />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={CHART_THEME.legend} />
+              <Line type="monotone" dataKey="created" stroke="#5e6ad2" strokeWidth={2} dot={false} name="Created" />
+              <Line type="monotone" dataKey="completed" stroke="#27a644" strokeWidth={2} dot={false} name="Completed" />
             </LineChart>
           </ResponsiveContainer>
         )}
@@ -84,14 +86,14 @@ export function TrendsPage() {
       <ChartContainer title="Completion Velocity" description="Weekly completions with 4-week rolling average">
         {velocity.length === 0 ? <EmptyState message="No velocity data" /> : (
           <ResponsiveContainer width="100%" height={300}>
-            <ComposedChart data={velocity} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="week" tick={{ fontSize: 11 }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} />
-              <Legend iconType="circle" iconSize={8} />
-              <Bar dataKey="completed" fill="#22c55e" fillOpacity={0.7} name="Completed" />
-              <Line type="monotone" dataKey="average" stroke="#f59e0b" strokeWidth={2} dot={false} name="4-wk avg" />
+            <ComposedChart data={velocity} margin={CHART_THEME.margin}>
+              <CartesianGrid {...CHART_THEME.grid} />
+              <XAxis dataKey="week" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
+              <YAxis allowDecimals={false} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} cursor={CHART_THEME.cursor} />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={CHART_THEME.legend} />
+              <Bar dataKey="completed" fill="#27a644" fillOpacity={0.7} radius={[3, 3, 0, 0]} name="Completed" />
+              <Line type="monotone" dataKey="average" stroke="#d97706" strokeWidth={2} dot={false} name="4-wk avg" />
             </ComposedChart>
           </ResponsiveContainer>
         )}
@@ -101,13 +103,13 @@ export function TrendsPage() {
         <ChartContainer title="Task Aging Distribution" description="How long active tasks have been open, by priority">
           {aging.length === 0 ? <EmptyState message="No active tasks" /> : (
             <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={aging} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="bucket" tick={{ fontSize: 11 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                <Tooltip contentStyle={TOOLTIP_STYLE} />
-                <Legend iconType="circle" iconSize={8} />
-                <Bar dataKey="high" stackId="age" fill={PRIORITY_COLORS.High} name="High" />
+              <BarChart data={aging} margin={CHART_THEME.margin}>
+                <CartesianGrid {...CHART_THEME.grid} />
+                <XAxis dataKey="bucket" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
+                <YAxis allowDecimals={false} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} cursor={CHART_THEME.cursorFill} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={CHART_THEME.legend} />
+                <Bar dataKey="high" stackId="age" fill={PRIORITY_COLORS.High} radius={[3, 3, 0, 0]} name="High" />
                 <Bar dataKey="medium" stackId="age" fill={PRIORITY_COLORS.Medium} name="Medium" />
                 <Bar dataKey="low" stackId="age" fill={PRIORITY_COLORS.Low} name="Low" />
               </BarChart>
@@ -118,12 +120,12 @@ export function TrendsPage() {
         <ChartContainer title="Reschedule Patterns" description="How often tasks get pushed back">
           {reschedule.length === 0 ? <EmptyState message="No rescheduled tasks" /> : (
             <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={reschedule} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="bucket" tick={{ fontSize: 11 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                <Tooltip contentStyle={TOOLTIP_STYLE} />
-                <Bar dataKey="count" fill="#8b5cf6" name="Tasks Rescheduled" />
+              <BarChart data={reschedule} margin={CHART_THEME.margin}>
+                <CartesianGrid {...CHART_THEME.grid} />
+                <XAxis dataKey="bucket" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
+                <YAxis allowDecimals={false} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} cursor={CHART_THEME.cursorFill} />
+                <Bar dataKey="count" fill="#7170ff" radius={[3, 3, 0, 0]} name="Tasks Rescheduled" />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -159,12 +161,12 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, range }: { data: {
   if (currentWeek.length > 0) weeks.push(currentWeek);
 
   function getColor(count: number): string {
-    if (count === 0) return "var(--color-muted)";
+    if (count === 0) return "rgba(255,255,255,0.03)";
     const intensity = Math.min(count / maxCount, 1);
-    if (intensity < 0.25) return "#1e40af";
-    if (intensity < 0.5) return "#2563eb";
-    if (intensity < 0.75) return "#3b82f6";
-    return "#60a5fa";
+    if (intensity < 0.25) return "#3d3f8f";
+    if (intensity < 0.5) return "#5e6ad2";
+    if (intensity < 0.75) return "#7170ff";
+    return "#828fff";
   }
 
   return (
@@ -178,7 +180,7 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, range }: { data: {
               return (
                 <div
                   key={di}
-                  className="h-3 w-3 rounded-sm"
+                  className="h-3 w-3 rounded-[2px]"
                   style={{ backgroundColor: getColor(count) }}
                   title={`${dateStr}: ${count} events`}
                 />
@@ -187,12 +189,12 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, range }: { data: {
           </div>
         ))}
       </div>
-      <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+      <div className="mt-2 flex items-center gap-2 text-[11px] font-[510] text-foreground-quaternary">
         <span>Less</span>
         {[0, 0.25, 0.5, 0.75, 1].map((intensity) => (
           <div
             key={intensity}
-            className="h-3 w-3 rounded-sm"
+            className="h-3 w-3 rounded-[2px]"
             style={{ backgroundColor: getColor(Math.ceil(intensity * maxCount)) }}
           />
         ))}
