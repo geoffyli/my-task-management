@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=wmill.schema.json
+# wmill.yaml — Windmill CLI configuration for task management automation
+
+defaultTs: bun
+
+includes:
+  - "f/**"
+
+excludes: []
+
+skipVariables: false
+skipResources: true
+skipResourceTypes: false
+skipSecrets: true
+skipScripts: false
+skipFlows: false
+skipApps: false
+skipFolders: false
+skipWorkspaceDependencies: false
+includeSchedules: true
+includeTriggers: true
+nonDottedPaths: true
+
+codebases: []
+
+gitBranches:
+  main:
+    overrides: {}
