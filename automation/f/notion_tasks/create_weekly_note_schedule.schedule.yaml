@@ -1,0 +1,13 @@
+summary: Create weekly note - Monday midnight CST
+args:
+  notion: $res:f/notion/api
+  weekly_notes_database_id: 278414c3-2bf8-8037-901c-cd198456a7a9
+cron_version: v2
+email: geoff.yulong.li@gmail.com
+enabled: true
+is_flow: false
+no_flow_overlap: true
+schedule: 0 0 0 * * 1
+script_path: f/notion_tasks/create_weekly_note
+timezone: Asia/Shanghai
+ws_error_handler_muted: false

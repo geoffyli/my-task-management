@@ -1,0 +1,13 @@
+summary: Update legacy tasks - roll overdue tasks to today (daily midnight CST)
+args:
+  notion: $res:f/notion/api
+  tasks_database_id: a43c2d3d-11e5-4a66-be42-dd411a1d9727
+cron_version: v2
+email: geoff.yulong.li@gmail.com
+enabled: true
+is_flow: false
+no_flow_overlap: true
+schedule: 0 0 0 * * *
+script_path: f/notion_tasks/update_legacy_tasks
+timezone: Asia/Shanghai
+ws_error_handler_muted: false

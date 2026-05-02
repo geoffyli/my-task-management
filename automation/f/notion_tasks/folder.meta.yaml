@@ -1,0 +1,6 @@
+summary: Notion task management automations
+display_name: notion_tasks
+owners:
+  - u/geoffyulongli
+extra_perms:
+  u/geoffyulongli: true

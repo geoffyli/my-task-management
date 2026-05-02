@@ -1,0 +1,21 @@
+summary: ''
+description: ''
+lock: '!inline f/notion_tasks/set_task_init_date.script.lock'
+has_preprocessor: true
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties:
+    page_id:
+      type: string
+      description: ''
+      default: null
+      originalType: string
+    verification_token:
+      type: string
+      description: ''
+      default: null
+      originalType: string
+  required:
+    - page_id

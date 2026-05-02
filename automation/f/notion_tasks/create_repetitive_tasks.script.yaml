@@ -1,0 +1,30 @@
+summary: Create repetitive tasks from Notion config database
+description: Reads task configurations from a Notion database and creates
+  recurring task pages based on cron or interval schedules. Supports
+  deduplication, date range filtering, and optional body templates defined under
+  a toggleable "## Template" heading in each config entry.
+lock: '!inline f/notion_tasks/create_repetitive_tasks.script.lock'
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties:
+    config_database_id:
+      type: string
+      description: Notion database ID for the Repetitive Tasks Configuration database
+      default: null
+      originalType: string
+    notion:
+      type: object
+      description: Notion API integration token
+      default: null
+      format: resource-notion
+    tasks_database_id:
+      type: string
+      description: Notion database ID for the Tasks database where new tasks are created
+      default: null
+      originalType: string
+  required:
+    - notion
+    - config_database_id
+    - tasks_database_id

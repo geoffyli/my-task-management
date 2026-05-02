@@ -1,0 +1,12 @@
+summary: Notion webhook - set task initial assigned date
+script_path: f/notion_tasks/set_task_init_date
+permissioned_as: u/geoffyulongli
+is_flow: false
+route_path: notion/webhook/task-init-date
+http_method: post
+authentication_method: none
+request_type: sync
+is_static_website: false
+workspaced_route: false
+wrap_body: false
+raw_string: false
