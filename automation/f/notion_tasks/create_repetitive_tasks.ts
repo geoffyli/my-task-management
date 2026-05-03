@@ -236,6 +236,7 @@ function buildTaskProperties(config: RepetitiveTaskConfig, today: string): Recor
   const properties: Record<string, any> = {
     "Task Name": { title: [{ type: "text", text: { content: `[Repetitive] ${config.name}` } }] },
     "Assigned Date": { date: { start: today } },
+    "Initial Assigned Date": { date: { start: today } },
     Status: { select: { name: "Not Started" } },
   };
   if (config.priority) {

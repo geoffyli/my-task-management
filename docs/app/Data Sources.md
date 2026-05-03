@@ -36,7 +36,7 @@ graph TD
 
 - **Tasks -> Projects**: A task can belong to one or more projects via the "Project" relation property. Stored as `project_ids` JSON array.
 - **Projects -> Areas**: A project can belong to one or more areas via the "Areas" relation property. Stored as `area_ids` JSON array.
-- **Tasks -> Tasks**: A task can depend on other tasks via the "Depands on" relation property. Stored as `dependencies` JSON array.
+- **Tasks -> Tasks**: A task can depend on other tasks via the "Depends on" relation property. Stored as `dependencies` JSON array.
 
 ## Reverse Lookup
 

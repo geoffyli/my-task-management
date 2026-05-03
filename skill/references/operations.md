@@ -124,7 +124,7 @@ curl -s -X PATCH "https://api.notion.com/v1/blocks/$TASK_PAGE_ID/children" \
 ### Update task status
 
 ```bash
-# Valid values: "Not Started" | "In Progress" | "Done"
+# Valid values: "Not Started" | "In Progress" | "Done" | "Deferred" | "Cancelled"
 curl -s -X PATCH "https://api.notion.com/v1/pages/TASK_PAGE_ID" \
   -H "Authorization: Bearer $NOTION_KEY" \
   -H "Notion-Version: 2025-09-03" \

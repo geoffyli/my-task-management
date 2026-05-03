@@ -34,7 +34,7 @@ function extractProperties(properties: Record<string, any>, coreKeys: string[]):
 
 const TASK_CORE_KEYS = [
   "Task Name", "Status", "Priority", "Project",
-  "Assigned Date", "Initial Assigned Date", "Deadline", "Depands on",
+  "Assigned Date", "Initial Assigned Date", "Deadline", "Depends on",
 ];
 
 const PROJECT_CORE_KEYS = ["Name", "Status", "Priority", "Areas", "Date"];
@@ -59,7 +59,7 @@ function extractTaskRow(pageId: string, raw: any) {
     created_time: raw.created_time,
     last_edited_time: raw.last_edited_time,
     project_ids: JSON.stringify(extractRelationIds(p["Project"])),
-    dependencies: JSON.stringify(extractRelationIds(p["Depands on"])),
+    dependencies: JSON.stringify(extractRelationIds(p["Depends on"])),
     properties: extractProperties(p, TASK_CORE_KEYS),
   };
 }

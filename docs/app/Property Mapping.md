@@ -37,7 +37,7 @@ Notion property name -> SQLite column in `tasks` table.
 | Initial Assigned Date | date | `initial_assigned_date` | Original assignment date for reschedule tracking |
 | Deadline | date | `deadline` | Hard due date |
 | Project | relation | `project_ids` | JSON-stringified array of project page IDs |
-| Depands on | relation | `dependencies` | JSON-stringified array of blocking task IDs |
+| Depends on | relation | `dependencies` | JSON-stringified array of blocking task IDs |
 | *(all others)* | various | `properties` | JSON blob of remaining properties |
 
 **Derived fields:**
@@ -45,7 +45,7 @@ Notion property name -> SQLite column in `tasks` table.
 - `created_time` = Notion's `raw.created_time`
 - `last_edited_time` = Notion's `raw.last_edited_time`
 
-**Note:** The Notion property "Depands on" contains a typo in the source workspace — this is intentional and must match exactly.
+
 
 ## Projects Database
 
@@ -72,7 +72,7 @@ Properties listed as "core keys" are extracted into dedicated columns. Everythin
 ```typescript
 TASK_CORE_KEYS = [
   "Task Name", "Status", "Priority", "Project",
-  "Assigned Date", "Initial Assigned Date", "Deadline", "Depands on",
+  "Assigned Date", "Initial Assigned Date", "Deadline", "Depends on",
 ];
 
 PROJECT_CORE_KEYS = ["Name", "Status", "Priority", "Areas", "Date"];

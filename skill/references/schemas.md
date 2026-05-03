@@ -12,7 +12,7 @@ Most agent operations target this database.
 | Property | Type | Values / Notes |
 |---|---|---|
 | `Task Name` | title | Free text — the task title |
-| `Status` | select | `Not Started` · `In Progress` · `Done` |
+| `Status` | select | `Not Started` · `In Progress` · `Done` · `Deferred` · `Cancelled` |
 | `Priority` | select | `High` · `Medium` · `Low` |
 | `Type` | select | `Plan` · `Reflect` · `Explore` · `Learn` · `Maintain` · `Build` · `Fitness` · `Health` — **optional**. Marks growth-oriented tasks. Leave empty for obligation tasks (work, academic, routine). See usage convention below. |
 | `Project` | relation → Projects | Which project(s) this task belongs to |
@@ -22,7 +22,6 @@ Most agent operations target this database.
 | `Depends on` | relation → Tasks (self) | Tasks that must complete before this one can start. Bi-directional with `Prepares for`. |
 | `Prepares for` | relation → Tasks (self) | Tasks this task unlocks. Mirror of `Depends on` on the counterpart. |
 | `Related Tasks` | relation → Tasks (self) | Loosely related tasks — no dependency semantics. |
-| `Formula` | formula | Computed display string — read-only, cannot be written. |
 
 **Type property — usage convention:**
 - This property tracks *growth investment* only. It is intentionally partial — not every task needs a Type.
