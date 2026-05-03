@@ -1,0 +1,6 @@
+@use "../abstracts/index.scss" as *;
+
+.kanban-plugin__markdown-preview-view
+{
+    font-family: "TasksMonoEmojis", var(--font-text) !important;
+}

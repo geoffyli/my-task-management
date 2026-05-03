@@ -1,0 +1,9 @@
+{
+  "id": "editor-width",
+  "name": "Editor Width Control",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "Dynamically adjust editor line width via CSS variables with a status bar slider.",
+  "author": "Geoff Li",
+  "isDesktopOnly": false
+}

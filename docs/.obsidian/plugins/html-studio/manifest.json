@@ -1,0 +1,10 @@
+{
+  "id": "html-studio",
+  "name": "HTML Studio",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "HTML editor with live preview, backed by a local static file server.",
+  "author": "Geoff Li",
+  "authorUrl": "",
+  "isDesktopOnly": true
+}

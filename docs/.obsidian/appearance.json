@@ -1,0 +1,13 @@
+{
+  "enabledCssSnippets": [
+    "style"
+  ],
+  "showViewHeader": true,
+  "baseFontSizeAction": true,
+  "accentColor": "#8251db",
+  "cssTheme": "Baseline",
+  "translucency": false,
+  "baseFontSize": 16,
+  "theme": "system",
+  "textFontFamily": "Merriweather"
+}

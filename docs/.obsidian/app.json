@@ -1,0 +1,11 @@
+{
+  "promptDelete": false,
+  "showInlineTitle": false,
+  "readableLineLength": true,
+  "propertiesInDocument": "visible",
+  "spellcheck": false,
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "current",
+  "newLinkFormat": "shortest",
+  "attachmentFolderPath": "./attachments"
+}

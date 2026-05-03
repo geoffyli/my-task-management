@@ -1,0 +1,7 @@
+// Adjust paddings of no-time-tasks in Timeline 
+.padding.svelte-1g1abnm {
+  & .contains-task-list {
+    padding-top: .2rem;
+    padding-bottom: .2rem;
+  }
+}

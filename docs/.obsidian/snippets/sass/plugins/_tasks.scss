@@ -1,0 +1,214 @@
+@use "../abstracts/index.scss" as *;
+
+// Using custom minimal emojis in tasks
+.task-list-item, /* Important */
+.cm-line:has(.task-list-label) [class^=cm-list-],
+.tasks-postpone,
+.tasks-backlink,
+.tasks-edit::after,
+.tasks-modal-priority-section,
+.tasks-modal-parsed-date,
+.suggestion-container .suggestion {
+  font-family: "TasksMonoEmojis", var(--font-text);
+}
+
+/* Define sytles for the tasks board (code block result) */
+.block-language-tasks {
+  font-family: "TasksMonoEmojis", var(--font-text);
+
+  & .plugin-tasks-list-item {
+    display: flex;
+
+    // Center the checkbox vertically
+    & .task-list-item-checkbox {
+      margin: auto 0.4rem;
+    }
+    &[data-task-priority="high"] {
+      & .task-list-item-checkbox {
+        box-shadow: 0px 0px 1px 1px $color-red;
+        border-color: $color-red;
+      }
+    }
+    &[data-task-priority="medium"] {
+      & .task-list-item-checkbox {
+        box-shadow: 0px 0px 1px 1px $color-orange;
+        border-color: $color-orange;
+      }
+    }
+    &[data-task-priority="low"] {
+      & .task-list-item-checkbox {
+        box-shadow: 0px 0px 1px 1px $color-cyan;
+        border-color: $color-cyan;
+      }
+    }
+
+    & .tasks-list-text {
+      flex: 1;
+      display: inline-flex;
+
+      // Hide priority
+      & .task-priority {
+        display: none;
+      }
+
+      & .task-description {
+        flex: 2;
+      }
+
+      // Move the Due Date to the Right
+      & .task-due {
+        width: fit-content;
+        margin-left: 5px;
+        order: 5;
+        font-weight: var(--bold-weight);
+      }
+
+      & .task-recurring {
+        font-size: 1px;
+        letter-spacing: -1px;
+        color: transparent;
+        background-color: transparent;
+
+        &:after {
+          letter-spacing: 0px;
+          font-size: var(--font-adaptive-normal);
+          line-height: var(--line-height);
+          color: var(--text-normal);
+          margin-left: 5px;
+          content: "🔁";
+        }
+
+        &:hover {
+          letter-spacing: 0px;
+          font-size: var(--font-adaptive-normal);
+          line-height: var(--line-height);
+          color: var(--text-normal);
+          margin-left: 5px;
+          &:after {
+            content: "";
+          }
+        }
+      }
+
+      & .task-start {
+        font-size: 1px;
+        letter-spacing: -1px;
+        color: transparent;
+        background-color: transparent;
+
+        &:after {
+          letter-spacing: 0px;
+          font-size: var(--font-adaptive-normal);
+          line-height: var(--line-height);
+          color: var(--text-normal);
+          margin-left: 5px;
+          content: "🛫";
+        }
+
+        &:hover {
+          letter-spacing: 0px;
+          font-size: var(--font-adaptive-normal);
+          line-height: var(--line-height);
+          color: var(--text-normal);
+          margin-left: 5px;
+          &:after {
+            content: "";
+          }
+        }
+      }
+
+      & .task-scheduled {
+        font-size: 1px;
+        letter-spacing: -1px;
+        color: transparent;
+        background-color: transparent;
+
+        &:after {
+          letter-spacing: 0px;
+          font-size: var(--font-adaptive-normal);
+          line-height: var(--line-height);
+          color: var(--text-normal);
+          margin-left: 5px;
+          content: "⏳";
+        }
+
+        &:hover {
+          letter-spacing: 0px;
+          font-size: var(--font-adaptive-normal);
+          line-height: var(--line-height);
+          color: var(--text-normal);
+          margin-left: 5px;
+
+          &:after {
+            content: "";
+          }
+        }
+      }
+    }
+
+    & .task-extras {
+      display: inline-flex;
+      align-items: flex-start;
+      margin-left: 0.33em;
+    }
+  }
+}
+
+// Style queried tasks in callout board.
+.callout {
+  & .block-language-tasks {
+
+    & .plugin-tasks-query-result{
+        display: flex;
+        flex-direction: column;
+    }
+
+  & .plugin-tasks-list-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: relative;
+
+    & .task-list-item-checkbox{
+        position: absolute;
+        top: .45rem;
+        left: 0px;
+    }
+
+    & .tasks-list-text{
+        flex: 1;
+        display: inline-flex;
+        // font-family: "TasksMonoEmojis", var(--font-text);
+
+
+        & .task-description{
+            flex: 2;
+        }
+
+        // Move the Due Date to the Right
+        & .task-due{
+            display: none;
+        }
+
+        & .task-recurring{
+            display: none;
+        }
+
+        & .task-start{
+            display: none;
+        }
+
+        & .task-scheduled{
+            display: none;
+        }
+
+    }
+
+    & .task-extras{
+        display: inline-flex;
+        align-items: flex-start;
+        margin-left: 0.33em;
+    }
+  }
+  }
+}

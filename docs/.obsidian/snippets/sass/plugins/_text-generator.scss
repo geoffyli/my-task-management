@@ -1,0 +1,15 @@
+@use "../abstracts/index.scss" as *;
+
+
+.plug-tg-input {
+  border-color: rgb(230, 234, 237);
+  // border-radius: 5px;
+  border-style: solid;
+}
+
+.plug-tg-flex.plug-tg-h-full.plug-tg-w-full.plug-tg-flex-col.plug-tg-gap-2 {
+  /* Apply styles to a parent that has a specific child */
+  .plug-tg-flex.plug-tg-flex-col.plug-tg-gap-2:has(a) {
+    display: none;
+  }
+}

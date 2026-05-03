@@ -1,0 +1,54 @@
+@use "../abstracts/index.scss" as *;
+
+.gcal-schedule-container {
+  // Remove the pagination
+  & .gcal-nav-container {
+    display: none;
+  }
+
+  // Set the layout of the date section
+  & .gcal-date-container {
+    display: flex;
+    align-items: center; // Vertically centers both h3 and h1 elements
+    justify-content: flex-start; // Optional: Adds space between the elements
+    gap: 0.5rem;
+
+    & .gcal-date-dayofweek {
+      font-size: 1.2em; // Optional: Adjust font size of h1 to match your design
+      font-weight: 500;
+
+      &::after {
+        content: ", ";
+      }
+    }
+
+    & .gcal-date-main {
+      font-size: 1.2em; // Optional: Adjust font size of h1 to match your design
+      font-weight: 500;
+    }
+  }
+
+  & .gcal-schedule-day-container {
+    padding: .5rem !important;
+    gap: .5rem;
+
+    // Date & day of the week
+    & .gcal-schedule-date-display{
+        // Set the day of the week span width
+        & .gcal-schedule-day-text{
+            display: inline-block;
+            width: 32px;
+        }
+    }
+
+
+    // Set the event text list height
+    & .gcal-schedule-event {
+      height: 2rem;
+
+      & .gcal-schedule-circle-container{
+        justify-content: flex-start;
+      }
+    }
+  }
+}

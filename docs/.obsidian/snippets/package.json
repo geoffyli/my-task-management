@@ -1,0 +1,14 @@
+{
+  "name": "snippets",
+  "version": "1.0.0",
+  "description": "Styling settings for the Personal Obsidian vault",
+  "main": "index.js",
+  "scripts": {
+    "sass": "sass ./sass/main.scss ./style.css -w"
+  },
+  "author": "geoffyli",
+  "license": "ISC",
+  "devDependencies": {
+    "sass": "^1.80.6"
+  }
+}

@@ -1,0 +1,36 @@
+// Import abstracts
+// @import "abstracts/functions";
+// @import "abstracts/mixins";
+// @import "abstracts/variables";
+
+// Import base
+@use "base/base";
+@use "base/animations";
+@use "base/typography";
+@use "base/utilities";
+
+// Import componenets
+@use "components/note_preview";
+// @import "components/button";
+// @import "components/composition";
+// @import "components/feature-box";
+// @import "components/card";
+// @import "components/story";
+// @import "components/bg-video";
+// @import "components/form";
+
+// Import plugins
+@use "plugins/tasks";
+@use "plugins/day-planner";
+@use "plugins/google-calendar";
+@use "plugins/text-generator";
+@use "plugins/kanban";
+
+// Import layouts
+@use "layout/inline-title";
+@use "layout/right-sidebar";
+@use "layout/web-viewer.scss";
+// @import "layout/grid";
+
+// Import pages
+// @import "pages/home";

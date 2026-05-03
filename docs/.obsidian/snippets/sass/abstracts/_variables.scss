@@ -1,0 +1,22 @@
+// colors
+$color-red: var(--color-red);
+$color-orange: var(--color-orange);
+$color-cyan: var(--color-cyan);
+$font-text: var(--font-text);
+$font-adaptive-normal: var(--font-adaptive-normal);
+$line-height: var(--line-height);
+$tx1: var(--text-normal);
+$checkbox-border-color: var(--checkbox-border-color);
+$bold-weight: var(--bold-weight);
+
+$color-gray-dark: #333;
+$color-gray: #666;
+$color-gray-light: #999;
+
+// _gradients.scss
+$svg-gradients: (
+  folder-open: (#4E8EF7, #5CC3FF),
+  cool-grey:  (#A0AEC0, #4E8EF7),
+  sky-teal:   (#5CC3FF, #10A37F),
+  slate-indigo:(#2E4057, #3B82F6)
+);
