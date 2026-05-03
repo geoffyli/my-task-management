@@ -60,6 +60,8 @@ curl -s -X POST "https://api.notion.com/v1/data_sources/46f8ea4d-432a-4dd9-bc9a-
 
 **Step 1a — task with no assigned date** (equivalent to "Add Task"):
 ```bash
+# Optional — only include "Type" if the user specifies a growth category:
+# "Type": {"select": {"name": "Build"}}
 NEW_PAGE=$(curl -s -X POST "https://api.notion.com/v1/pages" \
   -H "Authorization: Bearer $NOTION_KEY" \
   -H "Notion-Version: 2025-09-03" \
@@ -77,6 +79,8 @@ TASK_PAGE_ID=$(echo "$NEW_PAGE" | python3 -c "import json,sys; print(json.load(s
 
 **Step 1b — task assigned to today** (equivalent to "Add Daily Task"):
 ```bash
+# Optional — only include "Type" if the user specifies a growth category:
+# "Type": {"select": {"name": "Build"}}
 TODAY=$(date +%Y-%m-%d)
 NEW_PAGE=$(curl -s -X POST "https://api.notion.com/v1/pages" \
   -H "Authorization: Bearer $NOTION_KEY" \

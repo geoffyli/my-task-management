@@ -115,7 +115,7 @@ Areas  ──(1:N)──▶  Projects  ──(1:N)──▶  Tasks
 
 - **Areas** — broad life domains, rarely edited, no body content.
 - **Projects** — goal-oriented efforts under one or more areas. Each project page has a Tasks view, Goals, and Resources section.
-- **Tasks** — the primary unit of work. Most agent operations target this database.
+- **Tasks** — the primary unit of work. Most agent operations target this database. Tasks optionally carry a `Type` tag for growth tracking (see schemas).
 
 A **Today** page (`253414c3-2bf8-8083-9e01-c4da653037e3`) acts as the daily dashboard: it shows tasks with `Assigned Date = today` grouped by status, and the current week's Weekly Note.
 

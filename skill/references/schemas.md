@@ -14,6 +14,7 @@ Most agent operations target this database.
 | `Task Name` | title | Free text — the task title |
 | `Status` | select | `Not Started` · `In Progress` · `Done` |
 | `Priority` | select | `High` · `Medium` · `Low` |
+| `Type` | select | `Plan` · `Reflect` · `Explore` · `Learn` · `Maintain` · `Build` · `Fitness` · `Health` — **optional**. Marks growth-oriented tasks. Leave empty for obligation tasks (work, academic, routine). See usage convention below. |
 | `Project` | relation → Projects | Which project(s) this task belongs to |
 | `Assigned Date` | date | The day this task is scheduled to be worked on. The Today page filters on `Assigned Date = today`. |
 | `Initial Assigned Date` | date | Records the *first* value of `Assigned Date`. Set automatically by an automation script. **Never overwrite once set** — it is an immutable audit field. Set it only when creating a task with an `Assigned Date` and it is currently null. |
@@ -22,6 +23,13 @@ Most agent operations target this database.
 | `Prepares for` | relation → Tasks (self) | Tasks this task unlocks. Mirror of `Depends on` on the counterpart. |
 | `Related Tasks` | relation → Tasks (self) | Loosely related tasks — no dependency semantics. |
 | `Formula` | formula | Computed display string — read-only, cannot be written. |
+
+**Type property — usage convention:**
+- This property tracks *growth investment* only. It is intentionally partial — not every task needs a Type.
+- **Assign a Type** when the task represents deliberate personal growth: learning, building, exploring, planning, reflecting, maintaining personal systems, or investing in fitness/health.
+- **Leave empty** when the task is an obligation or routine duty (work deliverables, course assignments, admin errands) with no growth intent.
+- When creating a task, do NOT guess a Type value. Only set it if the user explicitly specifies one or the task clearly fits a growth category.
+- For analytics: "Type is not empty" = all growth activity. Individual Type values enable breakdown by growth mode.
 
 **Task page sections** (verified block structure):
 1. `heading_2` **"Steps & Updates"** — contains `to_do` blocks (checkboxes). Append new `to_do` items here to record progress steps. Sub-steps can be nested under a parent `to_do`.
