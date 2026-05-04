@@ -29,7 +29,7 @@ graph TD
 
 | Key | Database UUID | Purpose |
 |-----|--------------|---------|
-| `tasks` | `46f8ea4d-432a-4dd9-bc9a-dab4302c1cfe` | Individual actionable items with status, priority, dates, and project linkage |
+| `tasks` | `46f8ea4d-432a-4dd9-bc9a-dab4302c1cfe` | Individual actionable items with status, importance/urgency, dates, and project linkage |
 | `projects` | `81899362-e971-4a82-ba25-18fdda1d8f63` | Multi-task initiatives with area linkage and date ranges |
 | `areas` | `0b036eaf-a357-46ec-b479-b6bb88497b74` | Life/work areas that group projects |
 

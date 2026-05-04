@@ -23,7 +23,7 @@ Before performing ANY write operation (create, update, delete) on external syste
 |---|---|---|
 | **Read** | Query tasks, list projects, fetch calendar events, read page content | **No** |
 | **Write — Create** | Create task, create project, create area, create calendar event | **Yes** |
-| **Write — Update** | Change status, reschedule task, update priority, modify event | **Yes** (except trivial) |
+| **Write — Update** | Change status, reschedule task, update importance/priority, modify event | **Yes** (except trivial) |
 | **Write — Delete** | Archive page, cancel event, remove relation, clear field value | **Yes** |
 
 ### Trivial Updates (Bypass Allowed)
@@ -56,7 +56,7 @@ Confirm?
 > **Details**:
 > - Task Name: "Review Q1 report"
 > - Status: Not Started
-> - Priority: Medium
+> - Importance: Medium
 > - Assigned Date: 2026-03-05
 > - Project: Quarterly Planning
 >

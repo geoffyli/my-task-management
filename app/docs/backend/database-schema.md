@@ -46,7 +46,8 @@ erDiagram
         TEXT page_id PK "FK → pages.id"
         TEXT title
         TEXT status
-        TEXT priority
+        TEXT importance
+        TEXT urgency
         TEXT assigned_date
         TEXT initial_assigned_date
         TEXT completion_date
@@ -113,7 +114,8 @@ Extracted task-specific fields for fast querying. Foreign key to `pages` with CA
 | `page_id` | TEXT (PK, FK) | References `pages.id` |
 | `title` | TEXT | Task name |
 | `status` | TEXT | Not Started, In Progress, Done, Cancelled, Deferred |
-| `priority` | TEXT | High, Medium, Low |
+| `importance` | TEXT | High, Medium, Low |
+| `urgency` | TEXT | High, Medium, Low (nullable) |
 | `assigned_date` | TEXT | ISO date — when task is scheduled |
 | `initial_assigned_date` | TEXT | ISO date — original schedule (for reschedule tracking) |
 | `completion_date` | TEXT | ISO date — when marked done |

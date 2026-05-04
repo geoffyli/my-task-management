@@ -54,7 +54,7 @@ All routes in the application with their data requirements and key features.
 
 2. **Week overview** — Tasks grouped by day (Today, Tomorrow, etc. through end of week)
    - Color-coded status dots
-   - Priority badges
+   - Importance badges
    - Deadline indicators
 
 3. **Upcoming deadlines** — Active tasks with deadlines in the next 14 days, sorted by urgency
@@ -81,7 +81,7 @@ All routes in the application with their data requirements and key features.
 3. **Velocity chart** — Composed chart: completed tasks (bars) + 4-week rolling average (line)
    - Data: `getVelocityData(tasks, range)`
 
-4. **Aging distribution** — Stacked bar chart: active tasks by age bucket, colored by priority
+4. **Aging distribution** — Stacked bar chart: active tasks by age bucket, colored by importance
    - Data: `getAgingDistribution(activeTasks)`
 
 5. **Reschedule distribution** — Bar chart: how much tasks slip from original assignment

@@ -78,9 +78,9 @@ const TOOLTIP_STYLE: CSSProperties = {
 | Cancelled | `#dc2626` (red) |
 | Deferred | `#d97706` (amber) |
 
-### PRIORITY_COLORS
+### IMPORTANCE_COLORS
 
-| Priority | Color |
+| Importance | Color |
 |----------|-------|
 | High | `#ef4444` (red) |
 | Medium | `#d97706` (amber) |

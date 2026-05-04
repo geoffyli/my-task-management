@@ -59,7 +59,7 @@ Open task count over time (how many tasks were open at each week boundary).
 
 ### `getAgingDistribution(activeTasks): AgingBucket[]`
 
-Active tasks bucketed by age and split by priority.
+Active tasks bucketed by age and split by importance.
 
 | Bucket | Range |
 |--------|-------|

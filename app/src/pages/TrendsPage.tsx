@@ -100,7 +100,7 @@ export function TrendsPage() {
       </ChartContainer>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <ChartContainer title="Task Aging Distribution" description="How long active tasks have been open, by priority">
+        <ChartContainer title="Task Aging Distribution" description="How long active tasks have been open, by importance">
           {aging.length === 0 ? <EmptyState message="No active tasks" /> : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={aging} margin={CHART_THEME.margin}>

@@ -22,7 +22,8 @@ interface Task {
   id: string;
   name: string;
   status: "Not Started" | "In Progress" | "Done" | "Cancelled" | "Deferred";
-  priority: "High" | "Medium" | "Low";
+  importance: "High" | "Medium" | "Low";
+  urgency: "High" | "Medium" | "Low" | null;
   projectIds: string[];
   assignedDate: string | null;
   initialAssignedDate: string | null;
@@ -39,7 +40,8 @@ interface Task {
 | `id` | Notion page ID |
 | `name` | Task title from Notion |
 | `status` | Current workflow state |
-| `priority` | High / Medium / Low |
+| `importance` | High / Medium / Low |
+| `urgency` | High / Medium / Low / null — time-sensitivity indicator |
 | `projectIds` | Array of related project page IDs (Notion relation) |
 | `assignedDate` | When the task is scheduled for (may be rescheduled) |
 | `initialAssignedDate` | Original assigned date (used for reschedule tracking) |
