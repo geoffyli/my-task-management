@@ -2,7 +2,8 @@ export interface Task {
   id: string;
   name: string;
   status: "Not Started" | "In Progress" | "Done" | "Cancelled" | "Deferred";
-  priority: "High" | "Medium" | "Low";
+  importance: "High" | "Medium" | "Low";
+  urgency: "High" | "Medium" | "Low" | null;
   projectIds: string[];
   assignedDate: string | null;
   initialAssignedDate: string | null;

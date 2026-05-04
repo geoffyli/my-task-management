@@ -48,12 +48,12 @@ export function getStatusCounts(tasks: Task[]): { status: string; count: number 
   return Object.entries(counts).map(([status, count]) => ({ status, count }));
 }
 
-export function getPriorityCounts(activeTasks: Task[]): { priority: string; count: number }[] {
+export function getImportanceCounts(activeTasks: Task[]): { importance: string; count: number }[] {
   const counts: Record<string, number> = {};
   for (const t of activeTasks) {
-    counts[t.priority] = (counts[t.priority] ?? 0) + 1;
+    counts[t.importance] = (counts[t.importance] ?? 0) + 1;
   }
-  return Object.entries(counts).map(([priority, count]) => ({ priority, count }));
+  return Object.entries(counts).map(([importance, count]) => ({ importance, count }));
 }
 
 export interface ThroughputEntry {
@@ -153,9 +153,9 @@ export function getAgingDistribution(activeTasks: Task[]): AgingBucket[] {
     });
     return {
       bucket: label,
-      high: inBucket.filter((t) => t.priority === "High").length,
-      medium: inBucket.filter((t) => t.priority === "Medium").length,
-      low: inBucket.filter((t) => t.priority === "Low").length,
+      high: inBucket.filter((t) => t.importance === "High").length,
+      medium: inBucket.filter((t) => t.importance === "Medium").length,
+      low: inBucket.filter((t) => t.importance === "Low").length,
     };
   });
 }
@@ -271,7 +271,7 @@ export interface DeadlineEntry {
   name: string;
   deadline: string;
   daysRemaining: number;
-  priority: string;
+  importance: string;
 }
 
 export function getDeadlineProximity(tasks: Task[]): DeadlineEntry[] {
@@ -282,14 +282,14 @@ export function getDeadlineProximity(tasks: Task[]): DeadlineEntry[] {
       name: t.name,
       deadline: t.deadline!,
       daysRemaining: differenceInDays(parseISO(t.deadline!), today),
-      priority: t.priority,
+      importance: t.importance,
     }))
     .sort((a, b) => a.daysRemaining - b.daysRemaining);
 }
 
 export interface BlockedTasksSummary {
   blockedCount: number;
-  blockedTasks: { name: string; blockedByCount: number; priority: string }[];
+  blockedTasks: { name: string; blockedByCount: number; importance: string }[];
 }
 
 export function getBlockedTasksSummary(tasks: Task[]): BlockedTasksSummary {
@@ -311,7 +311,7 @@ export function getBlockedTasksSummary(tasks: Task[]): BlockedTasksSummary {
           const dep = taskMap.get(d);
           return dep && isActiveTask(dep);
         }).length,
-        priority: t.priority,
+        importance: t.importance,
       }))
       .sort((a, b) => b.blockedByCount - a.blockedByCount)
       .slice(0, 10),

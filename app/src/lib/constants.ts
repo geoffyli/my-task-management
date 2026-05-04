@@ -9,7 +9,7 @@ export const STATUS_COLORS: Record<Task["status"], string> = {
   Deferred: "#d97706",
 };
 
-export const PRIORITY_COLORS: Record<Task["priority"], string> = {
+export const IMPORTANCE_COLORS: Record<Task["importance"], string> = {
   High: "#ef4444",
   Medium: "#d97706",
   Low: "#6b7280",

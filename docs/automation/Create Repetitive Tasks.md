@@ -29,7 +29,7 @@ Reads a configuration database in Notion and creates task entries in the Tasks d
    - **Interval mode:** Find the most recent task with the same name in the Tasks database, calculate the day gap, and check if the interval has elapsed.
 4. **Duplicate check:** Before creating, query the Tasks database for an existing task with the same name and today's date. Skip if found.
 5. **Template support:** Look for a "Template" heading (h2) in the config page's content. If found, copy its child blocks into the new task page body.
-6. **Create the task** in the Tasks database with properties: Task Name (prefixed `[Repetitive]`), Assigned Date (today), Initial Assigned Date (today), Status ("Not Started"), Priority (if configured), and Project relations (if configured).
+6. **Create the task** in the Tasks database with properties: Task Name (prefixed `[Repetitive]`), Assigned Date (today), Initial Assigned Date (today), Status ("Not Started"), Importance (if configured), Urgency (if configured), and Project relations (if configured).
 
 ## Configuration
 
@@ -49,7 +49,8 @@ Each row in the config database represents a repetitive task definition:
 | Mode | Select | Either "Cron" or "Interval" |
 | Value | Rich Text | Cron expression (5-field standard) or interval in days |
 | Date Range | Date | Optional start/end bounds for when this task should be active |
-| Priority | Select | Optional priority to assign to created tasks |
+| Importance | Select | Optional importance to assign to created tasks |
+| Urgency | Select | Optional urgency to assign to created tasks |
 | Projects | Relation | Optional project relations to assign |
 
 ## Key Functions

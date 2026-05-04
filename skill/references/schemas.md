@@ -13,7 +13,8 @@ Most agent operations target this database.
 |---|---|---|
 | `Task Name` | title | Free text — the task title |
 | `Status` | select | `Not Started` · `In Progress` · `Done` · `Deferred` · `Cancelled` |
-| `Priority` | select | `High` · `Medium` · `Low` |
+| `Importance` | select | `High` · `Medium` · `Low` |
+| `Urgency` | select | `High` · `Medium` · `Low` — **optional**. Indicates time-sensitivity. Leave empty if the task has no time pressure beyond its assigned date. |
 | `Type` | select | `Plan` · `Reflect` · `Explore` · `Learn` · `Maintain` · `Build` · `Fitness` · `Health` — **optional**. Marks growth-oriented tasks. Leave empty for obligation tasks (work, academic, routine). See usage convention below. |
 | `Project` | relation → Projects | Which project(s) this task belongs to |
 | `Assigned Date` | date | The day this task is scheduled to be worked on. The Today page filters on `Assigned Date = today`. |
@@ -87,7 +88,8 @@ Managed by automation scripts. Do not create or modify entries unless explicitly
 | `Mode` | select | `Cron` (only mode in use) |
 | `Value` | rich_text | Cron expression (e.g., `0 0 * * 6` = every Saturday midnight) |
 | `Date Range` | date | Start and end date for the active period |
-| `Priority` | select | Priority for generated tasks |
+| `Importance` | select | Importance level for generated tasks |
+| `Urgency` | select | Urgency level for generated tasks (optional) |
 | `Projects` | relation → Projects | Projects the generated tasks are linked to |
 
 ---

@@ -12,10 +12,10 @@ import {
   getCompletedThisWeek,
   getBlockedTasksSummary,
 } from "@/lib/metrics";
-import { isActiveTask, PRIORITY_COLORS, STATUS_COLORS } from "@/lib/constants";
+import { isActiveTask, IMPORTANCE_COLORS, STATUS_COLORS } from "@/lib/constants";
 import type { Task } from "@/api/types";
 
-const PRIORITY_ORDER: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
+const IMPORTANCE_ORDER: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
 
 function getDayLabel(dateStr: string, today: string, tomorrow: string): string {
   if (dateStr === today) return "Today";
@@ -55,7 +55,7 @@ export function ThisWeekPage() {
       const date = format(addDays(new Date(), i), "yyyy-MM-dd");
       const dayTasks = allWeekTasks
         .filter(t => t.assignedDate === date)
-        .sort((a, b) => (PRIORITY_ORDER[a.priority] ?? 2) - (PRIORITY_ORDER[b.priority] ?? 2));
+        .sort((a, b) => (IMPORTANCE_ORDER[a.importance] ?? 2) - (IMPORTANCE_ORDER[b.importance] ?? 2));
       days.push({
         date,
         label: `${getDayLabel(date, today, tomorrow)} — ${format(parseISO(date), "MMM d")}`,
@@ -135,8 +135,8 @@ export function ThisWeekPage() {
                         />
                         <span className="text-[13px] text-foreground">{task.name}</span>
                       </div>
-                      <Badge variant="data" color={PRIORITY_COLORS[task.priority]}>
-                        {task.priority}
+                      <Badge variant="data" color={IMPORTANCE_COLORS[task.importance]}>
+                        {task.importance}
                       </Badge>
                     </div>
                   ))}
@@ -162,8 +162,8 @@ export function ThisWeekPage() {
                 className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]"
               >
                 <div className="flex items-center gap-3">
-                  <Badge variant="data" color={PRIORITY_COLORS[task.priority]}>
-                    {task.priority}
+                  <Badge variant="data" color={IMPORTANCE_COLORS[task.importance]}>
+                    {task.importance}
                   </Badge>
                   <span className="text-[13px] text-foreground">{task.name}</span>
                 </div>
@@ -191,8 +191,8 @@ export function ThisWeekPage() {
                 className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]"
               >
                 <div className="flex items-center gap-3">
-                  <Badge variant="data" color={PRIORITY_COLORS[task.priority as keyof typeof PRIORITY_COLORS]}>
-                    {task.priority}
+                  <Badge variant="data" color={IMPORTANCE_COLORS[task.importance as keyof typeof IMPORTANCE_COLORS]}>
+                    {task.importance}
                   </Badge>
                   <span className="text-[13px] text-foreground">{task.name}</span>
                 </div>

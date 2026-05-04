@@ -14,7 +14,7 @@ import {
   getActiveTasks, getThroughputData, getVelocityData, getAgingDistribution,
   getRescheduleDistribution, getCalendarHeatmapData,
 } from "@/lib/metrics";
-import { PRIORITY_COLORS, TOOLTIP_STYLE, TIME_RANGES, type TimeRange } from "@/lib/constants";
+import { IMPORTANCE_COLORS, TOOLTIP_STYLE, TIME_RANGES, type TimeRange } from "@/lib/constants";
 import { CHART_THEME } from "@/lib/chart-theme";
 import { subDays, format, eachDayOfInterval, startOfWeek } from "date-fns";
 
@@ -109,9 +109,9 @@ export function TrendsPage() {
                 <YAxis allowDecimals={false} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} cursor={CHART_THEME.cursorFill} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={CHART_THEME.legend} />
-                <Bar dataKey="high" stackId="age" fill={PRIORITY_COLORS.High} radius={[3, 3, 0, 0]} name="High" />
-                <Bar dataKey="medium" stackId="age" fill={PRIORITY_COLORS.Medium} name="Medium" />
-                <Bar dataKey="low" stackId="age" fill={PRIORITY_COLORS.Low} name="Low" />
+                <Bar dataKey="high" stackId="age" fill={IMPORTANCE_COLORS.High} radius={[3, 3, 0, 0]} name="High" />
+                <Bar dataKey="medium" stackId="age" fill={IMPORTANCE_COLORS.Medium} name="Medium" />
+                <Bar dataKey="low" stackId="age" fill={IMPORTANCE_COLORS.Low} name="Low" />
               </BarChart>
             </ResponsiveContainer>
           )}

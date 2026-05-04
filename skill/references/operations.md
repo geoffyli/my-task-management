@@ -71,7 +71,7 @@ NEW_PAGE=$(curl -s -X POST "https://api.notion.com/v1/pages" \
     "properties": {
       "Task Name": {"title": [{"text": {"content": "Task title here"}}]},
       "Status":    {"select": {"name": "Not Started"}},
-      "Priority":  {"select": {"name": "Medium"}}
+      "Importance":  {"select": {"name": "Medium"}}
     }
   }')
 TASK_PAGE_ID=$(echo "$NEW_PAGE" | python3 -c "import json,sys; print(json.load(sys.stdin)['id'])")
@@ -91,7 +91,7 @@ NEW_PAGE=$(curl -s -X POST "https://api.notion.com/v1/pages" \
     \"properties\": {
       \"Task Name\":             {\"title\": [{\"text\": {\"content\": \"Task title here\"}}]},
       \"Status\":                {\"select\": {\"name\": \"Not Started\"}},
-      \"Priority\":              {\"select\": {\"name\": \"Medium\"}},
+      \"Importance\":              {\"select\": {\"name\": \"Medium\"}},
       \"Assigned Date\":         {\"date\": {\"start\": \"$TODAY\"}},
       \"Initial Assigned Date\": {\"date\": {\"start\": \"$TODAY\"}}
     }

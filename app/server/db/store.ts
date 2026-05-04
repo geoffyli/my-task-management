@@ -33,7 +33,7 @@ function extractProperties(properties: Record<string, any>, coreKeys: string[]):
 }
 
 const TASK_CORE_KEYS = [
-  "Task Name", "Status", "Priority", "Project",
+  "Task Name", "Status", "Importance", "Urgency", "Project",
   "Assigned Date", "Initial Assigned Date", "Deadline", "Depends on",
 ];
 
@@ -51,7 +51,8 @@ function extractTaskRow(pageId: string, raw: any) {
     page_id: pageId,
     title: extractTitle(p["Task Name"]),
     status,
-    priority: extractSelect(p["Priority"]) ?? "Medium",
+    importance: extractSelect(p["Importance"]) ?? "Medium",
+    urgency: extractSelect(p["Urgency"]),
     assigned_date: assignedDate,
     initial_assigned_date: extractDate(p["Initial Assigned Date"]),
     completion_date: completionDate,
@@ -102,9 +103,9 @@ export function upsertPage(db: Database, page: RawPage): void {
     case "tasks": {
       const row = extractTaskRow(page.id, raw);
       db.run(
-        `INSERT OR REPLACE INTO tasks (page_id, title, status, priority, assigned_date, initial_assigned_date, completion_date, deadline, created_time, last_edited_time, project_ids, dependencies, properties)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [row.page_id, row.title, row.status, row.priority, row.assigned_date, row.initial_assigned_date, row.completion_date, row.deadline, row.created_time, row.last_edited_time, row.project_ids, row.dependencies, row.properties]
+        `INSERT OR REPLACE INTO tasks (page_id, title, status, importance, urgency, assigned_date, initial_assigned_date, completion_date, deadline, created_time, last_edited_time, project_ids, dependencies, properties)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [row.page_id, row.title, row.status, row.importance, row.urgency, row.assigned_date, row.initial_assigned_date, row.completion_date, row.deadline, row.created_time, row.last_edited_time, row.project_ids, row.dependencies, row.properties]
       );
       break;
     }
