@@ -37,7 +37,7 @@ Notion property name → SQLite column in `tasks` table.
 | Task Name | title | `title` | Falls back to "(untitled)" |
 | Status | select | `status` | Values: Not Started, In Progress, Done, Cancelled, Deferred. Default: "Not Started" |
 | Importance | select | `importance` | Values: High, Medium, Low. Default: "Medium" |
-| Urgency | select | `urgency` | Values: High, Medium, Low. Default: "Medium" |
+| Urgency | select | `urgency` | Values: High, Medium, Low, Overdue. Default: "Medium" |
 | Assigned Date | date | `assigned_date` | Current scheduled date (may differ from initial) |
 | Initial Assigned Date | date | `initial_assigned_date` | Original assignment date for reschedule tracking |
 | Deadline | date | `deadline` | Hard due date |

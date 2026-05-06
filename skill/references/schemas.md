@@ -14,7 +14,7 @@ Most agent operations target this database.
 | `Task Name` | title | Free text — the task title |
 | `Status` | select | `Not Started` · `In Progress` · `Done` · `Deferred` · `Cancelled` |
 | `Importance` | select | `High` · `Medium` · `Low` |
-| `Urgency` | select | `High` · `Medium` · `Low` — **optional**. Indicates time-sensitivity. Leave empty if the task has no time pressure beyond its assigned date. |
+| `Urgency` | select | `High` · `Medium` · `Low` · `Overdue` — **optional**. Indicates time-sensitivity. Leave empty if the task has no time pressure beyond its assigned date. Use `Overdue` when the task is past its deadline. |
 | `Type` | select | `Plan` · `Reflect` · `Explore` · `Learn` · `Maintain` · `Build` · `Fitness` · `Health` — **optional**. Marks growth-oriented tasks. Leave empty for obligation tasks (work, academic, routine). See usage convention below. |
 | `Project` | relation → Projects | Which project(s) this task belongs to |
 | `Assigned Date` | date | The day this task is scheduled to be worked on. The Today page filters on `Assigned Date = today`. |
