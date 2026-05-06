@@ -40,6 +40,8 @@ Notion property name → SQLite column in `tasks` table.
 | Urgency | select | `urgency` | Values: High, Medium, Low, Overdue. Default: "Medium" |
 | Assigned Date | date | `assigned_date` | Current scheduled date (may differ from initial) |
 | Initial Assigned Date | date | `initial_assigned_date` | Original assignment date for reschedule tracking |
+| Started Date | date | `started_date` | Auto-set by webhook when status → In Progress |
+| Closed Date | date | `completion_date` | Auto-set by webhook when status → Done/Cancelled |
 | Deadline | date | `deadline` | Hard due date |
 | Project | relation | `project_ids` | JSON-stringified array of project page IDs |
 | Depends on | relation | `dependencies` | JSON-stringified array of blocking task IDs |

@@ -33,6 +33,8 @@ export function getAllTasks(db: Database): Task[] {
     projectIds: JSON.parse(row.project_ids || "[]"),
     assignedDate: row.assigned_date,
     initialAssignedDate: row.initial_assigned_date,
+    startedDate: row.started_date,
+    closedDate: row.completion_date,
     deadline: row.deadline,
     createdTime: row.created_time,
     lastEditedTime: row.last_edited_time,

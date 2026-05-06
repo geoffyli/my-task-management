@@ -1,0 +1,31 @@
+summary: 'Task webhook router: dispatch Assigned Date and Status changes'
+description: Shared Notion webhook endpoint for the Tasks database. Routes property
+  change events to the appropriate handler — sets Initial Assigned Date when Assigned
+  Date changes, and manages Started Date / Closed Date when Status changes.
+lock: '!inline f/notion_tasks/tasks_webhook_router.script.lock'
+has_preprocessor: true
+kind: script
+schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  properties:
+    page_id:
+      type: string
+      description: ''
+      default: null
+      originalType: string
+    triggers:
+      type: array
+      description: ''
+      default: null
+      items:
+        type: string
+      originalType: 'array<string>'
+    verification_token:
+      type: string
+      description: ''
+      default: null
+      originalType: string
+  required:
+    - page_id
+    - triggers

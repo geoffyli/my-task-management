@@ -118,7 +118,8 @@ Extracted task-specific fields for fast querying. Foreign key to `pages` with CA
 | `urgency` | TEXT | High, Medium, Low (nullable) |
 | `assigned_date` | TEXT | ISO date — when task is scheduled |
 | `initial_assigned_date` | TEXT | ISO date — original schedule (for reschedule tracking) |
-| `completion_date` | TEXT | ISO date — when marked done |
+| `started_date` | TEXT | ISO date — when first moved to In Progress (auto-set by webhook) |
+| `completion_date` | TEXT | ISO date — when closed (Done or Cancelled, auto-set by webhook) |
 | `deadline` | TEXT | ISO date — hard due date |
 | `created_time` | TEXT | Notion creation timestamp |
 | `last_edited_time` | TEXT | Notion last edit timestamp |

@@ -26,8 +26,8 @@ export function getOverviewStats(tasks: Task[]): OverviewStats {
       totalAge += differenceInDays(today, parseISO(t.createdTime));
       if (t.deadline && t.deadline < todayStr) overdue++;
     }
-    if (t.status === "Done" && t.assignedDate) {
-      const doneDate = parseISO(t.assignedDate);
+    if (t.status === "Done" && (t.closedDate || t.assignedDate)) {
+      const doneDate = parseISO(t.closedDate ?? t.assignedDate!);
       if (doneDate >= oneWeekAgo) completedWeek++;
       else if (doneDate >= twoWeeksAgo) completedPrevWeek++;
     }
@@ -82,8 +82,8 @@ export function getThroughputData(tasks: Task[], range: TimeRange): ThroughputEn
       createdByWeek[weekIdx]!++;
     }
 
-    if (t.status === "Done" && t.assignedDate) {
-      const doneTs = parseISO(t.assignedDate).getTime();
+    if (t.status === "Done" && (t.closedDate || t.assignedDate)) {
+      const doneTs = parseISO(t.closedDate ?? t.assignedDate!).getTime();
       const doneWeekIdx = Math.floor((doneTs - firstWeekTs) / msPerWeek);
       if (doneWeekIdx >= 0 && doneWeekIdx < weeks.length) {
         completedByWeek[doneWeekIdx]!++;
@@ -116,7 +116,7 @@ export function getBurndownData(tasks: Task[], range: TimeRange): BurndownEntry[
       const created = parseISO(t.createdTime).getTime();
       if (created > wsTime) return false;
       if (t.status === "Done" || t.status === "Cancelled") {
-        const closedStr = t.status === "Done" ? t.assignedDate : t.lastEditedTime;
+        const closedStr = t.closedDate ?? (t.status === "Done" ? t.assignedDate : t.lastEditedTime);
         if (!closedStr) return true;
         const closed = parseISO(closedStr).getTime();
         return closed > wsTime;
@@ -327,7 +327,8 @@ export function getTasksThisWeek(tasks: Task[]): Task[] {
 export function getCompletedThisWeek(tasks: Task[]): Task[] {
   const today = format(new Date(), "yyyy-MM-dd");
   const endDate = format(addDays(new Date(), 6), "yyyy-MM-dd");
-  return tasks.filter(t => t.status === "Done" && t.assignedDate && t.assignedDate >= today && t.assignedDate <= endDate);
+  const dateFor = (t: Task) => t.closedDate ?? t.assignedDate;
+  return tasks.filter(t => t.status === "Done" && dateFor(t) && dateFor(t)! >= today && dateFor(t)! <= endDate);
 }
 
 export function getAtRiskProjects(tasks: Task[], projects: Project[]): { project: Project; reason: string }[] {

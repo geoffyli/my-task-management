@@ -34,7 +34,7 @@ function extractProperties(properties: Record<string, any>, coreKeys: string[]):
 
 const TASK_CORE_KEYS = [
   "Task Name", "Status", "Importance", "Urgency", "Project",
-  "Assigned Date", "Initial Assigned Date", "Deadline", "Depends on",
+  "Assigned Date", "Initial Assigned Date", "Started Date", "Closed Date", "Deadline", "Depends on",
 ];
 
 const PROJECT_CORE_KEYS = ["Name", "Status", "Priority", "Areas", "Date"];
@@ -45,7 +45,8 @@ function extractTaskRow(pageId: string, raw: any) {
   const p = raw.properties;
   const status = extractSelect(p["Status"]) ?? "Not Started";
   const assignedDate = extractDate(p["Assigned Date"]);
-  const completionDate = status === "Done" ? assignedDate : null;
+  const startedDate = extractDate(p["Started Date"]);
+  const closedDate = extractDate(p["Closed Date"]);
 
   return {
     page_id: pageId,
@@ -55,7 +56,8 @@ function extractTaskRow(pageId: string, raw: any) {
     urgency: extractSelect(p["Urgency"]),
     assigned_date: assignedDate,
     initial_assigned_date: extractDate(p["Initial Assigned Date"]),
-    completion_date: completionDate,
+    started_date: startedDate,
+    completion_date: closedDate,
     deadline: extractDate(p["Deadline"]),
     created_time: raw.created_time,
     last_edited_time: raw.last_edited_time,
@@ -103,9 +105,9 @@ export function upsertPage(db: Database, page: RawPage): void {
     case "tasks": {
       const row = extractTaskRow(page.id, raw);
       db.run(
-        `INSERT OR REPLACE INTO tasks (page_id, title, status, importance, urgency, assigned_date, initial_assigned_date, completion_date, deadline, created_time, last_edited_time, project_ids, dependencies, properties)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [row.page_id, row.title, row.status, row.importance, row.urgency, row.assigned_date, row.initial_assigned_date, row.completion_date, row.deadline, row.created_time, row.last_edited_time, row.project_ids, row.dependencies, row.properties]
+        `INSERT OR REPLACE INTO tasks (page_id, title, status, importance, urgency, assigned_date, initial_assigned_date, started_date, completion_date, deadline, created_time, last_edited_time, project_ids, dependencies, properties)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [row.page_id, row.title, row.status, row.importance, row.urgency, row.assigned_date, row.initial_assigned_date, row.started_date, row.completion_date, row.deadline, row.created_time, row.last_edited_time, row.project_ids, row.dependencies, row.properties]
       );
       break;
     }

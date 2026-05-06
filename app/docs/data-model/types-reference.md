@@ -27,6 +27,8 @@ interface Task {
   projectIds: string[];
   assignedDate: string | null;
   initialAssignedDate: string | null;
+  startedDate: string | null;
+  closedDate: string | null;
   deadline: string | null;
   createdTime: string;
   lastEditedTime: string;

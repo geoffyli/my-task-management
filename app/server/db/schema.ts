@@ -31,6 +31,7 @@ export function initializeDatabase(dbPath: string): Database {
       urgency TEXT,
       assigned_date TEXT,
       initial_assigned_date TEXT,
+      started_date TEXT,
       completion_date TEXT,
       deadline TEXT,
       created_time TEXT,
@@ -86,6 +87,12 @@ export function initializeDatabase(dbPath: string): Database {
   db.run("CREATE INDEX IF NOT EXISTS idx_tasks_assigned_date ON tasks(assigned_date)");
   db.run("CREATE INDEX IF NOT EXISTS idx_tasks_deadline ON tasks(deadline)");
   db.run("CREATE INDEX IF NOT EXISTS idx_sync_events_created_at ON sync_events(created_at)");
+
+  // Migration: add started_date column for existing databases
+  const cols = db.prepare("PRAGMA table_info(tasks)").all() as { name: string }[];
+  if (!cols.some((c) => c.name === "started_date")) {
+    db.run("ALTER TABLE tasks ADD COLUMN started_date TEXT");
+  }
 
   return db;
 }

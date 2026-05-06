@@ -17,8 +17,10 @@ Most agent operations target this database.
 | `Urgency` | select | `High` · `Medium` · `Low` · `Overdue` — **optional**. Indicates time-sensitivity. Leave empty if the task has no time pressure beyond its assigned date. Use `Overdue` when the task is past its deadline. |
 | `Type` | select | `Plan` · `Reflect` · `Explore` · `Learn` · `Maintain` · `Build` · `Fitness` · `Health` — **optional**. Marks growth-oriented tasks. Leave empty for obligation tasks (work, academic, routine). See usage convention below. |
 | `Project` | relation → Projects | Which project(s) this task belongs to |
-| `Assigned Date` | date | The day this task is scheduled to be worked on. The Today page filters on `Assigned Date = today`. |
-| `Initial Assigned Date` | date | Records the *first* value of `Assigned Date`. Set automatically by an automation script. **Never overwrite once set** — it is an immutable audit field. Set it only when creating a task with an `Assigned Date` and it is currently null. |
+| `Assigned Date` | date | The day this task is scheduled to be worked on. The Today page filters on `Assigned Date ≤ today`. |
+| `Initial Assigned Date` | date | Records the *first* value of `Assigned Date`. Set automatically by webhook. **Never overwrite once set** — it is an immutable audit field. |
+| `Started Date` | date | When the task first moved to `In Progress`. Set automatically by webhook on status change. **Do not set manually.** |
+| `Closed Date` | date | When the task moved to `Done` or `Cancelled`. Set automatically by webhook on status change. Cleared if task is re-opened. **Do not set manually.** |
 | `Deadline` | date | Hard deadline. Optional — not all tasks have one. |
 | `Depends on` | relation → Tasks (self) | Tasks that must complete before this one can start. Bi-directional with `Prepares for`. |
 | `Prepares for` | relation → Tasks (self) | Tasks this task unlocks. Mirror of `Depends on` on the counterpart. |
