@@ -9,18 +9,34 @@ related:
 
 # Update Legacy Tasks
 
-## Purpose
+> **Status: DISABLED (2026-05-06)**
+> This script has been retired in favor of a view-based filtering approach. The Notion "Today" view now uses `Assigned Date ≤ today AND Status not in {Done, Blocked, Cancelled}` to surface relevant tasks without mutating data. The script and schedule remain in the codebase for reference but do not run.
 
-Rolls forward the "Assigned Date" of overdue tasks to today. Any task with an "Assigned Date" on or before yesterday that is not Done, Blocked, or Cancelled gets its date updated to today's date. This ensures the daily task list always reflects the current backlog without manual date adjustments.
+## Why It Was Retired
 
-## When It Runs
+The nightly date-rollover approach had several drawbacks:
+- **Destroyed intermediate scheduling history** — only the initial and current dates were preserved
+- **Inflated reschedule metrics** — passive neglect was indistinguishable from intentional deferral
+- **Polluted Notion page history** — synthetic edits every night made manual auditing difficult
+- **Unnecessary API/webhook churn** — N+1 API calls per night, each triggering a webhook that short-circuited
+
+The replacement (a Notion database view filter) achieves the same UX with zero automation cost and preserves full scheduling history for analytics.
+
+---
+
+## Original Purpose
+
+Rolled forward the "Assigned Date" of overdue tasks to today. Any task with an "Assigned Date" on or before yesterday that was not Done, Blocked, or Cancelled got its date updated to today's date.
+
+## Schedule (Disabled)
 
 - **Trigger:** Schedule
 - **Cron:** `0 0 0 * * *` (daily at midnight)
 - **Timezone:** Asia/Shanghai (CST, UTC+8)
+- **Enabled:** false
 - **File:** `update_legacy_tasks_schedule.schedule.yaml`
 
-## How It Works
+## How It Worked
 
 1. **Determine today and yesterday** in CST.
 2. **Query the Tasks database** for all pages where:
@@ -41,7 +57,7 @@ Rolls forward the "Assigned Date" of overdue tasks to today. Any task with an "A
 
 ## Interaction with Set Task Init Date
 
-When this script updates a task's "Assigned Date", it triggers the Notion webhook that fires [[Set Task Init Date]]. However, because the task already has an "Initial Assigned Date" recorded (set when it was first scheduled), the webhook handler takes no action. The original scheduling date is preserved.
+When this script updated a task's "Assigned Date", it triggered the Notion webhook that fires [[Set Task Init Date]]. However, because the task already had an "Initial Assigned Date" recorded (set when it was first scheduled), the webhook handler took no action. The original scheduling date was preserved.
 
 ## Key Functions
 
