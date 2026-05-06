@@ -4,7 +4,7 @@ import { serveStatic } from "hono/bun";
 import { existsSync, readFileSync } from "fs";
 import { resolve } from "path";
 
-import { initDb, closeDb, getPageCount } from "./db";
+import { initDb, closeDb, getPageCount, getSyncMeta } from "./db";
 import { fullSync, startReconciliationLoop, createWebhookHandler } from "./sync";
 import { createApiRoutes } from "./api";
 
@@ -26,6 +26,12 @@ const apiRoutes = createApiRoutes(db);
 app.route("/", apiRoutes);
 
 app.post("/api/webhooks/notion", createWebhookHandler(db));
+
+app.get("/api/webhooks/notion", (c) => {
+  const hasToken = getSyncMeta(db, "webhook_verification_token") !== null;
+  const lastWebhook = getSyncMeta(db, "last_webhook");
+  return c.json({ reachable: true, verified: hasToken, lastWebhook });
+});
 
 const distPath = resolve(import.meta.dir, "../dist");
 if (existsSync(distPath)) {

@@ -5,13 +5,20 @@ import { upsertPage, softDeletePage, restorePage, setSyncMeta, getSyncMeta, logS
 import type { RawPage } from "../db";
 import { fetchPage, getNotionKey, DATA_SOURCES } from "./notion-client";
 
-function verifySignature(body: string, signature: string, secret: string): boolean {
+type SignatureResult = { valid: true } | { valid: false; reason: string };
+
+function verifySignature(body: string, signature: string, secret: string): SignatureResult {
   const hmac = new Bun.CryptoHasher("sha256", secret);
   hmac.update(body);
   const expected = hmac.digest("hex");
   const actual = signature.startsWith("sha256=") ? signature.slice(7) : signature;
-  if (expected.length !== actual.length) return false;
-  return timingSafeEqual(Buffer.from(expected), Buffer.from(actual));
+  if (expected.length !== actual.length) {
+    return { valid: false, reason: `length mismatch: expected ${expected.length}, got ${actual.length} (prefix: "${signature.slice(0, 10)}…")` };
+  }
+  if (!timingSafeEqual(Buffer.from(expected), Buffer.from(actual))) {
+    return { valid: false, reason: "HMAC mismatch (token may be stale or body encoding differs)" };
+  }
+  return { valid: true };
 }
 
 function determineDatabaseId(pageId: string, db: Database): string | null {
@@ -21,12 +28,17 @@ function determineDatabaseId(pageId: string, db: Database): string | null {
 
 export function createWebhookHandler(db: Database) {
   return async (c: Context) => {
+    const contentLength = c.req.header("Content-Length") || "unknown";
+    const hasSignature = !!c.req.header("X-Notion-Signature");
+    console.log(`[webhook] Incoming POST — content-length: ${contentLength}, has-signature: ${hasSignature}`);
+
     const rawBody = await c.req.text();
 
     let payload: any;
     try {
       payload = JSON.parse(rawBody);
     } catch {
+      console.warn(`[webhook] Rejected: invalid JSON (body length: ${rawBody.length})`);
       return c.json({ error: "Invalid JSON" }, 400);
     }
 
@@ -45,11 +57,19 @@ export function createWebhookHandler(db: Database) {
     // For all other requests, validate HMAC signature
     const storedToken = getSyncMeta(db, "webhook_verification_token");
     if (!storedToken) {
+      console.warn(`[webhook] Rejected 503: no verification token stored. Event type: ${payload.type || "unknown"}`);
       return c.json({ error: "Webhook not verified yet — awaiting verification from Notion" }, 503);
     }
 
     const signature = c.req.header("X-Notion-Signature");
-    if (!signature || !verifySignature(rawBody, signature, storedToken)) {
+    if (!signature) {
+      console.warn(`[webhook] Rejected 401: no X-Notion-Signature header present. Event type: ${payload.type || "unknown"}`);
+      return c.json({ error: "Invalid signature" }, 401);
+    }
+
+    const sigResult = verifySignature(rawBody, signature, storedToken);
+    if (!sigResult.valid) {
+      console.warn(`[webhook] Rejected 401: ${sigResult.reason}. Event type: ${payload.type || "unknown"}`);
       return c.json({ error: "Invalid signature" }, 401);
     }
 
