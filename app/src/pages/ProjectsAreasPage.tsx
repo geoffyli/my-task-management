@@ -94,7 +94,7 @@ export function ProjectsAreasPage() {
               <Bar dataKey="notStarted" stackId="status" fill={STATUS_COLORS["Not Started"]} name="Not Started" />
               <Bar dataKey="inProgress" stackId="status" fill={STATUS_COLORS["In Progress"]} name="In Progress" />
               <Bar dataKey="done" stackId="status" fill={STATUS_COLORS["Done"]} name="Done" />
-              <Bar dataKey="deferred" stackId="status" fill={STATUS_COLORS["Deferred"]} name="Deferred" />
+              <Bar dataKey="blocked" stackId="status" fill={STATUS_COLORS["Blocked"]} name="Blocked" />
               <Bar dataKey="cancelled" stackId="status" fill={STATUS_COLORS["Cancelled"]} name="Cancelled" />
             </BarChart>
           </ResponsiveContainer>

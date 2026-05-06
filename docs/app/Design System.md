@@ -398,7 +398,7 @@ Used for chart lines, bars, and areas:
 | secondary | `#27a644` | Completed tasks, positive metrics |
 | tertiary | `#7170ff` | In Progress, secondary data |
 | quaternary | `#828fff` | Rolling averages, subtle series |
-| warning | `#d97706` | Deferred, at-risk indicators |
+| warning | `#d97706` | Blocked, at-risk indicators |
 
 ### TOOLTIP_STYLE
 
@@ -425,7 +425,7 @@ const TOOLTIP_STYLE: CSSProperties = {
 | In Progress | `#5e6ad2` (accent) |
 | Done | `#27a644` (green) |
 | Cancelled | `#dc2626` (red) |
-| Deferred | `#d97706` (amber) |
+| Blocked | `#d97706` (amber) |
 
 #### IMPORTANCE_COLORS
 

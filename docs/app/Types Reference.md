@@ -17,7 +17,7 @@ All shared TypeScript interfaces are defined in `app/src/api/types.ts` and used 
 interface Task {
   id: string;
   name: string;
-  status: "Not Started" | "In Progress" | "Done" | "Cancelled" | "Deferred";
+  status: "Not Started" | "In Progress" | "Done" | "Cancelled" | "Blocked";
   importance: "High" | "Medium" | "Low";
   urgency: "High" | "Medium" | "Low" | null;
   projectIds: string[];

@@ -6,7 +6,7 @@ export const STATUS_COLORS: Record<Task["status"], string> = {
   "In Progress": "#5e6ad2",
   Done: "#27a644",
   Cancelled: "#dc2626",
-  Deferred: "#d97706",
+  Blocked: "#d97706",
 };
 
 export const IMPORTANCE_COLORS: Record<Task["importance"], string> = {

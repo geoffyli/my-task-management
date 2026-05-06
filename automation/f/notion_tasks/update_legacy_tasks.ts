@@ -74,7 +74,7 @@ async function queryAllLegacyTasks(
           },
           {
             property: "Status",
-            select: { does_not_equal: "Deferred" },
+            select: { does_not_equal: "Blocked" },
           },
           {
             property: "Status",

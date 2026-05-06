@@ -35,7 +35,7 @@ Notion property name → SQLite column in `tasks` table.
 | Notion Property | Type | SQLite Column | Notes |
 |----------------|------|---------------|-------|
 | Task Name | title | `title` | Falls back to "(untitled)" |
-| Status | select | `status` | Values: Not Started, In Progress, Done, Cancelled, Deferred. Default: "Not Started" |
+| Status | select | `status` | Values: Not Started, In Progress, Done, Cancelled, Blocked. Default: "Not Started" |
 | Importance | select | `importance` | Values: High, Medium, Low. Default: "Medium" |
 | Urgency | select | `urgency` | Values: High, Medium, Low, Overdue. Default: "Medium" |
 | Assigned Date | date | `assigned_date` | Current scheduled date (may differ from initial) |

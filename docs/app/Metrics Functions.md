@@ -92,7 +92,7 @@ Daily activity counts for a heatmap visualization.
 Task status breakdown per project.
 
 - Uses `buildTasksByProjectIndex()` for O(n) lookup
-- Returns: `{ project, notStarted, inProgress, done, deferred, cancelled }[]`
+- Returns: `{ project, notStarted, inProgress, done, blocked, cancelled }[]`
 - Filters out projects with zero tasks
 
 ### `getAtRiskProjects(tasks, projects): { project, reason }[]`

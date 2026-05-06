@@ -205,7 +205,7 @@ export interface ProjectHealthEntry {
   notStarted: number;
   inProgress: number;
   done: number;
-  deferred: number;
+  blocked: number;
   cancelled: number;
 }
 
@@ -213,18 +213,18 @@ export function getProjectHealth(tasks: Task[], projects: Project[]): ProjectHea
   const tasksByProject = buildTasksByProjectIndex(tasks);
   return projects.map((p) => {
     const projectTasks = tasksByProject.get(p.id) ?? [];
-    const counts = { notStarted: 0, inProgress: 0, done: 0, deferred: 0, cancelled: 0 };
+    const counts = { notStarted: 0, inProgress: 0, done: 0, blocked: 0, cancelled: 0 };
     for (const t of projectTasks) {
       switch (t.status) {
         case "Not Started": counts.notStarted++; break;
         case "In Progress": counts.inProgress++; break;
         case "Done": counts.done++; break;
-        case "Deferred": counts.deferred++; break;
+        case "Blocked": counts.blocked++; break;
         case "Cancelled": counts.cancelled++; break;
       }
     }
     return { project: p.name, ...counts };
-  }).filter((p) => p.notStarted + p.inProgress + p.done + p.deferred + p.cancelled > 0);
+  }).filter((p) => p.notStarted + p.inProgress + p.done + p.blocked + p.cancelled > 0);
 }
 
 export function buildTasksByProjectIndex(tasks: Task[]): Map<string, Task[]> {

@@ -113,7 +113,7 @@ Extracted task-specific fields for fast querying. Foreign key to `pages` with CA
 |--------|------|-------------|
 | `page_id` | TEXT (PK, FK) | References `pages.id` |
 | `title` | TEXT | Task name |
-| `status` | TEXT | Not Started, In Progress, Done, Cancelled, Deferred |
+| `status` | TEXT | Not Started, In Progress, Done, Cancelled, Blocked |
 | `importance` | TEXT | High, Medium, Low |
 | `urgency` | TEXT | High, Medium, Low (nullable) |
 | `assigned_date` | TEXT | ISO date — when task is scheduled |

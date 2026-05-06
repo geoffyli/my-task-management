@@ -11,7 +11,7 @@ related:
 
 ## Purpose
 
-Rolls forward the "Assigned Date" of overdue tasks to today. Any task with an "Assigned Date" on or before yesterday that is not Done, Deferred, or Cancelled gets its date updated to today's date. This ensures the daily task list always reflects the current backlog without manual date adjustments.
+Rolls forward the "Assigned Date" of overdue tasks to today. Any task with an "Assigned Date" on or before yesterday that is not Done, Blocked, or Cancelled gets its date updated to today's date. This ensures the daily task list always reflects the current backlog without manual date adjustments.
 
 ## When It Runs
 
@@ -25,7 +25,7 @@ Rolls forward the "Assigned Date" of overdue tasks to today. Any task with an "A
 1. **Determine today and yesterday** in CST.
 2. **Query the Tasks database** for all pages where:
    - "Assigned Date" is on or before yesterday
-   - Status is NOT "Deferred"
+   - Status is NOT "Blocked"
    - Status is NOT "Done"
    - Status is NOT "Cancelled"
 3. **Paginate** through all results (100 per page) to collect the full set.
