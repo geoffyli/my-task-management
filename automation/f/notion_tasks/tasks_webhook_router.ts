@@ -81,7 +81,7 @@ function getTodayCST(): string {
   return `${y}-${m}-${d}`;
 }
 
-// --- Init Date Handler (from set_task_init_date logic) ---
+// --- Init Date Handler ---
 
 async function handleInitDate(client: Client, page_id: string, properties: Record<string, any>) {
   const assignedDate = extractDateProperty(properties, "Assigned Date");
@@ -188,15 +188,17 @@ export async function main(page_id: string, triggers: string[], verification_tok
     return { action: "skipped", reason: "partial_page", page_id };
   }
 
-  const results: any[] = [];
+  const handlers: Promise<any>[] = [];
 
   if (triggers.includes("init_date")) {
-    results.push(await handleInitDate(client, page_id, page.properties));
+    handlers.push(handleInitDate(client, page_id, page.properties));
   }
 
   if (triggers.includes("lifecycle")) {
-    results.push(await handleLifecycle(client, page_id, page.properties));
+    handlers.push(handleLifecycle(client, page_id, page.properties));
   }
+
+  const results = await Promise.all(handlers);
 
   return { page_id, results };
 }

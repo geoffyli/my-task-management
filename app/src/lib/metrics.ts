@@ -327,8 +327,11 @@ export function getTasksThisWeek(tasks: Task[]): Task[] {
 export function getCompletedThisWeek(tasks: Task[]): Task[] {
   const today = format(new Date(), "yyyy-MM-dd");
   const endDate = format(addDays(new Date(), 6), "yyyy-MM-dd");
-  const dateFor = (t: Task) => t.closedDate ?? t.assignedDate;
-  return tasks.filter(t => t.status === "Done" && dateFor(t) && dateFor(t)! >= today && dateFor(t)! <= endDate);
+  return tasks.filter(t => {
+    if (t.status !== "Done") return false;
+    const d = t.closedDate ?? t.assignedDate;
+    return d != null && d >= today && d <= endDate;
+  });
 }
 
 export function getAtRiskProjects(tasks: Task[], projects: Project[]): { project: Project; reason: string }[] {
