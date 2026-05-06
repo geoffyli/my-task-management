@@ -35,7 +35,7 @@ app.get("/api/webhooks/notion", (c) => {
 
 const distPath = resolve(import.meta.dir, "../dist");
 if (existsSync(distPath)) {
-  app.use("/assets/*", serveStatic({ root: "./dist" }));
+  app.use("*", serveStatic({ root: distPath }));
 
   const indexHtml = readFileSync(resolve(distPath, "index.html"), "utf-8");
   app.get("*", (c) => {
