@@ -254,8 +254,8 @@ export function getCalendarHeatmapData(tasks: Task[], range?: TimeRange): Calend
       dayCounts[createdDate] = (dayCounts[createdDate] ?? 0) + 1;
     }
 
-    if (t.status === "Done" && t.assignedDate) {
-      const completed = t.assignedDate.slice(0, 10);
+    if (t.status === "Done" && (t.closedDate || t.assignedDate)) {
+      const completed = (t.closedDate ?? t.assignedDate!).slice(0, 10);
       if (!rangeStart || parseISO(completed) >= rangeStart) {
         dayCounts[completed] = (dayCounts[completed] ?? 0) + 1;
       }

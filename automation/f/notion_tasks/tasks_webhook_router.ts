@@ -133,7 +133,7 @@ async function handleLifecycle(client: Client, page_id: string, properties: Reco
 
     case "Done":
     case "Cancelled":
-      updates["Closed Date"] = { date: { start: today } };
+      if (!closedDate) updates["Closed Date"] = { date: { start: today } };
       if (!startedDate) updates["Started Date"] = { date: { start: today } };
       break;
 
