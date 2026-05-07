@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { Task } from "@/api/types";
+import type { HealthSeverity } from "@/lib/health";
 
 export const STATUS_COLORS: Record<Task["status"], string> = {
   "Not Started": "#6b7280",
@@ -9,7 +10,7 @@ export const STATUS_COLORS: Record<Task["status"], string> = {
   Blocked: "#d97706",
 };
 
-export const IMPORTANCE_COLORS: Record<Task["importance"], string> = {
+export const IMPORTANCE_COLORS: Record<string, string> = {
   High: "#ef4444",
   Medium: "#d97706",
   Low: "#6b7280",
@@ -63,3 +64,9 @@ export const TIME_RANGES: { value: TimeRange; label: string }[] = [
 export function isActiveTask(t: Task): boolean {
   return t.status !== "Done" && t.status !== "Cancelled";
 }
+
+export const SEVERITY_COLORS: Record<HealthSeverity, string> = {
+  error: "#dc2626",
+  warning: "#d97706",
+  info: "#5e6ad2",
+};

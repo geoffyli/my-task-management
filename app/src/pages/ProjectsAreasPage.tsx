@@ -163,7 +163,7 @@ export function ProjectsAreasPage() {
                   <span className="text-[11px] font-mono text-foreground-tertiary">{pct}%</span>
                 </div>
                 <p className="mt-1.5 text-[12px] text-foreground-quaternary">
-                  {done}/{total} tasks done • {p.priority} priority
+                  {done}/{total} tasks done{p.priority ? ` • ${p.priority} priority` : ""}
                 </p>
               </div>
             );

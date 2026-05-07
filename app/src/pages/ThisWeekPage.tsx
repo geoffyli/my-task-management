@@ -57,7 +57,7 @@ export function ThisWeekPage() {
       const date = format(addDays(weekStart, i), "yyyy-MM-dd");
       const dayTasks = allWeekTasks
         .filter(t => t.assignedDate === date)
-        .sort((a, b) => (IMPORTANCE_ORDER[a.importance] ?? 2) - (IMPORTANCE_ORDER[b.importance] ?? 2));
+        .sort((a, b) => (IMPORTANCE_ORDER[a.importance ?? ""] ?? 2) - (IMPORTANCE_ORDER[b.importance ?? ""] ?? 2));
       days.push({
         date,
         label: `${getDayLabel(date, today, tomorrow)} — ${format(parseISO(date), "MMM d")}`,
@@ -137,8 +137,8 @@ export function ThisWeekPage() {
                         />
                         <span className="text-[13px] text-foreground">{task.name}</span>
                       </div>
-                      <Badge variant="data" color={IMPORTANCE_COLORS[task.importance]}>
-                        {task.importance}
+                      <Badge variant="data" color={IMPORTANCE_COLORS[task.importance ?? ""]}>
+                        {task.importance ?? "–"}
                       </Badge>
                     </div>
                   ))}
@@ -164,8 +164,8 @@ export function ThisWeekPage() {
                 className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]"
               >
                 <div className="flex items-center gap-3">
-                  <Badge variant="data" color={IMPORTANCE_COLORS[task.importance]}>
-                    {task.importance}
+                  <Badge variant="data" color={IMPORTANCE_COLORS[task.importance ?? ""]}>
+                    {task.importance ?? "–"}
                   </Badge>
                   <span className="text-[13px] text-foreground">{task.name}</span>
                 </div>

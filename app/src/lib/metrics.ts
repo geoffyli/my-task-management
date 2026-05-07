@@ -51,7 +51,8 @@ export function getStatusCounts(tasks: Task[]): { status: string; count: number 
 export function getImportanceCounts(activeTasks: Task[]): { importance: string; count: number }[] {
   const counts: Record<string, number> = {};
   for (const t of activeTasks) {
-    counts[t.importance] = (counts[t.importance] ?? 0) + 1;
+    const key = t.importance ?? "Unset";
+    counts[key] = (counts[key] ?? 0) + 1;
   }
   return Object.entries(counts).map(([importance, count]) => ({ importance, count }));
 }
@@ -271,7 +272,7 @@ export interface DeadlineEntry {
   name: string;
   deadline: string;
   daysRemaining: number;
-  importance: string;
+  importance: string | null;
 }
 
 export function getDeadlineProximity(tasks: Task[]): DeadlineEntry[] {
@@ -289,7 +290,7 @@ export function getDeadlineProximity(tasks: Task[]): DeadlineEntry[] {
 
 export interface BlockedTasksSummary {
   blockedCount: number;
-  blockedTasks: { id: string; name: string; blockedByCount: number; importance: string }[];
+  blockedTasks: { id: string; name: string; blockedByCount: number; importance: string | null }[];
 }
 
 export function getBlockedTasksSummary(tasks: Task[]): BlockedTasksSummary {
@@ -341,7 +342,7 @@ export function getAtRiskProjects(tasks: Task[], projects: Project[]): { project
   const todayStr = format(new Date(), "yyyy-MM-dd");
 
   for (const project of projects) {
-    if (project.status === "Completed") continue;
+    if (project.status === "Archived") continue;
     const projectTasks = tasksByProject.get(project.id) || [];
     const activeTasks = projectTasks.filter(t => t.status !== "Done" && t.status !== "Cancelled");
 

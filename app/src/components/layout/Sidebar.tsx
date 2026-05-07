@@ -1,17 +1,20 @@
 import { NavLink } from "react-router-dom";
-import { CalendarDays, TrendingUp, FolderKanban, Settings, LogOut } from "lucide-react";
+import { CalendarDays, TrendingUp, FolderKanban, Activity, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHealthErrorCount } from "@/hooks/useHealthReport";
 
 const links = [
   { to: "/", label: "This Week", icon: CalendarDays },
   { to: "/trends", label: "Trends", icon: TrendingUp },
   { to: "/projects", label: "Projects & Areas", icon: FolderKanban },
+  { to: "/health", label: "Health", icon: Activity },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function Sidebar() {
   const { logout } = useAuth();
+  const healthErrorCount = useHealthErrorCount();
 
   return (
     <aside className="flex w-56 flex-col border-r border-border-subtle bg-surface-panel px-3 py-4">
@@ -35,6 +38,11 @@ export function Sidebar() {
           >
             <Icon size={16} strokeWidth={1.5} />
             {label}
+            {to === "/health" && healthErrorCount > 0 && (
+              <span className="ml-auto rounded-full bg-[#dc2626] px-1.5 py-0.5 text-[10px] font-[600] leading-none text-white min-w-[18px] text-center">
+                {healthErrorCount}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>

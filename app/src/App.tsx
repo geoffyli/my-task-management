@@ -5,6 +5,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { ThisWeekPage } from "./pages/ThisWeekPage";
 import { TrendsPage } from "./pages/TrendsPage";
 import { ProjectsAreasPage } from "./pages/ProjectsAreasPage";
+import { HealthPage } from "./pages/HealthPage";
 import { SettingsPage } from "./pages/SettingsPage";
 
 export function App() {
@@ -20,6 +21,7 @@ export function App() {
         <Route path="/" element={<ThisWeekPage />} />
         <Route path="/trends" element={<TrendsPage />} />
         <Route path="/projects" element={<ProjectsAreasPage />} />
+        <Route path="/health" element={<HealthPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

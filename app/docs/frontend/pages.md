@@ -23,6 +23,7 @@ All routes in the application with their data requirements and key features.
 | `/` | ThisWeekPage | Yes | Weekly task overview |
 | `/trends` | TrendsPage | Yes | Analytics charts and trends |
 | `/projects` | ProjectsAreasPage | Yes | Project health and area workload |
+| `/health` | HealthPage | Yes | Data health monitoring and rule violations |
 | `/settings` | SettingsPage | Yes | Sync management and webhook config |
 | `*` | Redirect to `/` | Yes | Catch-all |
 | (unauthenticated) | LoginPage | No | Token login |
@@ -112,6 +113,32 @@ All routes in the application with their data requirements and key features.
 3. **Area workload** — Vertical stacked bar chart showing task distribution across areas
 
 4. **Project progress cards** — Grid of cards showing completion percentage bars per project
+
+## HealthPage
+
+**Purpose:** Data health monitoring — surfaces tasks and projects with missing or inconsistent data that need fixing in Notion.
+
+**Data hooks:** `useHealthReport(cutoffDate)` (wraps `useTasks()` + `useProjects()`)
+
+**Filters** (persisted in URL search params):
+- Severity: All / Errors / Warnings / Info
+- Entity type: All / Tasks / Projects
+- Cutoff: 30 days / 90 days (default) / 6 months / All time
+
+**Sections:**
+
+1. **Summary bar** — Three severity badges showing error, warning, and info counts
+
+2. **Filter bar** — Three `SegmentedControl` toggle groups
+
+3. **Rule groups** — Collapsible sections sorted by severity (errors first)
+   - Error groups auto-expanded on load
+   - Each group shows: rule name, severity dot, violation count
+   - Expanded content: rule description + violation items
+   - Each violation: entity name (as Notion link), context text, external link icon
+   - Data: `computeHealthReport(tasks, projects, cutoffDate)` from [[health-rules]]
+
+**Sidebar badge:** Error count badge appears on the "Health" nav item when errors > 0 (uses `useHealthErrorCount()` hook).
 
 ## SettingsPage
 

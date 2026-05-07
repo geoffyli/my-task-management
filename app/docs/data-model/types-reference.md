@@ -22,7 +22,7 @@ interface Task {
   id: string;
   name: string;
   status: "Not Started" | "In Progress" | "Done" | "Cancelled" | "Blocked";
-  importance: "High" | "Medium" | "Low";
+  importance: "High" | "Medium" | "Low" | null;
   urgency: "High" | "Medium" | "Low" | "Overdue" | null;
   projectIds: string[];
   assignedDate: string | null;
@@ -42,8 +42,8 @@ interface Task {
 | `id` | Notion page ID |
 | `name` | Task title from Notion |
 | `status` | Current workflow state |
-| `importance` | High / Medium / Low |
-| `urgency` | High / Medium / Low / null — time-sensitivity indicator |
+| `importance` | High / Medium / Low / null — triage priority (null = not set) |
+| `urgency` | High / Medium / Low / Overdue / null — time-sensitivity indicator |
 | `projectIds` | Array of related project page IDs (Notion relation) |
 | `assignedDate` | When the task is scheduled for (may be rescheduled) |
 | `initialAssignedDate` | Original assigned date (used for reschedule tracking) |
@@ -59,8 +59,8 @@ interface Task {
 interface Project {
   id: string;
   name: string;
-  status: "In Progress" | "Completed";
-  priority: "High" | "Medium" | "Low";
+  status: "Not Started" | "In Progress" | "On Hold" | "In Maintenance" | "Archived";
+  priority: "High" | "Medium" | "Low" | null;
   areaIds: string[];
   startDate: string | null;
   endDate: string | null;
@@ -72,8 +72,8 @@ interface Project {
 |-------|-------------|
 | `id` | Notion page ID |
 | `name` | Project title |
-| `status` | In Progress or Completed |
-| `priority` | High / Medium / Low |
+| `status` | Not Started / In Progress / On Hold / In Maintenance / Archived |
+| `priority` | High / Medium / Low / null — project priority (null = not set) |
 | `areaIds` | Array of related area page IDs |
 | `startDate` | Project start date (from Notion Date range) |
 | `endDate` | Project end date (from Notion Date range) |
