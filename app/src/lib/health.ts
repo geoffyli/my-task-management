@@ -151,3 +151,14 @@ export function computeHealthReport(
 export function getNotionUrl(pageId: string): string {
   return `https://notion.so/${pageId.replace(/-/g, "")}`;
 }
+
+export function computeHealthScore(report: HealthReport): number {
+  const penalty = report.errors * 5 + report.warnings * 2 + report.info * 0.5;
+  return Math.max(0, Math.round(100 - penalty));
+}
+
+export function getScoreColor(score: number): string {
+  if (score >= 75) return "#27a644";
+  if (score >= 50) return "#d97706";
+  return "#dc2626";
+}

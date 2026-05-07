@@ -2,10 +2,17 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ChevronRight, ExternalLink } from "lucide-react";
 import { subDays } from "date-fns";
+import {
+  ResponsiveContainer, PieChart, Pie, Cell,
+  RadialBarChart, RadialBar,
+  BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
+} from "recharts";
 import { cn } from "@/lib/utils";
 import { useHealthReport } from "@/hooks/useHealthReport";
-import { getNotionUrl, type HealthSeverity, type HealthRuleResult } from "@/lib/health";
-import { SEVERITY_COLORS } from "@/lib/constants";
+import { getNotionUrl, computeHealthScore, getScoreColor, type HealthSeverity, type HealthRuleResult } from "@/lib/health";
+import { SEVERITY_COLORS, TOOLTIP_STYLE } from "@/lib/constants";
+import { CHART_THEME } from "@/lib/chart-theme";
+import { ChartContainer } from "@/components/shared/ChartContainer";
 import { SegmentedControl } from "@/components/shared/SegmentedControl";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -36,18 +43,130 @@ const ENTITY_OPTIONS: { value: EntityFilter; label: string }[] = [
   { value: "projects", label: "Projects" },
 ];
 
-function SeverityBadge({ severity, count }: { severity: HealthSeverity; count: number }) {
+function HealthScoreGauge({ score }: { score: number }) {
+  const color = getScoreColor(score);
+  const data = [{ value: score, fill: color }];
+
   return (
-    <div className="flex items-center gap-2 rounded-[8px] border border-border-subtle px-3 py-2">
-      <div
-        className="h-2 w-2 rounded-full"
-        style={{ backgroundColor: SEVERITY_COLORS[severity] }}
-      />
-      <span className="text-[13px] font-[510] text-foreground-secondary capitalize">
-        {severity === "error" ? "Errors" : severity === "warning" ? "Warnings" : "Info"}
-      </span>
-      <span className="text-[16px] font-[590] text-foreground">{count}</span>
-    </div>
+    <ChartContainer title="Health Score" description="Weighted penalty score (0–100)">
+      <div className="relative flex items-center justify-center" style={{ height: 160 }}>
+        <ResponsiveContainer width="100%" height={160}>
+          <RadialBarChart
+            cx="50%"
+            cy="80%"
+            innerRadius="60%"
+            outerRadius="90%"
+            startAngle={180}
+            endAngle={0}
+            data={data}
+            barSize={12}
+          >
+            <RadialBar
+              dataKey="value"
+              cornerRadius={6}
+              background={{ fill: "rgba(255,255,255,0.05)" }}
+            />
+          </RadialBarChart>
+        </ResponsiveContainer>
+        <div className="absolute inset-0 flex flex-col items-center justify-end pb-6">
+          <span className="text-[32px] font-[590] tracking-[-0.5px]" style={{ color }}>
+            {score}
+          </span>
+          <span className="text-[11px] font-[510] text-foreground-quaternary">out of 100</span>
+        </div>
+      </div>
+    </ChartContainer>
+  );
+}
+
+function SeverityDonut({ errors, warnings, info }: { errors: number; warnings: number; info: number }) {
+  const total = errors + warnings + info;
+  const segments = [
+    { name: "Errors", value: errors, color: SEVERITY_COLORS.error },
+    { name: "Warnings", value: warnings, color: SEVERITY_COLORS.warning },
+    { name: "Info", value: info, color: SEVERITY_COLORS.info },
+  ].filter((s) => s.value > 0);
+
+  return (
+    <ChartContainer title="Severity Breakdown" description="Proportion of issue types">
+      <div className="relative flex items-center justify-center" style={{ height: 160 }}>
+        {total === 0 ? (
+          <span className="text-[13px] text-foreground-quaternary">No issues</span>
+        ) : (
+          <>
+            <ResponsiveContainer width="100%" height={160}>
+              <PieChart>
+                <Pie
+                  data={segments}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius="55%"
+                  outerRadius="80%"
+                  dataKey="value"
+                  stroke="none"
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  {segments.map((s, i) => (
+                    <Cell key={i} fill={s.color} fillOpacity={0.85} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  formatter={(value, name) => [`${value} items`, name]}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-[24px] font-[590] text-foreground">{total}</span>
+              <span className="text-[11px] font-[510] text-foreground-quaternary">total</span>
+            </div>
+          </>
+        )}
+      </div>
+    </ChartContainer>
+  );
+}
+
+function ViolationsByRuleChart({ results }: { results: HealthRuleResult[] }) {
+  const data = useMemo(() =>
+    results
+      .map((r) => ({
+        name: r.rule.name,
+        count: r.violations.length,
+        severity: r.rule.severity,
+      }))
+      .sort((a, b) => b.count - a.count),
+    [results]
+  );
+
+  if (data.length === 0) return null;
+
+  const chartHeight = Math.max(200, data.length * 40);
+
+  return (
+    <ChartContainer title="Violations by Rule" description="Which rules have the most issues">
+      <ResponsiveContainer width="100%" height={chartHeight}>
+        <BarChart data={data} layout="vertical" margin={CHART_THEME.marginWide}>
+          <CartesianGrid horizontal={false} stroke={CHART_THEME.grid.stroke} strokeDasharray={CHART_THEME.grid.strokeDasharray} />
+          <XAxis type="number" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
+          <YAxis
+            type="category"
+            dataKey="name"
+            tick={CHART_THEME.axisTickSm}
+            axisLine={false}
+            tickLine={false}
+            width={140}
+          />
+          <Tooltip contentStyle={TOOLTIP_STYLE} cursor={CHART_THEME.cursorFill} formatter={(value) => [`${value} items`, "Violations"]} />
+          <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
+            {data.map((entry, i) => (
+              <Cell key={i} fill={SEVERITY_COLORS[entry.severity]} fillOpacity={0.8} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </ChartContainer>
   );
 }
 
@@ -132,6 +251,8 @@ export function HealthPage() {
 
   const { report, isLoading } = useHealthReport(cutoffDate);
 
+  const score = report ? computeHealthScore(report) : 100;
+
   const filteredResults = useMemo(() => {
     if (!report) return [];
     return report.results.filter((r) => {
@@ -181,11 +302,14 @@ export function HealthPage() {
       <h2 className="text-[20px] font-[590] text-foreground tracking-[-0.24px]">Health</h2>
 
       {report && (
-        <div className="flex items-center gap-3">
-          <SeverityBadge severity="error" count={report.errors} />
-          <SeverityBadge severity="warning" count={report.warnings} />
-          <SeverityBadge severity="info" count={report.info} />
-        </div>
+        <>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <HealthScoreGauge score={score} />
+            <SeverityDonut errors={report.errors} warnings={report.warnings} info={report.info} />
+          </div>
+
+          <ViolationsByRuleChart results={filteredResults} />
+        </>
       )}
 
       <div className="flex flex-wrap items-center gap-3">
