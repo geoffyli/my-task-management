@@ -2,22 +2,25 @@
 parent: "[[Automation]]"
 tags:
 related:
+  - "[[Tasks Webhook Router]]"
+  - "[[Task Lifecycle]]"
   - "[[Update Legacy Tasks]]"
-  - "[[Setting Up Triggers]]"
 ---
 
 # Set Task Init Date
 
+> **Status: SUPERSEDED (2026-05-07)**
+> This script's logic has been merged into [[Tasks Webhook Router]] as the `handleInitDate` handler. The standalone HTTP trigger (`notion/webhook/task-init-date`) was removed. The script file remains in the codebase for reference and direct invocation but has no active webhook trigger.
+
 ## Purpose
 
-When a task's "Assigned Date" property is first set in Notion, this script records that value as the "Initial Assigned Date". This preserves the original scheduling intent even after the [[Update Legacy Tasks]] script rolls dates forward. If "Assigned Date" is cleared, it also clears the initial date to keep them in sync.
+When a task's "Assigned Date" property is first set in Notion, this script records that value as the "Initial Assigned Date". This preserves the original scheduling intent — the immutable record of when you first planned to do a task.
 
-## When It Runs
+## Current Behavior (via Router)
 
-- **Trigger:** HTTP (webhook)
-- **Route:** `POST /api/r/notion/webhook/task-init-date`
-- **Authentication:** None (uses preprocessor-based validation instead)
-- **Request type:** Sync (returns response body for Notion verification handshake)
+- **Trigger:** Handled by `tasks_webhook_router` when property `lMKd` (Assigned Date) changes
+- **Immutability:** Once Initial Assigned Date is set, it is never cleared or overwritten — regardless of subsequent changes to Assigned Date
+- See [[Tasks Webhook Router]] for the full dispatch architecture
 - **File:** `set_task_init_date.http_trigger.yaml`
 
 ## How It Works

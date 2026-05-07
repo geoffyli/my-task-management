@@ -66,14 +66,16 @@ The web application runs on **Bun** with:
 
 ## Automation Architecture
 
-Windmill CE runs on Railway with **4 scripts**:
+Windmill CE runs on Railway with **4 scripts** (1 active webhook, 2 scheduled, 1 disabled):
 
 | Script | Trigger | Purpose |
 |--------|---------|---------|
-| `create_repetitive_tasks` | Cron (daily) | Generate recurring tasks in Notion |
+| `tasks_webhook_router` | Webhook (Notion) | Routes property changes; sets lifecycle dates (Started/Closed/Initial Assigned) |
+| `create_repetitive_tasks` | Cron (weekly) | Generate recurring tasks from config database |
 | `create_weekly_note` | Cron (weekly) | Create weekly planning page |
-| `set_task_init_date` | Cron (periodic) | Backfill initialisation dates |
-| `update_legacy_tasks` | Webhook | Migrate legacy task properties |
+| `update_legacy_tasks` | **Disabled** | Formerly rolled overdue tasks forward (retired — replaced by view-based filtering) |
+
+The `set_task_init_date` script remains in the codebase but its logic has been merged into `tasks_webhook_router`. It has no active trigger.
 
 Scripts run in **Bun runtime** within Windmill workers and interact with the Notion API (v2025-09-03).
 

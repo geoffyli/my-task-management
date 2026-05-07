@@ -16,6 +16,7 @@ This monorepo contains two main systems for task management and analytics:
 ### Foundation
 
 - [[Architecture]] — System-wide architecture and data flow
+- [[Task Lifecycle]] — Task state machine, lifecycle dates, and automation design
 - [[Getting Started]] — Developer onboarding guide
 - [[Tech Stack]] — Unified technology reference
 
