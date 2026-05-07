@@ -1,5 +1,5 @@
 import type { Database } from "bun:sqlite";
-import { bulkUpsert, softDeletePage, getAllPageIds, setSyncMeta, logSyncEvent } from "../db";
+import { bulkUpsert, softDeletePage, getAllPageIds, setSyncMeta, logSyncEvent, checkpointDb } from "../db";
 import type { RawPage } from "../db";
 import { queryDatabase, getNotionKey, DATA_SOURCES } from "./notion-client";
 
@@ -46,4 +46,6 @@ export async function fullSync(db: Database): Promise<void> {
   });
 
   console.log(`[sync] Full sync complete: ${totalPages} pages in ${Date.now() - startTime}ms`);
+
+  checkpointDb();
 }

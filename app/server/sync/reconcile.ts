@@ -1,5 +1,5 @@
 import type { Database } from "bun:sqlite";
-import { upsertPage, getSyncMeta, setSyncMeta, logSyncEvent } from "../db";
+import { upsertPage, getSyncMeta, setSyncMeta, logSyncEvent, checkpointDb, cleanupOldEvents } from "../db";
 import type { RawPage } from "../db";
 import { queryDatabaseIncremental, getNotionKey, DATA_SOURCES } from "./notion-client";
 
@@ -45,5 +45,8 @@ export async function reconcile(db: Database): Promise<void> {
       payload: { totalUpdated, elapsed: Date.now() - startTime },
     });
   }
+
+  cleanupOldEvents(db);
+  checkpointDb();
 }
 

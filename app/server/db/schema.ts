@@ -2,6 +2,8 @@ import { Database } from "bun:sqlite";
 import { mkdirSync } from "fs";
 import { dirname } from "path";
 
+const SCHEMA_VERSION = 2;
+
 export function initializeDatabase(dbPath: string): Database {
   mkdirSync(dirname(dbPath), { recursive: true });
 
@@ -88,10 +90,21 @@ export function initializeDatabase(dbPath: string): Database {
   db.run("CREATE INDEX IF NOT EXISTS idx_tasks_deadline ON tasks(deadline)");
   db.run("CREATE INDEX IF NOT EXISTS idx_sync_events_created_at ON sync_events(created_at)");
 
-  // Migration: add started_date column for existing databases
-  const cols = db.prepare("PRAGMA table_info(tasks)").all() as { name: string }[];
-  if (!cols.some((c) => c.name === "started_date")) {
-    db.run("ALTER TABLE tasks ADD COLUMN started_date TEXT");
+  // Schema versioning and migrations
+  const currentVersion = Number(
+    (db.query("SELECT value FROM sync_meta WHERE key = 'schema_version'").get() as { value: string } | null)?.value ?? "0"
+  );
+
+  if (currentVersion < 2) {
+    const cols = db.prepare("PRAGMA table_info(tasks)").all() as { name: string }[];
+    if (!cols.some((c) => c.name === "started_date")) {
+      db.run("ALTER TABLE tasks ADD COLUMN started_date TEXT");
+    }
+  }
+
+  if (currentVersion < SCHEMA_VERSION) {
+    db.run("INSERT OR REPLACE INTO sync_meta (key, value) VALUES ('schema_version', ?)", [String(SCHEMA_VERSION)]);
+    console.log(`[db] Schema upgraded to version ${SCHEMA_VERSION}`);
   }
 
   return db;

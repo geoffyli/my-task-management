@@ -18,7 +18,12 @@ const app = new Hono();
 
 app.get("/healthz", (c) => {
   if (!ready) return c.json({ status: "booting" }, 503);
-  return c.json({ status: "ok" });
+  try {
+    db.query("SELECT 1").get();
+    return c.json({ status: "ok" });
+  } catch {
+    return c.json({ status: "degraded", error: "database unreachable" }, 503);
+  }
 });
 
 const apiRoutes = createApiRoutes(db);

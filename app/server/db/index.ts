@@ -13,14 +13,20 @@ export function getDb(): Database {
   return db;
 }
 
+export function checkpointDb(): void {
+  const instance = getDb();
+  instance.run("PRAGMA wal_checkpoint(TRUNCATE)");
+}
+
 export function closeDb(): void {
   if (db) {
+    db.run("PRAGMA wal_checkpoint(TRUNCATE)");
     db.close();
     db = null;
   }
 }
 
-export { upsertPage, softDeletePage, restorePage, bulkUpsert, setSyncMeta, getSyncMeta, logSyncEvent } from "./store";
+export { upsertPage, softDeletePage, restorePage, bulkUpsert, setSyncMeta, getSyncMeta, logSyncEvent, cleanupOldEvents } from "./store";
 export type { RawPage } from "./store";
 export { getAllTasks, getAllProjects, getAllAreas, getPageCount, getSyncStatus, getSyncEvents, getAllPageIds } from "./queries";
 export type { SyncStatus, SyncEvent } from "./queries";

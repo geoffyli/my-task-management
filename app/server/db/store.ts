@@ -170,3 +170,11 @@ export function logSyncEvent(
     [event.event_type, event.source, event.payload ? JSON.stringify(event.payload) : null]
   );
 }
+
+export function cleanupOldEvents(db: Database, retentionDays = 30): number {
+  const result = db.run(
+    "DELETE FROM sync_events WHERE created_at < datetime('now', ?)",
+    [`-${retentionDays} days`]
+  );
+  return result.changes;
+}
