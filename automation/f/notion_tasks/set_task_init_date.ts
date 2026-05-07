@@ -102,27 +102,9 @@ export async function main(page_id: string, verification_token?: string) {
   console.log(`Assigned Date: ${assignedDate ?? "(empty)"}`);
   console.log(`Initial Assigned Date: ${initialAssignedDate ?? "(empty)"}`);
 
-  // Step 3: Business logic
+  // Step 3: Business logic — Initial Assigned Date is immutable once set
   if (initialAssignedDate) {
-    if (!assignedDate) {
-      // Assigned Date was cleared → clear Initial Assigned Date too
-      console.log("Clearing Initial Assigned Date (Assigned Date was cleared)");
-      await client.pages.update({
-        page_id,
-        properties: {
-          "Initial Assigned Date": { date: null },
-        },
-      });
-      return {
-        action: "initial_date_cleared",
-        page_id,
-        assigned_date: null,
-        initial_assigned_date_was: initialAssignedDate,
-      };
-    }
-
-    // Both dates exist — no action needed
-    console.log("Both dates set, no action needed");
+    console.log("Initial Assigned Date already set, no action needed");
     return {
       action: "no_action_needed",
       page_id,

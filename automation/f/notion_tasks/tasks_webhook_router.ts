@@ -90,14 +90,6 @@ async function handleInitDate(client: Client, page_id: string, properties: Recor
   console.log(`[init_date] Assigned Date: ${assignedDate ?? "(empty)"}, Initial: ${initialAssignedDate ?? "(empty)"}`);
 
   if (initialAssignedDate) {
-    if (!assignedDate) {
-      console.log("[init_date] Clearing Initial Assigned Date (Assigned Date was cleared)");
-      await client.pages.update({
-        page_id,
-        properties: { "Initial Assigned Date": { date: null } },
-      });
-      return { handler: "init_date", action: "initial_date_cleared" };
-    }
     return { handler: "init_date", action: "no_action_needed" };
   }
 
