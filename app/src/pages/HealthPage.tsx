@@ -53,9 +53,9 @@ function HealthScoreGauge({ score }: { score: number }) {
         <ResponsiveContainer width="100%" height={160}>
           <RadialBarChart
             cx="50%"
-            cy="80%"
-            innerRadius="60%"
-            outerRadius="90%"
+            cy="60%"
+            innerRadius="55%"
+            outerRadius="85%"
             startAngle={180}
             endAngle={0}
             data={data}
@@ -68,7 +68,7 @@ function HealthScoreGauge({ score }: { score: number }) {
             />
           </RadialBarChart>
         </ResponsiveContainer>
-        <div className="absolute inset-0 flex flex-col items-center justify-end pb-6">
+        <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
           <span className="text-[32px] font-[590] tracking-[-0.5px]" style={{ color }}>
             {score}
           </span>
