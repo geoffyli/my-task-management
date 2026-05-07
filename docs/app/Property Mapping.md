@@ -44,7 +44,7 @@ Notion property name -> SQLite column in `tasks` table.
 | *(all others)* | various | `properties` | JSON blob of remaining properties |
 
 **Derived fields:**
-- `completion_date` = `assigned_date` when `status === "Done"`, otherwise `null`
+- `completion_date` = Notion "Closed Date" property (auto-managed by webhook router)
 - `created_time` = Notion's `raw.created_time`
 - `last_edited_time` = Notion's `raw.last_edited_time`
 
@@ -75,7 +75,7 @@ Properties listed as "core keys" are extracted into dedicated columns. Everythin
 ```typescript
 TASK_CORE_KEYS = [
   "Task Name", "Status", "Importance", "Urgency", "Project",
-  "Assigned Date", "Initial Assigned Date", "Deadline", "Depends on",
+  "Assigned Date", "Initial Assigned Date", "Started Date", "Closed Date", "Deadline", "Depends on",
 ];
 
 PROJECT_CORE_KEYS = ["Name", "Status", "Priority", "Areas", "Date"];

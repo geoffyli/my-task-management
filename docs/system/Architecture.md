@@ -1,5 +1,5 @@
 ---
-parent: "[[Index]]"
+parent: "[[System]]"
 tags: []
 related:
   - "[[Tech Stack]]"
@@ -71,7 +71,7 @@ Windmill CE runs on Railway with **4 scripts** (1 active webhook, 2 scheduled, 1
 | Script | Trigger | Purpose |
 |--------|---------|---------|
 | `tasks_webhook_router` | Webhook (Notion) | Routes property changes; sets lifecycle dates (Started/Closed/Initial Assigned) |
-| `create_repetitive_tasks` | Cron (weekly) | Generate recurring tasks from config database |
+| `create_repetitive_tasks` | Cron (daily) | Generate recurring tasks from config database |
 | `create_weekly_note` | Cron (weekly) | Create weekly planning page |
 | `update_legacy_tasks` | **Disabled** | Formerly rolled overdue tasks forward (retired — replaced by view-based filtering) |
 

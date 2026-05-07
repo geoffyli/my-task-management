@@ -40,8 +40,7 @@ The `preprocessor` function runs before `main` and filters incoming webhook even
 1. **Fetch the full page** from Notion using the page ID from the preprocessor.
 2. **Extract property values** for "Assigned Date" and "Initial Assigned Date".
 3. **Apply business rules:**
-   - If "Initial Assigned Date" already exists and "Assigned Date" is cleared: clear "Initial Assigned Date" too.
-   - If "Initial Assigned Date" already exists and "Assigned Date" has a value: no action (initial date is already recorded).
+   - If "Initial Assigned Date" already exists: no action (field is immutable once set).
    - If "Initial Assigned Date" is empty and "Assigned Date" has a value: set "Initial Assigned Date" to the current "Assigned Date" value.
    - If both are empty: no action.
 

@@ -19,7 +19,7 @@ interface Task {
   name: string;
   status: "Not Started" | "In Progress" | "Done" | "Cancelled" | "Blocked";
   importance: "High" | "Medium" | "Low";
-  urgency: "High" | "Medium" | "Low" | null;
+  urgency: "High" | "Medium" | "Low" | "Overdue" | null;
   projectIds: string[];
   assignedDate: string | null;
   initialAssignedDate: string | null;
@@ -39,7 +39,7 @@ interface Task {
 | `name` | Task title from Notion |
 | `status` | Current workflow state |
 | `importance` | High / Medium / Low |
-| `urgency` | High / Medium / Low / null — time-sensitivity indicator |
+| `urgency` | High / Medium / Low / Overdue / null — time-sensitivity indicator |
 | `projectIds` | Array of related project page IDs (Notion relation) |
 | `assignedDate` | When the task is scheduled for (may be rescheduled) |
 | `initialAssignedDate` | Original assigned date (used for reschedule tracking) |
@@ -121,7 +121,6 @@ Audit log entries. `event_type` values: `full_sync`, `reconciliation`, `webhook`
 interface WebhookStatus {
   webhookUrl: string | null;
   verified: boolean;
-  verificationToken: string | null;
 }
 ```
 

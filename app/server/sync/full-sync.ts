@@ -23,7 +23,7 @@ export async function fullSync(db: Database): Promise<void> {
 
     bulkUpsert(db, rawPages);
 
-    const existingIds = getAllPageIds(db, dbName);
+    const existingIds = getAllPageIds(db, dbName, syncStartIso);
     const fetchedIds = new Set(pages.map((p) => p.id));
     for (const existingId of existingIds) {
       if (!fetchedIds.has(existingId)) {

@@ -34,7 +34,7 @@ export async function reconcile(db: Database): Promise<void> {
 export function startReconciliationLoop(
   db: Database,
   intervalMs: number = 15 * 60 * 1000
-): NodeJS.Timer {
+): ReturnType<typeof setInterval> {
   console.log(`[reconcile] Starting reconciliation loop (interval: ${intervalMs / 1000}s)`);
   return setInterval(async () => {
     try {

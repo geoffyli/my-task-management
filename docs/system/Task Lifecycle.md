@@ -1,5 +1,5 @@
 ---
-parent: "[[Index]]"
+parent: "[[System]]"
 tags:
   - design
 related:

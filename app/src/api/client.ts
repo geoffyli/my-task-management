@@ -4,6 +4,7 @@ import { getStoredToken } from "@/lib/auth";
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
   const token = getStoredToken();
   const headers: HeadersInit = {
+    "Content-Type": "application/json",
     ...options?.headers,
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };

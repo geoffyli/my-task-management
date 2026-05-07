@@ -88,6 +88,7 @@ async function fetchWithRetry(
     const text = await res.text();
     throw new Error(`Notion API error ${res.status}: ${text}`);
   }
+  throw new Error("Unreachable: exhausted retries without returning");
 }
 
 function notionHeaders(apiKey: string): Record<string, string> {

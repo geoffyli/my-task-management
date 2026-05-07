@@ -114,9 +114,11 @@ export function getSyncEvents(db: Database, limit = 50, offset = 0): SyncEvent[]
   ).all(limit, offset) as SyncEvent[];
 }
 
-export function getAllPageIds(db: Database, databaseId: string): string[] {
-  const rows = db.query(
-    "SELECT id FROM pages WHERE database_id = ? AND deleted_at IS NULL"
-  ).all(databaseId) as { id: string }[];
+export function getAllPageIds(db: Database, databaseId: string, syncedBefore?: string): string[] {
+  const sql = syncedBefore
+    ? "SELECT id FROM pages WHERE database_id = ? AND deleted_at IS NULL AND synced_at <= ?"
+    : "SELECT id FROM pages WHERE database_id = ? AND deleted_at IS NULL";
+  const params = syncedBefore ? [databaseId, syncedBefore] : [databaseId];
+  const rows = db.query(sql).all(...params) as { id: string }[];
   return rows.map((r) => r.id);
 }

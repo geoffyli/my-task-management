@@ -117,23 +117,6 @@ export function SettingsPage() {
               {webhookStatus?.verified ? "Verified" : "Not verified"}
             </Badge>
           </div>
-          {webhookStatus?.verificationToken && (
-            <div>
-              <p className="text-[12px] font-[510] text-foreground-tertiary mb-1">Verification Token (paste into Notion)</p>
-              <div className="flex items-center gap-2">
-                <code className="flex-1 rounded-[4px] bg-[rgba(255,255,255,0.04)] px-2.5 py-1.5 text-[12px] font-mono text-foreground-secondary break-all">
-                  {webhookStatus.verificationToken}
-                </code>
-                <Button
-                  variant="icon"
-                  size="sm"
-                  onClick={() => copyToClipboard(webhookStatus.verificationToken!, "token")}
-                >
-                  {copied === "token" ? <CheckCircle2 size={14} className="text-success" /> : <Copy size={14} />}
-                </Button>
-              </div>
-            </div>
-          )}
           {!webhookStatus?.verified && (
             <div className="rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2">
               <p className="text-[12px] text-foreground-quaternary">

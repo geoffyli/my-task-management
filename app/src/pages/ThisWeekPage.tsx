@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { CalendarDays, Loader, AlertTriangle, CheckCircle, Ban } from "lucide-react";
-import { format, addDays, parseISO } from "date-fns";
+import { format, addDays, parseISO, startOfWeek, endOfWeek } from "date-fns";
 import { useTasks } from "@/api/queries";
 import { StatCard } from "@/components/cards/StatCard";
 import { ErrorFallback } from "@/components/shared/ErrorFallback";
@@ -28,6 +28,9 @@ export function ThisWeekPage() {
 
   const today = format(new Date(), "yyyy-MM-dd");
   const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
+  const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
+  const weekStartStr = format(weekStart, "yyyy-MM-dd");
+  const weekEndStr = format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
 
   const weekTasks = useMemo(() => (tasks ? getTasksThisWeek(tasks) : []), [tasks]);
   const completedThisWeek = useMemo(() => (tasks ? getCompletedThisWeek(tasks) : []), [tasks]);
@@ -45,14 +48,13 @@ export function ThisWeekPage() {
 
   const allWeekTasks = useMemo(() => {
     if (!tasks) return [];
-    const endDate = format(addDays(new Date(), 6), "yyyy-MM-dd");
-    return tasks.filter(t => t.assignedDate && t.assignedDate >= today && t.assignedDate <= endDate);
-  }, [tasks, today]);
+    return tasks.filter(t => t.assignedDate && t.assignedDate >= weekStartStr && t.assignedDate <= weekEndStr);
+  }, [tasks, weekStartStr, weekEndStr]);
 
   const tasksByDay = useMemo(() => {
     const days: { date: string; label: string; tasks: Task[] }[] = [];
     for (let i = 0; i < 7; i++) {
-      const date = format(addDays(new Date(), i), "yyyy-MM-dd");
+      const date = format(addDays(weekStart, i), "yyyy-MM-dd");
       const dayTasks = allWeekTasks
         .filter(t => t.assignedDate === date)
         .sort((a, b) => (IMPORTANCE_ORDER[a.importance] ?? 2) - (IMPORTANCE_ORDER[b.importance] ?? 2));
@@ -63,7 +65,7 @@ export function ThisWeekPage() {
       });
     }
     return days;
-  }, [allWeekTasks, today, tomorrow]);
+  }, [allWeekTasks, weekStart, today, tomorrow]);
 
   const upcomingDeadlines = useMemo(() => {
     if (!tasks) return [];
@@ -107,7 +109,7 @@ export function ThisWeekPage() {
       <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">
         <h3 className="text-[14px] font-[510] text-foreground">Week Overview</h3>
         <p className="mt-0.5 text-[13px] text-foreground-tertiary">
-          {format(new Date(), "MMM d")} — {format(addDays(new Date(), 6), "MMM d, yyyy")}
+          {format(weekStart, "MMM d")} — {format(addDays(weekStart, 6), "MMM d, yyyy")}
         </p>
 
         <div className="mt-5 space-y-5">
@@ -187,7 +189,7 @@ export function ThisWeekPage() {
           <div className="mt-4 space-y-1">
             {blocked.blockedTasks.map(task => (
               <div
-                key={task.name}
+                key={task.id}
                 className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]"
               >
                 <div className="flex items-center gap-3">

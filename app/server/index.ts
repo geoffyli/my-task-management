@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 import { serveStatic } from "hono/bun";
 import { existsSync, readFileSync } from "fs";
 import { resolve } from "path";
@@ -9,13 +8,13 @@ import { fullSync, startReconciliationLoop, createWebhookHandler } from "./sync"
 import { createApiRoutes } from "./api";
 
 let ready = false;
-let reconcileTimer: Timer | null = null;
+let reconcileTimer: ReturnType<typeof setInterval> | null = null;
 
 const dbPath = process.env.DB_PATH || "./data/analytics.db";
 const db = initDb(dbPath);
+const port = Number(process.env.PORT) || 3456;
 
 const app = new Hono();
-app.use("*", cors());
 
 app.get("/healthz", (c) => {
   if (!ready) return c.json({ status: "booting" }, 503);
@@ -56,8 +55,6 @@ async function boot() {
 
   reconcileTimer = startReconciliationLoop(db);
   ready = true;
-
-  const port = Number(process.env.PORT) || 3456;
   console.log(`[boot] Task Management Analytics running on http://localhost:${port}`);
 }
 
@@ -78,8 +75,6 @@ boot().catch((err) => {
   console.error("[boot] Fatal error during startup:", err);
   process.exit(1);
 });
-
-const port = Number(process.env.PORT) || 3456;
 
 export default {
   port,

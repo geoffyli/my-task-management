@@ -52,5 +52,4 @@ export interface SyncEvent {
 export interface WebhookStatus {
   webhookUrl: string | null;
   verified: boolean;
-  verificationToken: string | null;
 }

@@ -72,6 +72,7 @@ In development mode (`DEV=true` or `NODE_ENV=development` with no TOKEN set), au
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
+| GET | `/api/webhooks/notion` | None | Probe endpoint returning `{ reachable, verified, lastWebhook }` |
 | POST | `/api/webhooks/notion` | HMAC | Receive Notion webhook events |
 
 This endpoint handles:

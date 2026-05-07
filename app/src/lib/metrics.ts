@@ -1,4 +1,4 @@
-import { differenceInDays, parseISO, format, eachWeekOfInterval, subDays, addDays } from "date-fns";
+import { differenceInDays, parseISO, format, eachWeekOfInterval, subDays, addDays, startOfWeek, endOfWeek } from "date-fns";
 import type { Task, Project } from "@/api/types";
 import type { TimeRange } from "@/lib/constants";
 import { isActiveTask } from "@/lib/constants";
@@ -289,7 +289,7 @@ export function getDeadlineProximity(tasks: Task[]): DeadlineEntry[] {
 
 export interface BlockedTasksSummary {
   blockedCount: number;
-  blockedTasks: { name: string; blockedByCount: number; importance: string }[];
+  blockedTasks: { id: string; name: string; blockedByCount: number; importance: string }[];
 }
 
 export function getBlockedTasksSummary(tasks: Task[]): BlockedTasksSummary {
@@ -306,6 +306,7 @@ export function getBlockedTasksSummary(tasks: Task[]): BlockedTasksSummary {
     blockedCount: blockedTasks.length,
     blockedTasks: blockedTasks
       .map((t) => ({
+        id: t.id,
         name: t.name,
         blockedByCount: t.dependencies.filter((d) => {
           const dep = taskMap.get(d);
@@ -319,18 +320,18 @@ export function getBlockedTasksSummary(tasks: Task[]): BlockedTasksSummary {
 }
 
 export function getTasksThisWeek(tasks: Task[]): Task[] {
-  const today = format(new Date(), "yyyy-MM-dd");
-  const endDate = format(addDays(new Date(), 6), "yyyy-MM-dd");
-  return tasks.filter(t => t.assignedDate && t.assignedDate >= today && t.assignedDate <= endDate && t.status !== "Done" && t.status !== "Cancelled");
+  const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
+  const weekEnd = format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
+  return tasks.filter(t => t.assignedDate && t.assignedDate >= weekStart && t.assignedDate <= weekEnd && t.status !== "Done" && t.status !== "Cancelled");
 }
 
 export function getCompletedThisWeek(tasks: Task[]): Task[] {
-  const today = format(new Date(), "yyyy-MM-dd");
-  const endDate = format(addDays(new Date(), 6), "yyyy-MM-dd");
+  const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
+  const weekEnd = format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
   return tasks.filter(t => {
     if (t.status !== "Done") return false;
     const d = t.closedDate ?? t.assignedDate;
-    return d != null && d >= today && d <= endDate;
+    return d != null && d >= weekStart && d <= weekEnd;
   });
 }
 

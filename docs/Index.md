@@ -1,33 +1,31 @@
 ---
 parent: ""
-tags: []
+tags:
+  - moc
 related: []
 ---
 
 # Index
 
-This monorepo contains two main systems for task management and analytics:
+## Quick Context
 
-- **`app/`** — A full-stack task analytics dashboard (Bun + Hono + React 19) that syncs from Notion and visualises task data in real time.
-- **`automation/`** — Windmill automation scripts that create and maintain tasks in Notion on scheduled and webhook triggers.
+Read these to understand the full system before scoping any work:
 
-## Contents
+1. [[Component Map]] — 5 components, their boundaries, and how they interface
+2. [[Data Flow]] — How data moves end-to-end across components
+3. [[Task Lifecycle]] — The domain model that drives everything
 
-### Foundation
+## System
 
-- [[Architecture]] — System-wide architecture and data flow
-- [[Task Lifecycle]] — Task state machine, lifecycle dates, and automation design
-- [[Getting Started]] — Developer onboarding guide
-- [[Tech Stack]] — Unified technology reference
+- [[System]] — Architecture, design decisions, cross-cutting flows
 
-### App
+## Components
 
-- [[App]] — Web application documentation (server, frontend, sync, auth)
+- [[App]] — Analytics dashboard (Hono + SQLite + React SPA)
+- [[Automation]] — Windmill scripts (lifecycle dates, recurring tasks, weekly notes)
+- [[Operations]] — Deployment and infrastructure
 
-### Automation
+## Onboarding
 
-- [[Automation]] — Windmill scripts and scheduling documentation
-
-### Operations
-
-- [[Operations]] — Deployment and infrastructure documentation
+- [[Getting Started]] — Developer setup
+- [[Tech Stack]] — Technology reference

@@ -11,7 +11,7 @@ related:
 
 All analytics computations that power the dashboard visualizations. These run client-side from the full task/project dataset.
 
-**Source:** `app/src/lib/metrics.ts` (362 lines)
+**Source:** `app/src/lib/metrics.ts`
 
 ## Overview Stats
 
@@ -23,8 +23,8 @@ Computes headline numbers for the This Week page.
 |--------|-------|
 | `active` | Tasks where status is not Done or Cancelled |
 | `overdue` | Active tasks with deadline before today |
-| `completedWeek` | Done tasks with assignedDate in last 7 days |
-| `completedPrevWeek` | Done tasks with assignedDate 7-14 days ago |
+| `completedWeek` | Done tasks with closedDate (assignedDate fallback) in current Mon–Sun week |
+| `completedPrevWeek` | Done tasks with closedDate (assignedDate fallback) in previous Mon–Sun week |
 | `avgAge` | Average days since creation for active tasks |
 
 ## Throughput & Velocity
@@ -119,11 +119,23 @@ Active tasks with deadlines, sorted by urgency (fewest days remaining first).
 
 ### `getTasksThisWeek(tasks): Task[]`
 
-Tasks assigned within the current 7-day window (today through +6 days), excluding Done/Cancelled.
+Active tasks assigned within the current Mon–Sun week, excluding Done/Cancelled.
 
 ### `getCompletedThisWeek(tasks): Task[]`
 
-Tasks marked Done with assignedDate in the current week window.
+Tasks marked Done with closedDate (or assignedDate fallback) in the current Mon–Sun week.
+
+### `getActiveTasks(tasks): Task[]`
+
+Filters to tasks with status not Done or Cancelled.
+
+### `getStatusCounts(tasks): { status, count }[]`
+
+Status distribution across all tasks.
+
+### `getImportanceCounts(activeTasks): { importance, count }[]`
+
+Importance distribution across active tasks.
 
 ### `buildTasksByProjectIndex(tasks): Map<string, Task[]>`
 
@@ -135,3 +147,4 @@ O(n) index mapping project IDs to their tasks. A task can appear under multiple 
 |----------|--------|---------|
 | `getTimeRangeStart(range)` | `app/src/lib/date-utils.ts` | Converts TimeRange ("30d", "90d", "6m", "all") to start Date |
 | `isActiveTask(task)` | `app/src/lib/constants.ts` | Returns true if status is not Done or Cancelled |
+| `downloadCSV(tasks, filename)` | `app/src/lib/csv-export.ts` | Exports task data as CSV download (used by ChartContainer) |

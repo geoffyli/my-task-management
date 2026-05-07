@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { timingSafeEqual } from "node:crypto";
 import type { Database } from "bun:sqlite";
 import { getAllTasks, getAllProjects, getAllAreas, getSyncStatus, getSyncEvents, getSyncMeta, logSyncEvent } from "../db";
 import { fullSync } from "../sync";
@@ -23,10 +24,14 @@ export function createApiRoutes(db: Database): Hono {
 
   api.use("/api/*", async (c, next) => {
     if (c.req.path === "/api/auth/login") return next();
-    if (c.req.path === "/api/webhooks/notion") return next();
     if (!token && isDev) return next();
     const bearer = c.req.header("Authorization")?.replace("Bearer ", "");
-    if (bearer !== token) return c.json({ error: "Unauthorized" }, 401);
+    if (!bearer || !token) return c.json({ error: "Unauthorized" }, 401);
+    const a = Buffer.from(bearer);
+    const b = Buffer.from(token);
+    if (a.length !== b.length || !timingSafeEqual(a, b)) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
     return next();
   });
 
@@ -36,7 +41,7 @@ export function createApiRoutes(db: Database): Hono {
   api.get("/api/status", (c) => c.json(getSyncStatus(db)));
 
   api.get("/api/events", (c) => {
-    const limit = Number(c.req.query("limit")) || 50;
+    const limit = Math.min(Number(c.req.query("limit")) || 50, 200);
     const offset = Number(c.req.query("offset")) || 0;
     return c.json(getSyncEvents(db, limit, offset));
   });
@@ -57,7 +62,6 @@ export function createApiRoutes(db: Database): Hono {
     return c.json({
       webhookUrl: process.env.NOTION_WEBHOOK_URL || null,
       verified: verificationToken !== null,
-      verificationToken,
     });
   });
 
