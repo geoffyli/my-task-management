@@ -178,3 +178,11 @@ export function cleanupOldEvents(db: Database, retentionDays = 30): number {
   );
   return result.changes;
 }
+
+export function purgeSoftDeletedPages(db: Database, retentionDays = 90): number {
+  const result = db.run(
+    "DELETE FROM pages WHERE deleted_at IS NOT NULL AND deleted_at < datetime('now', ?)",
+    [`-${retentionDays} days`]
+  );
+  return result.changes;
+}

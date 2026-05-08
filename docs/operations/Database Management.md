@@ -56,6 +56,12 @@ The `sync_events` audit table has a 30-day rolling retention policy. Events olde
 
 Growth rate: ~6 events/day (4 reconciliations + occasional webhooks/syncs).
 
+## Soft-Deleted Page Pruning
+
+Pages marked as deleted (`deleted_at IS NOT NULL`) are permanently purged after 90 days during reconciliation. CASCADE deletes automatically remove corresponding rows in typed tables (tasks, projects, areas). A `cleanup` event is logged to `sync_events` when pages are purged.
+
+If a purged page is later restored in Notion (via `page.undeleted` webhook), the webhook handler re-fetches the full page and inserts it as a new record.
+
 ## Health Monitoring
 
 `GET /healthz` performs a lightweight DB query (`SELECT 1`) in addition to checking the ready flag:
@@ -93,5 +99,6 @@ All task/project/area data is a mirror of the Notion databases. If the database 
 |-----------|---------|-----------|--------|
 | WAL checkpoint | After sync/reconcile, on shutdown | Every 15 min + startup | <50ms for 5MB DB |
 | Events cleanup | After reconciliation | Every 15 min (no-op when nothing to delete) | Negligible |
+| Page pruning | After reconciliation | Every 15 min (no-op when nothing to purge) | Negligible |
 | Full sync | Boot (if empty), manual trigger | On demand | 5-15 seconds |
 | Reconciliation | Timer | Every 15 minutes | 1-3 seconds |

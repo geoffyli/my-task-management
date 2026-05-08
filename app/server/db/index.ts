@@ -26,7 +26,7 @@ export function closeDb(): void {
   }
 }
 
-export { upsertPage, softDeletePage, restorePage, bulkUpsert, setSyncMeta, getSyncMeta, logSyncEvent, cleanupOldEvents } from "./store";
+export { upsertPage, softDeletePage, restorePage, bulkUpsert, setSyncMeta, getSyncMeta, logSyncEvent, cleanupOldEvents, purgeSoftDeletedPages } from "./store";
 export type { RawPage } from "./store";
 export { getAllTasks, getAllProjects, getAllAreas, getPageCount, getSyncStatus, getSyncEvents, getAllPageIds } from "./queries";
 export type { SyncStatus, SyncEvent } from "./queries";

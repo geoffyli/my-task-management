@@ -64,7 +64,7 @@ for (const existingId of existingIds) {
 }
 ```
 
-Pages removed from Notion are marked with `deleted_at` timestamp — never hard-deleted.
+Pages removed from Notion are marked with `deleted_at` timestamp (soft delete). Soft-deleted pages older than 90 days are permanently purged during reconciliation. CASCADE deletes remove corresponding typed rows (tasks/projects/areas).
 
 ## Performance Characteristics
 

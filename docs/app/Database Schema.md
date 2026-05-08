@@ -177,7 +177,7 @@ Extracted task-specific fields for fast querying. Foreign key to `pages` with CA
 
 ## Design Decisions
 
-- **Soft deletes** — Pages are never hard-deleted; `deleted_at` is set instead. This preserves audit trails and allows recovery.
+- **Soft deletes with pruning** — Pages are soft-deleted by setting `deleted_at`. Soft-deleted pages older than 90 days are permanently purged during reconciliation (CASCADE deletes remove typed rows). If a purged page is later undeleted in Notion, the webhook handler re-fetches and re-inserts it.
 - **Raw JSON preservation** — The full Notion response is stored in `pages.raw_json`, enabling re-extraction if the schema evolves.
 - **JSON arrays in TEXT columns** — Relation IDs (`project_ids`, `dependencies`, `area_ids`) are stored as JSON-stringified arrays. Parsed at query time.
 - **CASCADE deletes on FK** — If a page record is ever hard-deleted, its typed row is automatically removed.
