@@ -152,6 +152,8 @@ export function PrioritizePage() {
         />
       </div>
 
+      {insights && <MatrixInsights insights={insights} />}
+
       <NullValueCallout count={nullCount} />
 
       <ChartContainer
@@ -184,7 +186,6 @@ export function PrioritizePage() {
         />
       )}
 
-      {insights && <MatrixInsights insights={insights} />}
     </div>
   );
 }
