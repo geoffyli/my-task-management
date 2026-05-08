@@ -24,6 +24,7 @@ export function createApiRoutes(db: Database): Hono {
 
   api.use("/api/*", async (c, next) => {
     if (c.req.path === "/api/auth/login") return next();
+    if (c.req.path === "/api/webhooks/notion") return next();
     if (!token && isDev) return next();
     const bearer = c.req.header("Authorization")?.replace("Bearer ", "");
     if (!bearer || !token) return c.json({ error: "Unauthorized" }, 401);

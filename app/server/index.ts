@@ -26,9 +26,6 @@ app.get("/healthz", (c) => {
   }
 });
 
-const apiRoutes = createApiRoutes(db);
-app.route("/", apiRoutes);
-
 app.post("/api/webhooks/notion", createWebhookHandler(db));
 
 app.get("/api/webhooks/notion", (c) => {
@@ -36,6 +33,9 @@ app.get("/api/webhooks/notion", (c) => {
   const lastWebhook = getSyncMeta(db, "last_webhook");
   return c.json({ reachable: true, verified: hasToken, lastWebhook });
 });
+
+const apiRoutes = createApiRoutes(db);
+app.route("/", apiRoutes);
 
 const distPath = resolve(import.meta.dir, "../dist");
 if (existsSync(distPath)) {
