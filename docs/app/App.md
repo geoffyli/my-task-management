@@ -21,6 +21,7 @@ Full-stack task analytics dashboard that syncs data from Notion and provides ric
 
 - [[Component Architecture]] — React component organization and patterns
 - [[Pages]] — Route table and page-level data flow
+- [[Prioritize Page]] — Eisenhower Matrix visualization and algorithm
 - [[State Management]] — React Query, Context, URL state
 - [[Charting]] — Recharts visualizations and chart integration
 - [[API Client]] — Fetch wrapper and typed React Query hooks

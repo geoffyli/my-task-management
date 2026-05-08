@@ -23,9 +23,18 @@ app/src/components/
 │   ├── Card.tsx        (composable card with sub-components)
 │   ├── Badge.tsx       (status/category indicator)
 │   ├── Input.tsx       (text input)
+│   ├── MultiSelect.tsx (dropdown with search, checkboxes, clear)
 │   └── index.ts        (barrel export)
 ├── cards/            # Domain-specific card components
 │   └── StatCard.tsx    (metric display with icon, value, trend)
+├── prioritize/       # Eisenhower Matrix feature components
+│   ├── EisenhowerMatrix.tsx  (custom SVG coordinate system)
+│   ├── MatrixDot.tsx         (React.memo task dot with events)
+│   ├── MatrixTooltip.tsx     (hover tooltip overlay)
+│   ├── TaskPopover.tsx       (click detail card with Notion link)
+│   ├── MatrixFilters.tsx     (project/area multi-select bar)
+│   ├── MatrixInsights.tsx    (quadrant stat cards panel)
+│   └── NullValueCallout.tsx  (excluded tasks badge)
 └── shared/           # Reusable non-primitive components
     ├── ChartContainer.tsx    (card frame for charts with title/export)
     ├── TimeRangeSelector.tsx (segmented time filter control)
@@ -51,6 +60,10 @@ Reusable domain-aware components used across multiple pages. Understand the app'
 ### Cards (`cards/`)
 
 Specialized display components for metrics and data summaries.
+
+### Feature (`prioritize/`)
+
+Page-specific components for the [[Prioritize Page]]. Contains the custom SVG matrix, interaction overlays (tooltip, popover), filter controls, and insight display. These are tightly coupled to the Eisenhower Matrix feature and not reused elsewhere.
 
 ## Composition Patterns
 

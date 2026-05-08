@@ -7,6 +7,7 @@ import { TrendsPage } from "./pages/TrendsPage";
 import { ProjectsAreasPage } from "./pages/ProjectsAreasPage";
 import { HealthPage } from "./pages/HealthPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { PrioritizePage } from "./pages/PrioritizePage";
 
 export function App() {
   const { isAuthenticated } = useAuth();
@@ -20,6 +21,7 @@ export function App() {
       <Routes>
         <Route path="/" element={<ThisWeekPage />} />
         <Route path="/trends" element={<TrendsPage />} />
+        <Route path="/prioritize" element={<PrioritizePage />} />
         <Route path="/projects" element={<ProjectsAreasPage />} />
         <Route path="/health" element={<HealthPage />} />
         <Route path="/settings" element={<SettingsPage />} />

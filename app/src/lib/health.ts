@@ -54,7 +54,7 @@ function makeViolation(ruleId: string, entity: { id: string; name: string }, ent
   return { ruleId, entityId: entity.id, entityName: entity.name, entityType, context };
 }
 
-const RULE_EVALUATORS: Record<string, RuleEvaluator> = {
+export const RULE_EVALUATORS: Record<string, RuleEvaluator> = {
   "task-importance-not-set": (tasks) =>
     tasks
       .filter((t) => t.importance === null)

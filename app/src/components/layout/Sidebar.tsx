@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { CalendarDays, TrendingUp, FolderKanban, Activity, Settings, LogOut } from "lucide-react";
+import { CalendarDays, TrendingUp, Crosshair, FolderKanban, Activity, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHealthErrorCount } from "@/hooks/useHealthReport";
@@ -7,6 +7,7 @@ import { useHealthErrorCount } from "@/hooks/useHealthReport";
 const links = [
   { to: "/", label: "This Week", icon: CalendarDays },
   { to: "/trends", label: "Trends", icon: TrendingUp },
+  { to: "/prioritize", label: "Prioritize", icon: Crosshair },
   { to: "/projects", label: "Projects & Areas", icon: FolderKanban },
   { to: "/health", label: "Health", icon: Activity },
   { to: "/settings", label: "Settings", icon: Settings },

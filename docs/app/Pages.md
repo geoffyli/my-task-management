@@ -19,7 +19,9 @@ All routes in the application with their data requirements and key features.
 |------|-----------|---------------|-------------|
 | `/` | ThisWeekPage | Yes | Weekly task overview |
 | `/trends` | TrendsPage | Yes | Analytics charts and trends |
+| `/prioritize` | PrioritizePage | Yes | Eisenhower Matrix prioritization |
 | `/projects` | ProjectsAreasPage | Yes | Project health and area workload |
+| `/health` | HealthPage | Yes | System health score and rule violations |
 | `/settings` | SettingsPage | Yes | Sync management and webhook config |
 | `*` | Redirect to `/` | Yes | Catch-all |
 | (unauthenticated) | LoginPage | No | Token login |
@@ -109,6 +111,35 @@ All routes in the application with their data requirements and key features.
 3. **Area workload** — Vertical stacked bar chart showing task distribution across areas
 
 4. **Project progress cards** — Grid of cards showing completion percentage bars per project
+
+## PrioritizePage
+
+**Purpose:** Eisenhower Matrix visualization for task prioritization decisions.
+
+See [[Prioritize Page]] for full design documentation.
+
+**Data hooks:** `useTasks()`, `useProjects()`, `useAreas()`
+
+**State:** Project/area filters stored in URL search params (`?projects=id1,id2&areas=id3`)
+
+**Sections:**
+
+1. **Filters** — Project and area multi-select dropdowns (top-right)
+   - Non-matching dots fade to 10% opacity
+
+2. **Null-value callout** — Badge showing count of tasks excluded due to missing urgency/importance
+   - Links to Health page
+
+3. **Eisenhower Matrix** — Custom SVG coordinate system (square, 600px max)
+   - X-axis: Urgency (Low → High)
+   - Y-axis: Importance (Low → High)
+   - Dashed crosshairs at midpoint, quadrant labels
+   - Dots: color = status, size = days since assigned, position = urgency × importance with semantic offsets
+
+4. **Insights panel** — 4 stat cards below the matrix
+   - Q1 count, Q2 count, Q2 ratio (with health threshold), drift alert
+
+**Key metrics:** `computeMatrixPoints()`, `computeMatrixInsights()`, `computeDriftCount()`, `getNullFieldExclusionCount()`
 
 ## SettingsPage
 

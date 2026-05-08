@@ -148,3 +148,61 @@ O(n) index mapping project IDs to their tasks. A task can appear under multiple 
 | `getTimeRangeStart(range)` | `app/src/lib/date-utils.ts` | Converts TimeRange ("30d", "90d", "6m", "all") to start Date |
 | `isActiveTask(task)` | `app/src/lib/constants.ts` | Returns true if status is not Done or Cancelled |
 | `downloadCSV(tasks, filename)` | `app/src/lib/csv-export.ts` | Exports task data as CSV download (used by ChartContainer) |
+
+## Prioritization
+
+Functions powering the [[Prioritize Page]] Eisenhower Matrix. These compute task coordinates, visual properties, and coaching insights.
+
+**Source:** `app/src/lib/prioritize.ts`
+
+### `getMatrixEligibleTasks(tasks): Task[]`
+
+Filters to tasks that can be plotted: status is Not Started or In Progress, urgency is not null or Overdue, importance is not null.
+
+### `computeMatrixPoints(tasks, projectLookup): MatrixPoint[]`
+
+Full pipeline from raw tasks to positioned dots. For each eligible task:
+
+1. Assigns base X/Y from urgency/importance level (Low=0.15, Medium=0.50, High=0.85)
+2. Applies micro-offset X (±0.12) based on deadline proximity within urgency group
+3. Applies micro-offset Y (±0.08) based on dependency count within importance group
+4. Clamps final coordinates to [0.01, 0.99]
+5. Computes dot radius from assigned date
+6. Determines quadrant from position
+
+Precomputes per-group statistics (deadline min/max, max dependency count) for O(n) offset calculation.
+
+### `computeDotRadius(assignedDate): number`
+
+| Input | Output |
+|-------|--------|
+| `null` or future date | 6px (minimum) |
+| 0–90 days ago | 6 + 18 × √(days/90) px |
+| > 90 days ago | 24px (maximum) |
+
+### `getQuadrant(x, y): Quadrant`
+
+| Condition | Result |
+|-----------|--------|
+| x ≥ 0.5, y ≥ 0.5 | `"do-first"` |
+| x < 0.5, y ≥ 0.5 | `"schedule"` |
+| x ≥ 0.5, y < 0.5 | `"delegate"` |
+| x < 0.5, y < 0.5 | `"eliminate"` |
+
+### `computeMatrixInsights(points, totalActive): MatrixInsightData`
+
+Single-pass quadrant counting with Q2 ratio health assessment.
+
+| Q2 Ratio | Status |
+|----------|--------|
+| ≥ 40% | `"healthy"` |
+| 20–39% | `"amber"` |
+| < 20% | `"red"` |
+
+### `computeDriftCount(tasks): number`
+
+Inferred Q2→Q1 drift: count of tasks where importance=High AND urgency=High AND created 21+ days ago. These likely started as Q2 (important, not yet urgent) and drifted as deadlines approached.
+
+### `getNullFieldExclusionCount(tasks): number`
+
+Count of active tasks (Not Started / In Progress) excluded from the matrix due to null urgency, null importance, or Overdue urgency. Used by the null-value callout badge.
