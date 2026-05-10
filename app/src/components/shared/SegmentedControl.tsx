@@ -8,7 +8,7 @@ interface Props<T extends string> {
 
 export function SegmentedControl<T extends string>({ options, value, onChange }: Props<T>) {
   return (
-    <div className="flex gap-0.5 rounded-[8px] bg-[rgba(255,255,255,0.03)] p-1">
+    <div className="flex gap-0.5 rounded-[8px] bg-surface-input p-1">
       {options.map((opt) => (
         <button
           key={opt.value}

@@ -11,37 +11,56 @@ related:
 
 # Chart Theming
 
-Consistent visual styling for all Recharts visualizations.
+Consistent visual styling for all Recharts visualizations, adapting automatically to light and dark themes.
 
-**Source:** `src/lib/chart-theme.ts`, `src/lib/constants.ts`
+**Source:** `src/lib/chart-theme.ts`, `src/lib/constants.ts`, `src/hooks/useChartTheme.ts`
 
-## CHART_THEME Object
+## Theme-Aware Chart Configuration
+
+Chart styling is provided by `getChartTheme(theme)` which returns theme-appropriate values for axes, grids, cursors, and legends. The `useChartTheme()` hook wraps this with memoization:
 
 ```typescript
-const CHART_THEME = {
-  axisTick:    { fontSize: 11, fill: "#8a8f98", fontWeight: 510 },
-  axisTickSm:  { fontSize: 10, fill: "#8a8f98", fontWeight: 510 },
-  axisLine:    { stroke: "rgba(255,255,255,0.05)" },
-  grid:        { stroke: "rgba(255,255,255,0.05)", strokeDasharray: "2 4" },
-  margin:      { top: 5, right: 5, left: -10, bottom: 5 },
-  marginWide:  { top: 5, right: 20, left: 120, bottom: 5 },
-  marginArea:  { top: 5, right: 20, left: 20, bottom: 5 },
-  cursor:      { stroke: "rgba(255,255,255,0.1)" },
-  cursorFill:  { fill: "rgba(255,255,255,0.03)" },
-  legend:      { fontSize: 12, fontWeight: 510, color: "#d0d6e0" },
-  series: {
-    primary:    "#5e6ad2",   // Accent indigo
-    secondary:  "#27a644",   // Success green
-    tertiary:   "#7170ff",   // Accent light
-    quaternary: "#828fff",   // Accent hover
-    warning:    "#d97706",   // Amber/orange
-  },
-};
+// src/hooks/useChartTheme.ts
+export function useChartTheme() {
+  const { resolvedTheme } = useTheme();
+  const chartTheme = useMemo(() => getChartTheme(resolvedTheme), [resolvedTheme]);
+  const tooltipStyle = useMemo(() => getTooltipStyle(resolvedTheme), [resolvedTheme]);
+  return { chartTheme, tooltipStyle };
+}
 ```
+
+### Usage in Pages
+
+```typescript
+function TrendsPage() {
+  const { chartTheme, tooltipStyle } = useChartTheme();
+
+  return (
+    <BarChart margin={chartTheme.margin}>
+      <CartesianGrid {...chartTheme.grid} />
+      <XAxis tick={chartTheme.axisTick} axisLine={chartTheme.axisLine} />
+      <Tooltip contentStyle={tooltipStyle} cursor={chartTheme.cursorFill} />
+    </BarChart>
+  );
+}
+```
+
+## Chart Theme Properties
+
+| Property | Dark Value | Light Value | Purpose |
+|----------|-----------|-------------|---------|
+| `axisTick.fill` | `#8a8f98` | `#6b7280` | Axis label color |
+| `axisLine.stroke` | `rgba(255,255,255,0.05)` | `rgba(0,0,0,0.06)` | Axis line color |
+| `grid.stroke` | `rgba(255,255,255,0.05)` | `rgba(0,0,0,0.06)` | Grid line color |
+| `cursor.stroke` | `rgba(255,255,255,0.1)` | `rgba(0,0,0,0.1)` | Hover cursor line |
+| `cursorFill.fill` | `rgba(255,255,255,0.03)` | `rgba(0,0,0,0.03)` | Hover cursor fill |
+| `legend.color` | `#d0d6e0` | `#3c4049` | Legend text color |
+
+Margins and series colors are theme-independent.
 
 ## Series Colors
 
-Used for chart lines, bars, and areas:
+Used for chart lines, bars, and areas (same in both themes):
 
 | Name | Color | Typical Use |
 |------|-------|-------------|
@@ -51,22 +70,19 @@ Used for chart lines, bars, and areas:
 | quaternary | `#828fff` | Rolling averages, subtle series |
 | warning | `#d97706` | Blocked, at-risk indicators |
 
-## TOOLTIP_STYLE
+## Tooltip Style
 
-Shared tooltip styling applied to Recharts `<Tooltip>` components:
+Provided by `getTooltipStyle(theme)`:
 
-```typescript
-const TOOLTIP_STYLE: CSSProperties = {
-  borderRadius: "8px",
-  fontSize: "12px",
-  fontWeight: 510,
-  background: "#191a1b",
-  border: "1px solid rgba(255, 255, 255, 0.08)",
-  color: "#d0d6e0",
-};
-```
+| Property | Dark | Light |
+|----------|------|-------|
+| background | `#191a1b` | `#ffffff` |
+| border | `rgba(255,255,255,0.08)` | `rgba(0,0,0,0.08)` |
+| color | `#d0d6e0` | `#3c4049` |
 
 ## Domain Color Maps
+
+These remain constant across themes (sufficient contrast on both backgrounds):
 
 ### STATUS_COLORS
 
@@ -98,11 +114,9 @@ function getAreaColor(name: string): string {
 
 ## CSS Override
 
-Grid lines are styled globally in `src/app.css` to match the theme:
+Grid lines are styled globally in `src/app.css`, scoped by theme:
 
 ```css
-.recharts-cartesian-grid-horizontal line,
-.recharts-cartesian-grid-vertical line {
-  stroke: rgba(255, 255, 255, 0.05);
-}
+[data-theme="dark"] .recharts-cartesian-grid-horizontal line { stroke: rgba(255,255,255,0.05); }
+[data-theme="light"] .recharts-cartesian-grid-horizontal line { stroke: rgba(0,0,0,0.06); }
 ```

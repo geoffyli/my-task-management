@@ -24,7 +24,7 @@ All routes in the application with their data requirements and key features.
 | `/trends` | TrendsPage | Yes | Analytics charts and trends |
 | `/projects` | ProjectsAreasPage | Yes | Project health and area workload |
 | `/health` | HealthPage | Yes | Data health monitoring and rule violations |
-| `/settings` | SettingsPage | Yes | Sync management and webhook config |
+| `/settings` | SettingsPage | Yes | Theme, sync management, webhook config |
 | `*` | Redirect to `/` | Yes | Catch-all |
 | (unauthenticated) | LoginPage | No | Token login |
 
@@ -142,22 +142,24 @@ All routes in the application with their data requirements and key features.
 
 ## SettingsPage
 
-**Purpose:** System administration — sync control and webhook configuration.
+**Purpose:** Application preferences and system administration.
 
 **Data hooks:** `useSyncStatus()`, `useSyncEvents(limit, offset)`, `useWebhookStatus()`
 
 **Sections:**
 
-1. **Sync status cards** — Last full sync, last reconciliation, last webhook timestamps + page counts
+1. **Theme settings** — Appearance selector (System/Light/Dark) via `ThemeSettings` component. Renders regardless of API status. Uses `useTheme()` context for preference management.
 
-2. **Force sync button** — Triggers `POST /api/sync` with loading spinner and success/error feedback
+2. **Sync status cards** — Last full sync, last reconciliation, last webhook timestamps + page counts
 
-3. **Webhook setup** — Displays:
+3. **Force sync button** — Triggers `POST /api/sync` with loading spinner and success/error feedback
+
+4. **Webhook setup** — Displays:
    - Webhook URL (from env, for reference)
    - Verification token (with copy-to-clipboard button)
    - Verification status (verified or pending)
 
-4. **Event log** — Paginated table of sync events:
+5. **Event log** — Paginated table of sync events:
    - Columns: time, type, source, payload preview
    - Pagination controls (limit: 10 per page)
    - Expandable payload details

@@ -59,8 +59,8 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
                 cn(
                   "flex items-center gap-3 rounded-[6px] px-3 py-2.5 text-[13px] font-[510] transition-colors duration-150",
                   isActive
-                    ? "bg-[rgba(255,255,255,0.06)] text-foreground"
-                    : "text-foreground-secondary hover:bg-[rgba(255,255,255,0.03)] hover:text-foreground"
+                    ? "bg-interactive-active text-foreground"
+                    : "text-foreground-secondary hover:bg-surface-input hover:text-foreground"
                 )
               }
             >
@@ -76,7 +76,7 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
         </nav>
         <button
           onClick={() => { onClose(); logout(); }}
-          className="flex items-center gap-3 mx-3 mb-4 rounded-[6px] px-3 py-2.5 text-[13px] font-[510] text-foreground-tertiary hover:bg-[rgba(255,255,255,0.03)] hover:text-foreground-secondary transition-colors duration-150"
+          className="flex items-center gap-3 mx-3 mb-4 rounded-[6px] px-3 py-2.5 text-[13px] font-[510] text-foreground-tertiary hover:bg-surface-input hover:text-foreground-secondary transition-colors duration-150"
         >
           <LogOut size={18} strokeWidth={1.5} />
           Log out

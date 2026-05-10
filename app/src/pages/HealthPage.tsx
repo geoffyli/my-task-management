@@ -10,8 +10,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useHealthReport } from "@/hooks/useHealthReport";
 import { getNotionUrl, computeHealthScore, getScoreColor, type HealthSeverity, type HealthRuleResult } from "@/lib/health";
-import { SEVERITY_COLORS, TOOLTIP_STYLE } from "@/lib/constants";
-import { CHART_THEME } from "@/lib/chart-theme";
+import { SEVERITY_COLORS } from "@/lib/constants";
+import { useChartTheme } from "@/hooks/useChartTheme";
 import { ChartContainer } from "@/components/shared/ChartContainer";
 import { LazyChart } from "@/components/shared/LazyChart";
 import { SegmentedControl } from "@/components/shared/SegmentedControl";
@@ -65,7 +65,7 @@ function HealthScoreGauge({ score }: { score: number }) {
             <RadialBar
               dataKey="value"
               cornerRadius={6}
-              background={{ fill: "rgba(255,255,255,0.05)" }}
+              background={{ fill: "var(--color-interactive-hover)" }}
             />
           </RadialBarChart>
         </ResponsiveContainer>
@@ -81,6 +81,7 @@ function HealthScoreGauge({ score }: { score: number }) {
 }
 
 function SeverityDonut({ errors, warnings, info }: { errors: number; warnings: number; info: number }) {
+  const { tooltipStyle } = useChartTheme();
   const total = errors + warnings + info;
   const segments = [
     { name: "Errors", value: errors, color: SEVERITY_COLORS.error },
@@ -113,7 +114,7 @@ function SeverityDonut({ errors, warnings, info }: { errors: number; warnings: n
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
+                  contentStyle={tooltipStyle}
                   formatter={(value, name) => [`${value} items`, name]}
                 />
               </PieChart>
@@ -130,6 +131,7 @@ function SeverityDonut({ errors, warnings, info }: { errors: number; warnings: n
 }
 
 function ViolationsByRuleChart({ results }: { results: HealthRuleResult[] }) {
+  const { chartTheme, tooltipStyle } = useChartTheme();
   const data = useMemo(() =>
     results
       .map((r) => ({
@@ -148,18 +150,18 @@ function ViolationsByRuleChart({ results }: { results: HealthRuleResult[] }) {
   return (
     <ChartContainer title="Violations by Rule" description="Which rules have the most issues">
       <ResponsiveContainer width="100%" height={chartHeight}>
-        <BarChart data={data} layout="vertical" margin={CHART_THEME.marginWide}>
-          <CartesianGrid horizontal={false} stroke={CHART_THEME.grid.stroke} strokeDasharray={CHART_THEME.grid.strokeDasharray} />
-          <XAxis type="number" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
+        <BarChart data={data} layout="vertical" margin={chartTheme.marginWide}>
+          <CartesianGrid horizontal={false} stroke={chartTheme.grid.stroke} strokeDasharray={chartTheme.grid.strokeDasharray} />
+          <XAxis type="number" tick={chartTheme.axisTick} axisLine={chartTheme.axisLine} tickLine={false} />
           <YAxis
             type="category"
             dataKey="name"
-            tick={CHART_THEME.axisTickSm}
+            tick={chartTheme.axisTickSm}
             axisLine={false}
             tickLine={false}
             width={140}
           />
-          <Tooltip contentStyle={TOOLTIP_STYLE} cursor={CHART_THEME.cursorFill} formatter={(value) => [`${value} items`, "Violations"]} />
+          <Tooltip contentStyle={tooltipStyle} cursor={chartTheme.cursorFill} formatter={(value) => [`${value} items`, "Violations"]} />
           <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
             {data.map((entry, i) => (
               <Cell key={i} fill={SEVERITY_COLORS[entry.severity]} fillOpacity={0.8} />
@@ -181,10 +183,10 @@ function RuleGroup({
   onToggle: () => void;
 }) {
   return (
-    <div className="rounded-[8px] border border-border-subtle bg-[rgba(255,255,255,0.02)]">
+    <div className="rounded-[8px] border border-border-subtle bg-surface-card">
       <button
         onClick={onToggle}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors duration-150 hover:bg-[rgba(255,255,255,0.03)]"
+        className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors duration-150 hover:bg-surface-input"
       >
         <ChevronRight
           size={14}
@@ -209,7 +211,7 @@ function RuleGroup({
             {result.violations.map((v) => (
               <div
                 key={v.entityId}
-                className="flex items-center gap-3 rounded-[6px] px-3 py-2 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.03)]"
+                className="flex items-center gap-3 rounded-[6px] px-3 py-2 transition-colors duration-150 hover:bg-surface-input"
               >
                 <span className="text-[12px] font-[510] text-foreground flex-1 truncate">
                   {v.entityName}
@@ -237,6 +239,7 @@ function RuleGroup({
 
 export function HealthPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { chartTheme, tooltipStyle } = useChartTheme();
 
   const rawSeverity = searchParams.get("severity") ?? "all";
   const severityFilter: SeverityFilter = SEVERITY_VALUES.has(rawSeverity) ? (rawSeverity as SeverityFilter) : "all";

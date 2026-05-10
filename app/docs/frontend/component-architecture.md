@@ -30,6 +30,9 @@ src/components/
 │   └── index.ts        (barrel export)
 ├── cards/            # Domain-specific card components
 │   └── StatCard.tsx    (metric display with icon, value, trend)
+├── settings/         # Settings page components
+│   ├── ThemeSettings.tsx      (appearance theme selector)
+│   └── NotificationSettings.tsx (push notification preferences)
 └── shared/           # Reusable non-primitive components
     ├── ChartContainer.tsx    (card frame for charts with title/export)
     ├── TimeRangeSelector.tsx (segmented time filter control)
@@ -116,7 +119,7 @@ All imports use the `@/` path alias (configured in both `tsconfig.json` and `vit
 ```typescript
 import { Button } from "@/components/ui";
 import { useTasks } from "@/api/queries";
-import { CHART_THEME } from "@/lib/chart-theme";
+import { useChartTheme } from "@/hooks/useChartTheme";
 ```
 
 ## No Chart Components Directory

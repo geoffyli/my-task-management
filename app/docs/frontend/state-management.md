@@ -21,6 +21,7 @@ The application uses three complementary state management approaches, avoiding e
 |-----------|------------|-------|
 | Server data | TanStack React Query | Global (tasks, projects, areas, sync status) |
 | Authentication | React Context API | Global (token, login/logout) |
+| Theme | React Context API | Global (light/dark/system preference) |
 | URL state | React Router `useSearchParams` | Per-page (time range filter) |
 | Component state | React `useState` | Local (forms, pagination, UI) |
 
@@ -81,6 +82,42 @@ isAuthenticated ? <AppShell><Outlet /></AppShell> : <LoginPage />
 ```
 
 See [[auth-system]] for storage details.
+
+## ThemeContext
+
+**Source:** `src/contexts/ThemeContext.tsx`
+
+Manages appearance theme (light/dark/system) with browser-local persistence:
+
+```typescript
+interface ThemeContextValue {
+  preference: ThemePreference;       // "system" | "light" | "dark"
+  resolvedTheme: ResolvedTheme;      // "light" | "dark" (computed)
+  setPreference: (pref: ThemePreference) => void;
+}
+```
+
+### Mechanism
+
+- Preference stored in `localStorage` key `"theme-preference"` (default: `"system"`)
+- Applies `data-theme="light|dark"` attribute on `<html>` element
+- Listens to `prefers-color-scheme` media query when preference is `"system"`
+- Updates `<meta name="theme-color">` dynamically for PWA status bar
+- FOUC prevention via inline `<script>` in `index.html` that reads localStorage before first paint
+
+### Usage
+
+```typescript
+const { preference, resolvedTheme, setPreference } = useTheme();
+```
+
+### Related Hook
+
+`useChartTheme()` in `src/hooks/useChartTheme.ts` provides memoized theme-aware chart configuration:
+
+```typescript
+const { chartTheme, tooltipStyle } = useChartTheme();
+```
 
 ## URL State
 

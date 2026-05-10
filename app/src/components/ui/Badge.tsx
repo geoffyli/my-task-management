@@ -14,7 +14,7 @@ const variantStyles: Record<BadgeVariant, string> = {
   success:
     "bg-success-light text-foreground",
   subtle:
-    "bg-[rgba(255,255,255,0.05)] border border-border-subtle text-foreground",
+    "bg-interactive-hover border border-border-subtle text-foreground",
   data: "",
 };
 

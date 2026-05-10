@@ -106,7 +106,7 @@ export function ThisWeekPage() {
       </div>
 
       {/* Week Tasks by Day */}
-      <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">
+      <div className="rounded-[8px] border border-border bg-surface-card p-5">
         <h3 className="text-[14px] font-[510] text-foreground">Week Overview</h3>
         <p className="mt-0.5 text-[13px] text-foreground-tertiary">
           {format(weekStart, "MMM d")} — {format(addDays(weekStart, 6), "MMM d, yyyy")}
@@ -128,7 +128,7 @@ export function ThisWeekPage() {
                   {dayTasks.map(task => (
                     <div
                       key={task.id}
-                      className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2.5 min-h-[44px] transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]"
+                      className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-surface-card px-3 py-2.5 min-h-[44px] transition-colors duration-150 hover:bg-interactive-hover"
                     >
                       <div className="flex items-center gap-2.5">
                         <div
@@ -150,7 +150,7 @@ export function ThisWeekPage() {
       </div>
 
       {/* Upcoming Deadlines */}
-      <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">
+      <div className="rounded-[8px] border border-border bg-surface-card p-5">
         <h3 className="text-[14px] font-[510] text-foreground">Upcoming Deadlines</h3>
         <p className="mt-0.5 text-[13px] text-foreground-tertiary">Tasks with deadlines in the next 14 days</p>
 
@@ -161,7 +161,7 @@ export function ThisWeekPage() {
             {upcomingDeadlines.map(task => (
               <div
                 key={task.id}
-                className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]"
+                className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-surface-card px-3 py-2 transition-colors duration-150 hover:bg-interactive-hover"
               >
                 <div className="flex items-center gap-3">
                   <Badge variant="data" color={IMPORTANCE_COLORS[task.importance ?? ""]}>
@@ -179,7 +179,7 @@ export function ThisWeekPage() {
       </div>
 
       {/* Blocked Tasks */}
-      <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">
+      <div className="rounded-[8px] border border-border bg-surface-card p-5">
         <h3 className="text-[14px] font-[510] text-foreground">Blocked Tasks</h3>
         <p className="mt-0.5 text-[13px] text-foreground-tertiary">Tasks waiting on unresolved dependencies</p>
 
@@ -190,7 +190,7 @@ export function ThisWeekPage() {
             {blocked.blockedTasks.map(task => (
               <div
                 key={task.id}
-                className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]"
+                className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-surface-card px-3 py-2 transition-colors duration-150 hover:bg-interactive-hover"
               >
                 <div className="flex items-center gap-3">
                   <Badge variant="data" color={IMPORTANCE_COLORS[task.importance as keyof typeof IMPORTANCE_COLORS]}>

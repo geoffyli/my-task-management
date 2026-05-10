@@ -8,29 +8,40 @@
   src: url("/fonts/InterVariable.woff2") format("woff2");
 }
 
-@theme {
-  --color-background: #08090a;
-  --color-surface-panel: #0f1011;
-  --color-surface-elevated: #191a1b;
-  --color-surface-hover: #28282c;
+@theme inline {
+  --color-background: var(--theme-background);
+  --color-surface-panel: var(--theme-surface-panel);
+  --color-surface-elevated: var(--theme-surface-elevated);
+  --color-surface-hover: var(--theme-surface-hover);
+  --color-surface-card: var(--theme-surface-card);
+  --color-surface-input: var(--theme-surface-input);
+  --color-interactive-hover: var(--theme-interactive-hover);
+  --color-interactive-active: var(--theme-interactive-active);
 
-  --color-foreground: #f7f8f8;
-  --color-foreground-secondary: #d0d6e0;
-  --color-foreground-tertiary: #8a8f98;
-  --color-foreground-quaternary: #62666d;
+  --color-foreground: var(--theme-foreground);
+  --color-foreground-secondary: var(--theme-foreground-secondary);
+  --color-foreground-tertiary: var(--theme-foreground-tertiary);
+  --color-foreground-quaternary: var(--theme-foreground-quaternary);
 
-  --color-accent: #5e6ad2;
-  --color-accent-light: #7170ff;
-  --color-accent-hover: #828fff;
+  --color-accent: var(--theme-accent);
+  --color-accent-light: var(--theme-accent-light);
+  --color-accent-hover: var(--theme-accent-hover);
   --color-accent-foreground: #ffffff;
 
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-subtle: rgba(255, 255, 255, 0.05);
-  --color-border-solid: #23252a;
+  --color-border: var(--theme-border);
+  --color-border-subtle: var(--theme-border-subtle);
+  --color-border-solid: var(--theme-border-solid);
 
-  --color-success: #27a644;
-  --color-success-light: #10b981;
+  --color-success: var(--theme-success);
+  --color-success-light: var(--theme-success-light);
 
+  --shadow-subtle: var(--theme-shadow-subtle);
+  --shadow-ring: var(--theme-shadow-ring);
+  --shadow-elevated: var(--theme-shadow-elevated);
+  --shadow-dialog: var(--theme-shadow-dialog);
+}
+
+@theme {
   --font-sans: "Inter Variable", "SF Pro Display", -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, "Cascadia Code", monospace;
 
@@ -40,17 +51,86 @@
   --radius-xl: 12px;
   --radius-pill: 9999px;
 
-  --shadow-subtle: 0px 1.2px 0px 0px rgba(0, 0, 0, 0.03);
-  --shadow-ring: 0px 0px 0px 1px rgba(0, 0, 0, 0.2);
-  --shadow-elevated: 0px 2px 4px rgba(0, 0, 0, 0.4);
-  --shadow-dialog: 0px 8px 2px rgba(0, 0, 0, 0), 0px 5px 2px rgba(0, 0, 0, 0.01), 0px 3px 2px rgba(0, 0, 0, 0.04), 0px 1px 1px rgba(0, 0, 0, 0.07), 0px 0px 1px rgba(0, 0, 0, 0.08);
-
   --breakpoint-3xl: 1920px;
+}
+
+/* Light theme (default) */
+:root {
+  --theme-background: #fbfbfc;
+  --theme-surface-panel: #f3f4f6;
+  --theme-surface-elevated: #ffffff;
+  --theme-surface-hover: #edeef1;
+  --theme-surface-card: rgba(0, 0, 0, 0.02);
+  --theme-surface-input: rgba(0, 0, 0, 0.02);
+  --theme-interactive-hover: rgba(0, 0, 0, 0.04);
+  --theme-interactive-active: rgba(0, 0, 0, 0.06);
+
+  --theme-foreground: #1c1f26;
+  --theme-foreground-secondary: #3c4049;
+  --theme-foreground-tertiary: #6b7280;
+  --theme-foreground-quaternary: #9ca3af;
+
+  --theme-accent: #5e6ad2;
+  --theme-accent-light: #5e6ad2;
+  --theme-accent-hover: #4f5bc4;
+
+  --theme-border: rgba(0, 0, 0, 0.08);
+  --theme-border-subtle: rgba(0, 0, 0, 0.05);
+  --theme-border-solid: #e2e4e9;
+
+  --theme-success: #16a34a;
+  --theme-success-light: #10b981;
+
+  --theme-shadow-subtle: 0px 1px 2px rgba(0, 0, 0, 0.04);
+  --theme-shadow-ring: 0px 0px 0px 1px rgba(0, 0, 0, 0.06);
+  --theme-shadow-elevated: 0px 2px 8px rgba(0, 0, 0, 0.08);
+  --theme-shadow-dialog: 0px 8px 24px rgba(0, 0, 0, 0.06), 0px 2px 6px rgba(0, 0, 0, 0.04);
+
+  color-scheme: light;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --theme-background: #08090a;
+  --theme-surface-panel: #0f1011;
+  --theme-surface-elevated: #191a1b;
+  --theme-surface-hover: #28282c;
+  --theme-surface-card: rgba(255, 255, 255, 0.02);
+  --theme-surface-input: rgba(255, 255, 255, 0.03);
+  --theme-interactive-hover: rgba(255, 255, 255, 0.04);
+  --theme-interactive-active: rgba(255, 255, 255, 0.06);
+
+  --theme-foreground: #f7f8f8;
+  --theme-foreground-secondary: #d0d6e0;
+  --theme-foreground-tertiary: #8a8f98;
+  --theme-foreground-quaternary: #62666d;
+
+  --theme-accent: #5e6ad2;
+  --theme-accent-light: #7170ff;
+  --theme-accent-hover: #828fff;
+
+  --theme-border: rgba(255, 255, 255, 0.08);
+  --theme-border-subtle: rgba(255, 255, 255, 0.05);
+  --theme-border-solid: #23252a;
+
+  --theme-success: #27a644;
+  --theme-success-light: #10b981;
+
+  --theme-shadow-subtle: 0px 1.2px 0px 0px rgba(0, 0, 0, 0.03);
+  --theme-shadow-ring: 0px 0px 0px 1px rgba(0, 0, 0, 0.2);
+  --theme-shadow-elevated: 0px 2px 4px rgba(0, 0, 0, 0.4);
+  --theme-shadow-dialog: 0px 8px 2px rgba(0, 0, 0, 0), 0px 5px 2px rgba(0, 0, 0, 0.01), 0px 3px 2px rgba(0, 0, 0, 0.04), 0px 1px 1px rgba(0, 0, 0, 0.07), 0px 0px 1px rgba(0, 0, 0, 0.08);
+
+  color-scheme: dark;
 }
 
 /* Scrollbar — Firefox */
 @supports (scrollbar-color: auto) and (not selector(::-webkit-scrollbar)) {
-  * {
+  [data-theme="light"] * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+  }
+  [data-theme="dark"] * {
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
   }
@@ -66,12 +146,19 @@
   background: transparent;
 }
 
-::-webkit-scrollbar-thumb {
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 3px;
 }
-
-::-webkit-scrollbar-thumb:hover {
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 
@@ -133,7 +220,19 @@ body {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
-.skeleton-shimmer {
+
+[data-theme="light"] .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.03) 25%,
+    rgba(0, 0, 0, 0.06) 50%,
+    rgba(0, 0, 0, 0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+[data-theme="dark"] .skeleton-shimmer {
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0.03) 25%,
@@ -160,7 +259,12 @@ body {
   to { opacity: 1; }
 }
 
-.recharts-cartesian-grid-horizontal line,
-.recharts-cartesian-grid-vertical line {
+[data-theme="dark"] .recharts-cartesian-grid-horizontal line,
+[data-theme="dark"] .recharts-cartesian-grid-vertical line {
   stroke: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="light"] .recharts-cartesian-grid-horizontal line,
+[data-theme="light"] .recharts-cartesian-grid-vertical line {
+  stroke: rgba(0, 0, 0, 0.06);
 }

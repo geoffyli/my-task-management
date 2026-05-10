@@ -13,7 +13,7 @@ interface Props {
 
 export function ChartContainer({ title, description, children, className, onExport }: Props) {
   return (
-    <div className={cn("rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5", className)}>
+    <div className={cn("rounded-[8px] border border-border bg-surface-card p-5", className)}>
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h3 className="text-[14px] font-[510] text-foreground tracking-[-0.01em]">{title}</h3>

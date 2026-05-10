@@ -50,21 +50,24 @@ Segmented control for filtering chart data by time range:
 ```tsx
 // Typical chart usage in a page component
 const { data: tasks } = useTasks();
+const { chartTheme, tooltipStyle } = useChartTheme();
 const throughput = useMemo(() => getThroughputData(tasks ?? [], range), [tasks, range]);
 
 <ChartContainer title="Throughput" description="Tasks created vs completed per week">
   <ResponsiveContainer width="100%" height={280}>
-    <BarChart data={throughput} margin={CHART_THEME.margin}>
-      <CartesianGrid {...CHART_THEME.grid} />
-      <XAxis dataKey="week" tick={CHART_THEME.axisTick} />
-      <YAxis tick={CHART_THEME.axisTick} />
-      <Tooltip contentStyle={TOOLTIP_STYLE} />
-      <Bar dataKey="created" fill={CHART_THEME.series.primary} />
-      <Bar dataKey="completed" fill={CHART_THEME.series.secondary} />
+    <BarChart data={throughput} margin={chartTheme.margin}>
+      <CartesianGrid {...chartTheme.grid} />
+      <XAxis dataKey="week" tick={chartTheme.axisTick} />
+      <YAxis tick={chartTheme.axisTick} />
+      <Tooltip contentStyle={tooltipStyle} cursor={chartTheme.cursorFill} />
+      <Bar dataKey="created" fill={chartTheme.series.primary} />
+      <Bar dataKey="completed" fill={chartTheme.series.secondary} />
     </BarChart>
   </ResponsiveContainer>
 </ChartContainer>
 ```
+
+The `useChartTheme()` hook provides memoized, theme-aware chart configuration. It reads from `ThemeContext` and returns values appropriate for the active light/dark theme.
 
 ## Charts by Page
 
@@ -87,7 +90,7 @@ const throughput = useMemo(() => getThroughputData(tasks ?? [], range), [tasks, 
 
 ## Theming
 
-See [[chart-theming]] for the complete `CHART_THEME` object, series colors, tooltip styling, and domain color maps.
+Charts automatically adapt to the active theme via the `useChartTheme()` hook. See [[chart-theming]] for the complete configuration, series colors, tooltip styling, and domain color maps.
 
 ## Empty & Loading States
 

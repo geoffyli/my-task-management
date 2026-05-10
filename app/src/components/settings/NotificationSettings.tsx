@@ -25,7 +25,7 @@ function Toggle({
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={`relative inline-flex h-[20px] w-[36px] shrink-0 items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:opacity-40 disabled:pointer-events-none ${
-        checked ? "bg-accent" : "bg-[rgba(255,255,255,0.1)]"
+        checked ? "bg-accent" : "bg-interactive-active"
       }`}
     >
       <span
@@ -53,7 +53,7 @@ function TimeInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
-      className="rounded-[6px] border border-border bg-[rgba(255,255,255,0.04)] px-2 py-1 text-[12px] font-[510] text-foreground-secondary focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-40 disabled:pointer-events-none [color-scheme:dark]"
+      className="rounded-[6px] border border-border bg-interactive-hover px-2 py-1 text-[12px] font-[510] text-foreground-secondary focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-40 disabled:pointer-events-none"
     />
   );
 }
@@ -75,7 +75,7 @@ function DayPicker({
       value={value}
       onChange={(e) => onChange(Number(e.target.value))}
       disabled={disabled}
-      className="rounded-[6px] border border-border bg-[rgba(255,255,255,0.04)] px-2 py-1 text-[12px] font-[510] text-foreground-secondary focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-40 disabled:pointer-events-none appearance-none [color-scheme:dark]"
+      className="rounded-[6px] border border-border bg-interactive-hover px-2 py-1 text-[12px] font-[510] text-foreground-secondary focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-40 disabled:pointer-events-none appearance-none"
     >
       {DAYS.map((day, i) => (
         <option key={day} value={i}>
@@ -101,7 +101,7 @@ function ThresholdPicker({
       value={value}
       onChange={(e) => onChange(Number(e.target.value))}
       disabled={disabled}
-      className="rounded-[6px] border border-border bg-[rgba(255,255,255,0.04)] px-2 py-1 text-[12px] font-[510] text-foreground-secondary focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-40 disabled:pointer-events-none appearance-none [color-scheme:dark]"
+      className="rounded-[6px] border border-border bg-interactive-hover px-2 py-1 text-[12px] font-[510] text-foreground-secondary focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-40 disabled:pointer-events-none appearance-none"
     >
       {Array.from({ length: 14 }, (_, i) => i + 1).map((d) => (
         <option key={d} value={d}>
@@ -188,7 +188,7 @@ function DeviceRow({
                 setEditing(false);
               }
             }}
-            className="rounded-[4px] border border-border bg-[rgba(255,255,255,0.04)] px-2 py-0.5 text-[13px] font-[510] text-foreground-secondary focus:outline-none focus:ring-1 focus:ring-accent"
+            className="rounded-[4px] border border-border bg-interactive-hover px-2 py-0.5 text-[13px] font-[510] text-foreground-secondary focus:outline-none focus:ring-1 focus:ring-accent"
           />
         ) : (
           <span className="text-[13px] font-[510] text-foreground-secondary truncate">
@@ -205,7 +205,7 @@ function DeviceRow({
             type="button"
             disabled={disabled}
             onClick={() => setEditing(true)}
-            className="rounded-[4px] p-1 text-foreground-tertiary hover:text-foreground hover:bg-[rgba(255,255,255,0.06)] transition-colors disabled:opacity-40 disabled:pointer-events-none"
+            className="rounded-[4px] p-1 text-foreground-tertiary hover:text-foreground hover:bg-interactive-active transition-colors disabled:opacity-40 disabled:pointer-events-none"
           >
             <Pencil size={13} />
           </button>
@@ -262,7 +262,7 @@ export function NotificationSettings() {
   }, [subscription]);
 
   return (
-    <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">
+    <div className="rounded-[8px] border border-border bg-surface-card p-5">
       <h3 className="mb-4 text-[14px] font-[510] text-foreground">Notifications</h3>
 
       {/* Master toggle */}

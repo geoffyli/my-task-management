@@ -49,8 +49,8 @@ export function MultiSelect({ options, selected, onChange, placeholder }: Props)
         className={cn(
           "flex items-center gap-2 rounded-[6px] border border-border px-3 py-1.5 text-[12px] font-[510] transition-colors",
           selected.length > 0
-            ? "bg-[rgba(255,255,255,0.06)] text-foreground"
-            : "text-foreground-tertiary hover:bg-[rgba(255,255,255,0.03)]",
+            ? "bg-interactive-active text-foreground"
+            : "text-foreground-tertiary hover:bg-surface-input",
         )}
       >
         {selected.length > 0 ? `${selected.length} selected` : placeholder}
@@ -67,7 +67,7 @@ export function MultiSelect({ options, selected, onChange, placeholder }: Props)
       )}
 
       {open && (
-        <div className="absolute top-full right-0 z-40 mt-1 w-56 rounded-[8px] border border-[rgba(255,255,255,0.08)] bg-[#191a1b] p-2 shadow-lg">
+        <div className="absolute top-full right-0 z-40 mt-1 w-56 rounded-[8px] border border-border bg-surface-elevated p-2 shadow-lg">
           <input
             type="text"
             value={search}
@@ -80,7 +80,7 @@ export function MultiSelect({ options, selected, onChange, placeholder }: Props)
             {filtered.map((option) => (
               <label
                 key={option.value}
-                className="flex cursor-pointer items-center gap-2 rounded-[4px] px-2 py-1 text-[12px] text-foreground-secondary hover:bg-[rgba(255,255,255,0.04)]"
+                className="flex cursor-pointer items-center gap-2 rounded-[4px] px-2 py-1 text-[12px] text-foreground-secondary hover:bg-interactive-hover"
               >
                 <input
                   type="checkbox"

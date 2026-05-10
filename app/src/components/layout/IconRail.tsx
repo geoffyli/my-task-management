@@ -25,8 +25,8 @@ export function IconRail() {
               cn(
                 "relative flex h-10 w-10 items-center justify-center rounded-[6px] transition-colors duration-150",
                 isActive
-                  ? "bg-[rgba(255,255,255,0.06)] text-foreground"
-                  : "text-foreground-tertiary hover:bg-[rgba(255,255,255,0.03)] hover:text-foreground-secondary"
+                  ? "bg-interactive-active text-foreground"
+                  : "text-foreground-tertiary hover:bg-surface-input hover:text-foreground-secondary"
               )
             }
           >
@@ -42,7 +42,7 @@ export function IconRail() {
       <button
         onClick={logout}
         title="Log out"
-        className="flex h-10 w-10 items-center justify-center rounded-[6px] text-foreground-tertiary hover:bg-[rgba(255,255,255,0.03)] hover:text-foreground-secondary transition-colors duration-150"
+        className="flex h-10 w-10 items-center justify-center rounded-[6px] text-foreground-tertiary hover:bg-surface-input hover:text-foreground-secondary transition-colors duration-150"
       >
         <LogOut size={18} strokeWidth={1.5} />
       </button>

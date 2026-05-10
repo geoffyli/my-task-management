@@ -68,7 +68,7 @@ export function EisenhowerMatrix({
           x={size / 2}
           y={size - 8}
           textAnchor="middle"
-          style={{ fontSize: 11, fontWeight: 510, fill: "#8a8f98" }}
+          style={{ fontSize: 11, fontWeight: 510, fill: "var(--color-foreground-tertiary)" }}
         >
           Urgency →
         </text>
@@ -77,7 +77,7 @@ export function EisenhowerMatrix({
           y={size / 2}
           textAnchor="middle"
           transform={`rotate(-90, 14, ${size / 2})`}
-          style={{ fontSize: 11, fontWeight: 510, fill: "#8a8f98" }}
+          style={{ fontSize: 11, fontWeight: 510, fill: "var(--color-foreground-tertiary)" }}
         >
           Importance →
         </text>
@@ -87,7 +87,7 @@ export function EisenhowerMatrix({
           y1={PADDING}
           x2={mid}
           y2={size - PADDING}
-          stroke="rgba(255,255,255,0.1)"
+          stroke="var(--color-border)"
           strokeDasharray="4 6"
           strokeWidth={1}
         />
@@ -96,7 +96,7 @@ export function EisenhowerMatrix({
           y1={mid}
           x2={size - PADDING}
           y2={mid}
-          stroke="rgba(255,255,255,0.1)"
+          stroke="var(--color-border)"
           strokeDasharray="4 6"
           strokeWidth={1}
         />
@@ -107,7 +107,7 @@ export function EisenhowerMatrix({
           width={innerSize}
           height={innerSize}
           fill="none"
-          stroke="rgba(255,255,255,0.05)"
+          stroke="var(--color-border-subtle)"
           strokeWidth={1}
         />
 
@@ -118,7 +118,7 @@ export function EisenhowerMatrix({
             y={PADDING + (1 - y) * innerSize}
             textAnchor="middle"
             dominantBaseline="middle"
-            style={{ fontSize: 12, fontWeight: 510, fill: "rgba(255,255,255,0.15)" }}
+            style={{ fontSize: 12, fontWeight: 510, fill: "var(--color-foreground-quaternary)" }}
           >
             {label}
           </text>

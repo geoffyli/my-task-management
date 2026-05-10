@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import type { Task } from "@/api/types";
 import type { HealthSeverity } from "@/lib/health";
+import type { ResolvedTheme } from "@/lib/theme";
 
 export const STATUS_COLORS: Record<Task["status"], string> = {
   "Not Started": "#6b7280",
@@ -43,14 +44,17 @@ export function getAreaColor(name: string): string {
   return AREA_COLORS[name] ?? AREA_PALETTE[hashString(name) % AREA_PALETTE.length]!;
 }
 
-export const TOOLTIP_STYLE: CSSProperties = {
-  borderRadius: "8px",
-  fontSize: "12px",
-  fontWeight: 510,
-  background: "#191a1b",
-  border: "1px solid rgba(255, 255, 255, 0.08)",
-  color: "#d0d6e0",
-};
+export function getTooltipStyle(theme: ResolvedTheme): CSSProperties {
+  const isDark = theme === "dark";
+  return {
+    borderRadius: "8px",
+    fontSize: "12px",
+    fontWeight: 510,
+    background: isDark ? "#191a1b" : "#ffffff",
+    border: isDark ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid rgba(0, 0, 0, 0.08)",
+    color: isDark ? "#d0d6e0" : "#3c4049",
+  };
+}
 
 export type TimeRange = "30d" | "90d" | "6m" | "all";
 

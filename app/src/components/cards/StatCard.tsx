@@ -11,7 +11,7 @@ interface Props {
 
 export function StatCard({ title, value, icon: Icon, trend, accent = "default" }: Props) {
   return (
-    <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">
+    <div className="rounded-[8px] border border-border bg-surface-card p-5">
       <div className="flex items-center justify-between">
         <p className="text-[12px] font-[510] text-foreground-tertiary">{title}</p>
         <Icon

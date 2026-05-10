@@ -10,8 +10,8 @@ export function Card({ className, variant = "default", ...props }: CardProps) {
     <div
       className={cn(
         "border border-border",
-        variant === "default" && "bg-[rgba(255,255,255,0.02)] rounded-[8px]",
-        variant === "elevated" && "bg-[rgba(255,255,255,0.04)] rounded-[12px]",
+        variant === "default" && "bg-surface-card rounded-[8px]",
+        variant === "elevated" && "bg-interactive-hover rounded-[12px]",
         className,
       )}
       {...props}

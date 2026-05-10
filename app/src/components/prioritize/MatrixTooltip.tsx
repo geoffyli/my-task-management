@@ -13,7 +13,7 @@ export function MatrixTooltip({ point, anchorRect }: Props) {
 
   return (
     <div
-      className="pointer-events-none fixed z-50 rounded-[8px] border border-[rgba(255,255,255,0.08)] bg-[#191a1b] px-3 py-2 shadow-lg"
+      className="pointer-events-none fixed z-50 rounded-[8px] border border-border bg-surface-elevated px-3 py-2 shadow-lg"
       style={{ left, top, transform: "translateY(-50%)" }}
     >
       <p className="text-[12px] font-[590] text-foreground truncate max-w-[200px]">

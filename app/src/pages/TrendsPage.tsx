@@ -15,12 +15,13 @@ import {
   getActiveTasks, getThroughputData, getVelocityData, getAgingDistribution,
   getRescheduleDistribution, getCalendarHeatmapData,
 } from "@/lib/metrics";
-import { IMPORTANCE_COLORS, TOOLTIP_STYLE, TIME_RANGES, type TimeRange } from "@/lib/constants";
-import { CHART_THEME } from "@/lib/chart-theme";
+import { IMPORTANCE_COLORS, TIME_RANGES, type TimeRange } from "@/lib/constants";
+import { useChartTheme } from "@/hooks/useChartTheme";
 import { subDays, format, eachDayOfInterval, startOfWeek } from "date-fns";
 
 export function TrendsPage() {
   const { data: tasks, isLoading, isError, refetch } = useTasks();
+  const { chartTheme, tooltipStyle } = useChartTheme();
   const [searchParams, setSearchParams] = useSearchParams();
   const rawRange = searchParams.get("range");
   const range: TimeRange = TIME_RANGES.some((r) => r.value === rawRange) ? (rawRange as TimeRange) : "90d";
@@ -71,12 +72,12 @@ export function TrendsPage() {
       <ChartContainer title="Throughput" description="Tasks created vs completed per week">
         {throughput.length === 0 ? <EmptyState message="No throughput data for this time range" /> : (
           <ResponsiveContainer width="100%" height={240} className="md:!h-[300px]">
-            <LineChart data={throughput} margin={CHART_THEME.margin}>
-              <CartesianGrid {...CHART_THEME.grid} />
-              <XAxis dataKey="week" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
-              <YAxis allowDecimals={false} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} cursor={CHART_THEME.cursor} />
-              <Legend iconType="circle" iconSize={8} wrapperStyle={CHART_THEME.legend} />
+            <LineChart data={throughput} margin={chartTheme.margin}>
+              <CartesianGrid {...chartTheme.grid} />
+              <XAxis dataKey="week" tick={chartTheme.axisTick} axisLine={chartTheme.axisLine} tickLine={false} />
+              <YAxis allowDecimals={false} tick={chartTheme.axisTick} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={tooltipStyle} cursor={chartTheme.cursor} />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={chartTheme.legend} />
               <Line type="monotone" dataKey="created" stroke="#5e6ad2" strokeWidth={2} dot={false} name="Created" />
               <Line type="monotone" dataKey="completed" stroke="#27a644" strokeWidth={2} dot={false} name="Completed" />
             </LineChart>
@@ -87,12 +88,12 @@ export function TrendsPage() {
       <ChartContainer title="Completion Velocity" description="Weekly completions with 4-week rolling average">
         {velocity.length === 0 ? <EmptyState message="No velocity data" /> : (
           <ResponsiveContainer width="100%" height={240} className="md:!h-[300px]">
-            <ComposedChart data={velocity} margin={CHART_THEME.margin}>
-              <CartesianGrid {...CHART_THEME.grid} />
-              <XAxis dataKey="week" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
-              <YAxis allowDecimals={false} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} cursor={CHART_THEME.cursor} />
-              <Legend iconType="circle" iconSize={8} wrapperStyle={CHART_THEME.legend} />
+            <ComposedChart data={velocity} margin={chartTheme.margin}>
+              <CartesianGrid {...chartTheme.grid} />
+              <XAxis dataKey="week" tick={chartTheme.axisTick} axisLine={chartTheme.axisLine} tickLine={false} />
+              <YAxis allowDecimals={false} tick={chartTheme.axisTick} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={tooltipStyle} cursor={chartTheme.cursor} />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={chartTheme.legend} />
               <Bar dataKey="completed" fill="#27a644" fillOpacity={0.7} radius={[3, 3, 0, 0]} name="Completed" />
               <Line type="monotone" dataKey="average" stroke="#d97706" strokeWidth={2} dot={false} name="4-wk avg" />
             </ComposedChart>
@@ -105,12 +106,12 @@ export function TrendsPage() {
         <ChartContainer title="Task Aging Distribution" description="How long active tasks have been open, by importance">
           {aging.length === 0 ? <EmptyState message="No active tasks" /> : (
             <ResponsiveContainer width="100%" height={220} className="md:!h-[280px]">
-              <BarChart data={aging} margin={CHART_THEME.margin}>
-                <CartesianGrid {...CHART_THEME.grid} />
-                <XAxis dataKey="bucket" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
-                <YAxis allowDecimals={false} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={TOOLTIP_STYLE} cursor={CHART_THEME.cursorFill} />
-                <Legend iconType="circle" iconSize={8} wrapperStyle={CHART_THEME.legend} />
+              <BarChart data={aging} margin={chartTheme.margin}>
+                <CartesianGrid {...chartTheme.grid} />
+                <XAxis dataKey="bucket" tick={chartTheme.axisTick} axisLine={chartTheme.axisLine} tickLine={false} />
+                <YAxis allowDecimals={false} tick={chartTheme.axisTick} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={tooltipStyle} cursor={chartTheme.cursorFill} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={chartTheme.legend} />
                 <Bar dataKey="high" stackId="age" fill={IMPORTANCE_COLORS.High} radius={[3, 3, 0, 0]} name="High" />
                 <Bar dataKey="medium" stackId="age" fill={IMPORTANCE_COLORS.Medium} name="Medium" />
                 <Bar dataKey="low" stackId="age" fill={IMPORTANCE_COLORS.Low} name="Low" />
@@ -122,11 +123,11 @@ export function TrendsPage() {
         <ChartContainer title="Reschedule Patterns" description="How often tasks get pushed back">
           {reschedule.length === 0 ? <EmptyState message="No rescheduled tasks" /> : (
             <ResponsiveContainer width="100%" height={220} className="md:!h-[280px]">
-              <BarChart data={reschedule} margin={CHART_THEME.margin}>
-                <CartesianGrid {...CHART_THEME.grid} />
-                <XAxis dataKey="bucket" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
-                <YAxis allowDecimals={false} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={TOOLTIP_STYLE} cursor={CHART_THEME.cursorFill} />
+              <BarChart data={reschedule} margin={chartTheme.margin}>
+                <CartesianGrid {...chartTheme.grid} />
+                <XAxis dataKey="bucket" tick={chartTheme.axisTick} axisLine={chartTheme.axisLine} tickLine={false} />
+                <YAxis allowDecimals={false} tick={chartTheme.axisTick} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={tooltipStyle} cursor={chartTheme.cursorFill} />
                 <Bar dataKey="count" fill="#7170ff" radius={[3, 3, 0, 0]} name="Tasks Rescheduled" />
               </BarChart>
             </ResponsiveContainer>
@@ -166,7 +167,7 @@ const CalendarHeatmap = memo(function CalendarHeatmap({ data, range }: { data: {
   if (currentWeek.length > 0) weeks.push(currentWeek);
 
   function getColor(count: number): string {
-    if (count === 0) return "rgba(255,255,255,0.03)";
+    if (count === 0) return "var(--color-surface-input)";
     const intensity = Math.min(count / maxCount, 1);
     if (intensity < 0.25) return "#3d3f8f";
     if (intensity < 0.5) return "#5e6ad2";

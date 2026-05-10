@@ -37,7 +37,7 @@ export const MatrixDot = memo(function MatrixDot({
       r={point.radius}
       fill={fill}
       opacity={isFaded ? 0.1 : 0.85}
-      stroke={isSelected ? "#fff" : isHovered ? "rgba(255,255,255,0.5)" : "none"}
+      stroke={isSelected ? "var(--color-foreground)" : isHovered ? "var(--color-foreground-tertiary)" : "none"}
       strokeWidth={isSelected ? 2 : isHovered ? 1.5 : 0}
       className="transition-opacity duration-200 cursor-pointer"
       onMouseEnter={() => {

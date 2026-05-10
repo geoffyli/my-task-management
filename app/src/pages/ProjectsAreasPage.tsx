@@ -9,14 +9,15 @@ import { ErrorFallback } from "@/components/shared/ErrorFallback";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { getProjectHealth, buildTasksByProjectIndex, getAtRiskProjects } from "@/lib/metrics";
-import { STATUS_COLORS, TOOLTIP_STYLE } from "@/lib/constants";
-import { CHART_THEME } from "@/lib/chart-theme";
+import { STATUS_COLORS } from "@/lib/constants";
+import { useChartTheme } from "@/hooks/useChartTheme";
 import type { Task } from "@/api/types";
 
 export function ProjectsAreasPage() {
   const { data: tasks, isLoading: tasksLoading, isError: tasksError, refetch: refetchTasks } = useTasks();
   const { data: projects, isLoading: projectsLoading, isError: projectsError, refetch: refetchProjects } = useProjects();
   const { data: areas, isLoading: areasLoading, isError: areasError, refetch: refetchAreas } = useAreas();
+  const { chartTheme, tooltipStyle } = useChartTheme();
 
   const tasksByProject = useMemo(
     () => (tasks ? buildTasksByProjectIndex(tasks) : new Map<string, Task[]>()),
@@ -85,12 +86,12 @@ export function ProjectsAreasPage() {
       <ChartContainer title="Project Health" description="Task status distribution per project">
         {health.length === 0 ? <EmptyState message="No project data available" /> : (
           <ResponsiveContainer width="100%" height={Math.max(280, health.length * 40)}>
-            <BarChart data={health} layout="vertical" margin={CHART_THEME.marginWide}>
-              <CartesianGrid {...CHART_THEME.grid} />
-              <XAxis type="number" allowDecimals={false} tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
-              <YAxis type="category" dataKey="project" tick={CHART_THEME.axisTick} width={110} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} cursor={CHART_THEME.cursorFill} />
-              <Legend iconType="circle" iconSize={8} wrapperStyle={CHART_THEME.legend} />
+            <BarChart data={health} layout="vertical" margin={chartTheme.marginWide}>
+              <CartesianGrid {...chartTheme.grid} />
+              <XAxis type="number" allowDecimals={false} tick={chartTheme.axisTick} axisLine={chartTheme.axisLine} tickLine={false} />
+              <YAxis type="category" dataKey="project" tick={chartTheme.axisTick} width={110} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={tooltipStyle} cursor={chartTheme.cursorFill} />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={chartTheme.legend} />
               <Bar dataKey="notStarted" stackId="status" fill={STATUS_COLORS["Not Started"]} name="Not Started" />
               <Bar dataKey="inProgress" stackId="status" fill={STATUS_COLORS["In Progress"]} name="In Progress" />
               <Bar dataKey="done" stackId="status" fill={STATUS_COLORS["Done"]} name="Done" />
@@ -105,16 +106,16 @@ export function ProjectsAreasPage() {
       <ChartContainer title="Area Workload" description="Task status distribution across areas">
         {workload.length === 0 ? <EmptyState message="No area data available" /> : (
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={workload} margin={CHART_THEME.marginArea}>
-              <CartesianGrid {...CHART_THEME.grid} />
-              <XAxis dataKey="area" tick={CHART_THEME.axisTickSm} angle={-15} textAnchor="end" height={60} axisLine={CHART_THEME.axisLine} tickLine={false} />
-              <YAxis allowDecimals={false} tick={CHART_THEME.axisTick} axisLine={false} tickLine={false} />
+            <BarChart data={workload} margin={chartTheme.marginArea}>
+              <CartesianGrid {...chartTheme.grid} />
+              <XAxis dataKey="area" tick={chartTheme.axisTickSm} angle={-15} textAnchor="end" height={60} axisLine={chartTheme.axisLine} tickLine={false} />
+              <YAxis allowDecimals={false} tick={chartTheme.axisTick} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={TOOLTIP_STYLE}
-                cursor={CHART_THEME.cursorFill}
+                contentStyle={tooltipStyle}
+                cursor={chartTheme.cursorFill}
                 labelFormatter={(label) => workload.find((w) => w.area === label)?.fullName ?? String(label)}
               />
-              <Legend iconType="circle" iconSize={8} wrapperStyle={CHART_THEME.legend} />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={chartTheme.legend} />
               <Bar dataKey="notStarted" stackId="status" fill={STATUS_COLORS["Not Started"]} name="Not Started" radius={[0, 0, 0, 0]} />
               <Bar dataKey="inProgress" stackId="status" fill={STATUS_COLORS["In Progress"]} name="In Progress" />
               <Bar dataKey="done" stackId="status" fill={STATUS_COLORS["Done"]} name="Done" radius={[3, 3, 0, 0]} />
@@ -125,7 +126,7 @@ export function ProjectsAreasPage() {
 
       {/* At Risk */}
       {atRisk.length > 0 && (
-        <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">
+        <div className="rounded-[8px] border border-border bg-surface-card p-5">
           <div className="mb-4 flex items-center gap-2">
             <AlertTriangle size={16} strokeWidth={1.5} className="text-[#dc2626]" />
             <h3 className="text-[14px] font-[510] text-foreground">At Risk Projects</h3>
@@ -151,10 +152,10 @@ export function ProjectsAreasPage() {
             const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
             return (
-              <div key={p.id} className="rounded-[8px] border border-border-subtle bg-[rgba(255,255,255,0.02)] p-4 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]">
+              <div key={p.id} className="rounded-[8px] border border-border-subtle bg-surface-card p-4 transition-colors duration-150 hover:bg-interactive-hover">
                 <p className="text-[13px] font-[510] text-foreground">{p.name}</p>
                 <div className="mt-2.5 flex items-center gap-2.5">
-                  <div className="h-1.5 flex-1 rounded-full bg-[rgba(255,255,255,0.06)]">
+                  <div className="h-1.5 flex-1 rounded-full bg-interactive-active">
                     <div
                       className="h-1.5 rounded-full bg-success transition-all"
                       style={{ width: `${pct}%` }}

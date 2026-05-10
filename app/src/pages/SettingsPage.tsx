@@ -10,6 +10,7 @@ import { LoadingState } from "@/components/shared/LoadingState";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { NotificationSettings } from "@/components/settings/NotificationSettings";
+import { ThemeSettings } from "@/components/settings/ThemeSettings";
 
 export function SettingsPage() {
   const [syncing, setSyncing] = useState(false);
@@ -41,25 +42,27 @@ export function SettingsPage() {
     }
   }, [queryClient]);
 
-  if (statusError) {
-    return <ErrorFallback message="Failed to load sync status." />;
-  }
-
-  if (statusLoading) {
-    return <LoadingState variant="page" />;
-  }
-
   return (
     <div className="space-y-6 md:space-y-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-[20px] font-[590] text-foreground tracking-[-0.24px]">Settings</h2>
-        <Button variant="primary" onClick={handleSync} disabled={syncing}>
-          <RefreshCw size={14} strokeWidth={1.5} className={syncing ? "animate-spin" : ""} />
-          <span className="ml-2">{syncing ? "Syncing..." : "Force Sync"}</span>
-        </Button>
+        {!statusError && !statusLoading && (
+          <Button variant="primary" onClick={handleSync} disabled={syncing}>
+            <RefreshCw size={14} strokeWidth={1.5} className={syncing ? "animate-spin" : ""} />
+            <span className="ml-2">{syncing ? "Syncing..." : "Force Sync"}</span>
+          </Button>
+        )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5 md:gap-4">
+      <ThemeSettings />
+
+      {statusError ? (
+        <ErrorFallback message="Failed to load sync status." />
+      ) : statusLoading ? (
+        <LoadingState variant="page" />
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5 md:gap-4">
         <StatCard
           title="Last Full Sync"
           value={status?.lastFullSync ? format(parseISO(status.lastFullSync), "MMM d HH:mm") : "Never"}
@@ -89,14 +92,14 @@ export function SettingsPage() {
       </div>
 
       {/* Webhook Setup */}
-      <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">
+      <div className="rounded-[8px] border border-border bg-surface-card p-5">
         <h3 className="mb-3 text-[14px] font-[510] text-foreground">Webhook Setup</h3>
         <div className="space-y-3">
           <div>
             <p className="text-[12px] font-[510] text-foreground-tertiary mb-1">Webhook URL</p>
             {webhookStatus?.webhookUrl ? (
               <div className="flex items-center gap-2">
-                <code className="flex-1 rounded-[4px] bg-[rgba(255,255,255,0.04)] px-2.5 py-1.5 text-[12px] font-mono text-foreground-secondary break-all">
+                <code className="flex-1 rounded-[4px] bg-interactive-hover px-2.5 py-1.5 text-[12px] font-mono text-foreground-secondary break-all">
                   {webhookStatus.webhookUrl}
                 </code>
                 <Button
@@ -119,7 +122,7 @@ export function SettingsPage() {
             </Badge>
           </div>
           {!webhookStatus?.verified && (
-            <div className="rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2">
+            <div className="rounded-[6px] border border-border-subtle bg-surface-card px-3 py-2">
               <p className="text-[12px] text-foreground-quaternary">
                 1. Add the webhook URL in Notion connection settings &rarr; 2. Notion sends verification &rarr; 3. Copy the token above and paste into Notion
               </p>
@@ -132,7 +135,7 @@ export function SettingsPage() {
       <NotificationSettings />
 
       {/* Event Log */}
-      <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">
+      <div className="rounded-[8px] border border-border bg-surface-card p-5">
         <h3 className="mb-4 text-[14px] font-[510] text-foreground">Event Log</h3>
 
         {eventsLoading ? (
@@ -180,6 +183,8 @@ export function SettingsPage() {
           </>
         )}
       </div>
+        </>
+      )}
     </div>
   );
 }

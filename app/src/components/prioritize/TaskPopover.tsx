@@ -47,7 +47,7 @@ function PopoverContent({ point }: { point: MatrixPoint }) {
         href={getNotionUrl(point.id)}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-3 inline-flex items-center rounded-[6px] bg-[rgba(255,255,255,0.06)] px-3 py-2 text-[12px] font-[510] text-foreground-secondary hover:bg-[rgba(255,255,255,0.1)] hover:text-foreground transition-colors min-h-[44px]"
+        className="mt-3 inline-flex items-center rounded-[6px] bg-interactive-active px-3 py-2 text-[12px] font-[510] text-foreground-secondary hover:bg-interactive-hover hover:text-foreground transition-colors min-h-[44px]"
       >
         Open in Notion ↗
       </a>
@@ -107,7 +107,7 @@ export function TaskPopover({ point, anchorRect, onClose }: Props) {
   return (
     <div
       ref={popoverRef}
-      className="fixed z-50 rounded-[8px] border border-[rgba(255,255,255,0.08)] bg-[#1e1f20] p-4 shadow-xl"
+      className="fixed z-50 rounded-[8px] border border-border bg-surface-elevated p-4 shadow-xl"
       style={{ left, top, width: POPOVER_WIDTH }}
     >
       <PopoverContent point={point} />
