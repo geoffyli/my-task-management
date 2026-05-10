@@ -81,6 +81,24 @@ This endpoint handles:
 
 See [[Webhook Handler]] for detailed implementation.
 
+## Push Notifications
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/push/vapid-key` | Bearer | Get VAPID public key |
+| POST | `/api/push/subscribe` | Bearer | Register push subscription |
+| DELETE | `/api/push/subscribe` | Bearer | Remove subscription by endpoint |
+| GET | `/api/push/devices` | Bearer | List registered devices |
+| PATCH | `/api/push/devices/:id` | Bearer | Rename device |
+| DELETE | `/api/push/devices/:id` | Bearer | Remove device |
+| GET | `/api/push/preferences` | Bearer | Get global + device preferences |
+| PUT | `/api/push/preferences` | Bearer | Update global preferences |
+| PUT | `/api/push/preferences/:deviceId` | Bearer | Update per-device overrides |
+| DELETE | `/api/push/preferences/:deviceId` | Bearer | Remove device overrides |
+| POST | `/api/push/test` | Bearer | Send test notification |
+
+See [[Push Notification System]] for architecture details and notification types.
+
 ## Static Asset Serving
 
 In production (when `dist/` exists):

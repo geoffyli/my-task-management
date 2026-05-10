@@ -6,6 +6,8 @@ import { resolve } from "path";
 import { initDb, closeDb, getPageCount, getSyncMeta } from "./db";
 import { fullSync, startReconciliationLoop, createWebhookHandler } from "./sync";
 import { createApiRoutes } from "./api";
+import { initPush } from "./notifications/push-service";
+import { initScheduler, stopScheduler } from "./notifications/scheduler";
 
 let ready = false;
 let reconcileTimer: ReturnType<typeof setInterval> | null = null;
@@ -48,6 +50,8 @@ if (existsSync(distPath)) {
 }
 
 async function boot() {
+  initPush();
+
   const counts = getPageCount(db);
   const isEmpty = counts.tasks === 0 && counts.projects === 0 && counts.areas === 0;
 
@@ -59,18 +63,21 @@ async function boot() {
   }
 
   reconcileTimer = startReconciliationLoop(db);
+  initScheduler(db);
   ready = true;
   console.log(`[boot] Task Management Analytics running on http://localhost:${port}`);
 }
 
 // Graceful shutdown — clear timer before closing DB to prevent use-after-close
 process.on("SIGTERM", () => {
+  stopScheduler();
   if (reconcileTimer) clearInterval(reconcileTimer);
   closeDb();
   process.exit(0);
 });
 
 process.on("SIGINT", () => {
+  stopScheduler();
   if (reconcileTimer) clearInterval(reconcileTimer);
   closeDb();
   process.exit(0);

@@ -47,3 +47,9 @@ Full-stack task analytics dashboard that syncs data from Notion and provides ric
 ### Design
 
 - [[Design System]] — Colors, typography, components, layout, and chart theming
+- [[Responsive Design]] — Breakpoints, layout modes, fluid typography, and touch targets
+
+### PWA & Notifications
+
+- [[PWA Architecture]] — Service worker, precaching, manifest, and auto-update
+- [[Push Notification System]] — Web Push API types, scheduling, and device management

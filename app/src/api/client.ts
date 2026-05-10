@@ -1,4 +1,4 @@
-import type { Task, Project, Area, SyncStatus, SyncEvent, WebhookStatus } from "./types";
+import type { Task, Project, Area, SyncStatus, SyncEvent, WebhookStatus, PushDevice, NotificationPreferences } from "./types";
 import { getStoredToken } from "@/lib/auth";
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
@@ -22,4 +22,25 @@ export const api = {
     fetchApi<SyncEvent[]>(`/api/events?limit=${limit}&offset=${offset}`),
   triggerSync: () => fetchApi<{ success: boolean; message: string }>("/api/sync", { method: "POST" }),
   getWebhookStatus: () => fetchApi<WebhookStatus>("/api/webhook-status"),
+
+  // Push notifications
+  getVapidKey: () => fetchApi<{ publicKey: string }>("/api/push/vapid-key"),
+  pushSubscribe: (sub: { endpoint: string; keys: { p256dh: string; auth: string }; userAgent: string }) =>
+    fetchApi<{ ok: true; deviceId: number }>("/api/push/subscribe", { method: "POST", body: JSON.stringify(sub) }),
+  pushUnsubscribe: (endpoint: string) =>
+    fetchApi<{ ok: true }>("/api/push/subscribe", { method: "DELETE", body: JSON.stringify({ endpoint }) }),
+  getDevices: () => fetchApi<PushDevice[]>("/api/push/devices"),
+  updateDevice: (id: number, name: string) =>
+    fetchApi<{ ok: true }>(`/api/push/devices/${id}`, { method: "PATCH", body: JSON.stringify({ name }) }),
+  deleteDevice: (id: number) =>
+    fetchApi<{ ok: true }>(`/api/push/devices/${id}`, { method: "DELETE" }),
+  getNotificationPreferences: () => fetchApi<NotificationPreferences>("/api/push/preferences"),
+  updateGlobalPreferences: (prefs: Record<string, unknown>) =>
+    fetchApi<{ ok: true }>("/api/push/preferences", { method: "PUT", body: JSON.stringify(prefs) }),
+  updateDevicePreferences: (deviceId: number, prefs: Record<string, unknown>) =>
+    fetchApi<{ ok: true }>(`/api/push/preferences/${deviceId}`, { method: "PUT", body: JSON.stringify(prefs) }),
+  deleteDevicePreferences: (deviceId: number) =>
+    fetchApi<{ ok: true }>(`/api/push/preferences/${deviceId}`, { method: "DELETE" }),
+  sendTestNotification: (endpoint: string) =>
+    fetchApi<{ ok: true }>("/api/push/test", { method: "POST", body: JSON.stringify({ endpoint }) }),
 };

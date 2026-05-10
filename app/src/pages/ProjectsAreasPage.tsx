@@ -70,7 +70,7 @@ export function ProjectsAreasPage() {
   }, [areas, areaTasksMap]);
 
   if (tasksLoading || projectsLoading || areasLoading) {
-    return <LoadingState />;
+    return <LoadingState variant="page" />;
   }
 
   if (tasksError || projectsError || areasError) {
@@ -130,7 +130,7 @@ export function ProjectsAreasPage() {
             <AlertTriangle size={16} strokeWidth={1.5} className="text-[#dc2626]" />
             <h3 className="text-[14px] font-[510] text-foreground">At Risk Projects</h3>
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4">
             {atRisk.map(({ project, reason }) => (
               <div key={project.id} className="rounded-[8px] border border-[rgba(220,38,38,0.2)] bg-[rgba(220,38,38,0.05)] p-4">
                 <p className="text-[13px] font-[510] text-foreground">{project.name}</p>
@@ -143,7 +143,7 @@ export function ProjectsAreasPage() {
 
       {/* Project Progress Cards */}
       <ChartContainer title="Project Progress" description="Completion percentage per project">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4">
           {projects?.map((p) => {
             const projectTasks = tasksByProject.get(p.id) ?? [];
             const done = projectTasks.filter((t) => t.status === "Done").length;

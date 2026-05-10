@@ -135,7 +135,7 @@ export function PrioritizePage() {
     setSelectedRect(null);
   }, []);
 
-  if (isLoading) return <LoadingState />;
+  if (isLoading) return <LoadingState variant="page" />;
   if (isError) return <ErrorFallback message="Failed to load tasks" onRetry={() => refetch()} />;
 
   return (

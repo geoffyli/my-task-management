@@ -9,6 +9,7 @@ import { ErrorFallback } from "@/components/shared/ErrorFallback";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { NotificationSettings } from "@/components/settings/NotificationSettings";
 
 export function SettingsPage() {
   const [syncing, setSyncing] = useState(false);
@@ -45,12 +46,12 @@ export function SettingsPage() {
   }
 
   if (statusLoading) {
-    return <LoadingState />;
+    return <LoadingState variant="page" />;
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 md:space-y-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-[20px] font-[590] text-foreground tracking-[-0.24px]">Settings</h2>
         <Button variant="primary" onClick={handleSync} disabled={syncing}>
           <RefreshCw size={14} strokeWidth={1.5} className={syncing ? "animate-spin" : ""} />
@@ -58,7 +59,7 @@ export function SettingsPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5 md:gap-4">
         <StatCard
           title="Last Full Sync"
           value={status?.lastFullSync ? format(parseISO(status.lastFullSync), "MMM d HH:mm") : "Never"}
@@ -126,6 +127,9 @@ export function SettingsPage() {
           )}
         </div>
       </div>
+
+      {/* Notifications */}
+      <NotificationSettings />
 
       {/* Event Log */}
       <div className="rounded-[8px] border border-border bg-[rgba(255,255,255,0.02)] p-5">

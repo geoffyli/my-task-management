@@ -6,6 +6,7 @@ import {
 import { useSearchParams } from "react-router-dom";
 import { useTasks } from "@/api/queries";
 import { ChartContainer } from "@/components/shared/ChartContainer";
+import { LazyChart } from "@/components/shared/LazyChart";
 import { TimeRangeSelector } from "@/components/shared/TimeRangeSelector";
 import { ErrorFallback } from "@/components/shared/ErrorFallback";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -53,7 +54,7 @@ export function TrendsPage() {
   );
 
   if (isLoading) {
-    return <LoadingState />;
+    return <LoadingState variant="page" />;
   }
 
   if (isError) {
@@ -61,15 +62,15 @@ export function TrendsPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 md:space-y-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-[20px] font-[590] text-foreground tracking-[-0.24px]">Trends</h2>
         <TimeRangeSelector value={range} onChange={setRange} />
       </div>
 
       <ChartContainer title="Throughput" description="Tasks created vs completed per week">
         {throughput.length === 0 ? <EmptyState message="No throughput data for this time range" /> : (
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={240} className="md:!h-[300px]">
             <LineChart data={throughput} margin={CHART_THEME.margin}>
               <CartesianGrid {...CHART_THEME.grid} />
               <XAxis dataKey="week" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
@@ -85,7 +86,7 @@ export function TrendsPage() {
 
       <ChartContainer title="Completion Velocity" description="Weekly completions with 4-week rolling average">
         {velocity.length === 0 ? <EmptyState message="No velocity data" /> : (
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={240} className="md:!h-[300px]">
             <ComposedChart data={velocity} margin={CHART_THEME.margin}>
               <CartesianGrid {...CHART_THEME.grid} />
               <XAxis dataKey="week" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
@@ -99,10 +100,11 @@ export function TrendsPage() {
         )}
       </ChartContainer>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <LazyChart>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 3xl:grid-cols-2">
         <ChartContainer title="Task Aging Distribution" description="How long active tasks have been open, by importance">
           {aging.length === 0 ? <EmptyState message="No active tasks" /> : (
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer width="100%" height={220} className="md:!h-[280px]">
               <BarChart data={aging} margin={CHART_THEME.margin}>
                 <CartesianGrid {...CHART_THEME.grid} />
                 <XAxis dataKey="bucket" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
@@ -119,7 +121,7 @@ export function TrendsPage() {
 
         <ChartContainer title="Reschedule Patterns" description="How often tasks get pushed back">
           {reschedule.length === 0 ? <EmptyState message="No rescheduled tasks" /> : (
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer width="100%" height={220} className="md:!h-[280px]">
               <BarChart data={reschedule} margin={CHART_THEME.margin}>
                 <CartesianGrid {...CHART_THEME.grid} />
                 <XAxis dataKey="bucket" tick={CHART_THEME.axisTick} axisLine={CHART_THEME.axisLine} tickLine={false} />
@@ -131,10 +133,13 @@ export function TrendsPage() {
           )}
         </ChartContainer>
       </div>
+      </LazyChart>
 
-      <ChartContainer title="Activity Calendar" description="Daily task creation and completion events">
-        <CalendarHeatmap data={heatmap} range={range} />
-      </ChartContainer>
+      <LazyChart>
+        <ChartContainer title="Activity Calendar" description="Daily task creation and completion events">
+          <CalendarHeatmap data={heatmap} range={range} />
+        </ChartContainer>
+      </LazyChart>
     </div>
   );
 }

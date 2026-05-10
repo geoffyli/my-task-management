@@ -17,7 +17,11 @@ app/src/components/
 ├── layout/           # Structural shell components
 │   ├── AppShell.tsx    (flex container: sidebar + content)
 │   ├── Header.tsx      (top bar)
-│   └── Sidebar.tsx     (navigation panel)
+│   ├── Sidebar.tsx     (navigation panel)
+│   ├── BottomTabBar.tsx (mobile fixed bottom navigation)
+│   ├── MobileSidebar.tsx (hamburger-triggered overlay)
+│   ├── IconRail.tsx    (tablet icon-only rail)
+│   └── nav-links.ts   (shared navigation link definitions)
 ├── ui/               # Design-system primitives
 │   ├── Button.tsx      (variant + size polymorphic button)
 │   ├── Card.tsx        (composable card with sub-components)
@@ -35,13 +39,32 @@ app/src/components/
 │   ├── MatrixFilters.tsx     (project/area multi-select bar)
 │   ├── MatrixInsights.tsx    (quadrant stat cards panel)
 │   └── NullValueCallout.tsx  (excluded tasks badge)
+├── settings/         # Settings-related components
+│   └── NotificationSettings.tsx (push notification preferences UI)
 └── shared/           # Reusable non-primitive components
     ├── ChartContainer.tsx    (card frame for charts with title/export)
     ├── TimeRangeSelector.tsx (segmented time filter control)
     ├── LoadingState.tsx      (centered loading indicator)
     ├── EmptyState.tsx        (no-data message)
-    └── ErrorFallback.tsx     (error display with retry)
+    ├── ErrorFallback.tsx     (error display with retry)
+    ├── BottomSheet.tsx       (mobile slide-up panel)
+    ├── Skeleton.tsx          (loading placeholder shimmer)
+    ├── PullToRefresh.tsx     (mobile pull-to-refresh gesture)
+    ├── LazyChart.tsx         (intersection-observer chart loader)
+    └── PageTransition.tsx    (animated route transitions)
 ```
+
+## Hooks
+
+Custom hooks in `app/src/hooks/`:
+
+| Hook | Purpose |
+|------|---------|
+| `useBreakpoint.ts` | Reactive viewport breakpoint detection |
+| `useHealthReport.ts` | Fetch and cache health report data |
+| `usePushNotifications.ts` | Push subscription management and permission flow |
+| `useInView.ts` | Intersection Observer wrapper for lazy rendering |
+| `useReducedMotion.ts` | Respect `prefers-reduced-motion` media query |
 
 ## Component Categories
 
@@ -51,7 +74,7 @@ Low-level building blocks with no domain knowledge. Accept `variant`, `size`, an
 
 ### Layout (`layout/`)
 
-Structural components that define the page skeleton. Used once in the app root.
+Structural components that define the page skeleton. Used once in the app root. Includes responsive navigation variants (sidebar, bottom tab bar, icon rail) and the shared link definitions consumed by all nav components.
 
 ### Shared (`shared/`)
 
@@ -60,6 +83,10 @@ Reusable domain-aware components used across multiple pages. Understand the app'
 ### Cards (`cards/`)
 
 Specialized display components for metrics and data summaries.
+
+### Settings (`settings/`)
+
+Components for the settings page, including notification preference management with per-device overrides.
 
 ### Feature (`prioritize/`)
 

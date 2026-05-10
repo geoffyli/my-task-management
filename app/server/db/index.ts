@@ -30,3 +30,20 @@ export { upsertPage, softDeletePage, restorePage, bulkUpsert, setSyncMeta, getSy
 export type { RawPage } from "./store";
 export { getAllTasks, getAllProjects, getAllAreas, getPageCount, getSyncStatus, getSyncEvents, getAllPageIds } from "./queries";
 export type { SyncStatus, SyncEvent } from "./queries";
+export {
+  insertSubscription,
+  removeSubscription,
+  removeSubscriptionById,
+  getAllSubscriptions,
+  getSubscriptionByEndpoint,
+  updateDeviceName,
+  touchLastUsed,
+  getGlobalPreferences,
+  getDevicePreferences,
+  getAllPreferences,
+  upsertGlobalPreferences,
+  upsertDevicePreferences,
+  deleteDevicePreferences,
+  parseDeviceName,
+} from "./push";
+export type { PushSubscriptionRow, NotificationPreferencesRow } from "./push";

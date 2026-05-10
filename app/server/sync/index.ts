@@ -2,6 +2,7 @@ import type { Database } from "bun:sqlite";
 import { logSyncEvent } from "../db";
 import { fullSync as _fullSync } from "./full-sync";
 import { reconcile as _reconcile } from "./reconcile";
+import { emitSyncFailure, emitSyncRecovery } from "../notifications/event-triggers";
 
 let syncing = false;
 
@@ -13,6 +14,7 @@ export async function fullSync(db: Database): Promise<void> {
   syncing = true;
   try {
     await _fullSync(db);
+    emitSyncRecovery(db);
   } finally {
     syncing = false;
   }
@@ -26,6 +28,7 @@ export async function reconcile(db: Database): Promise<void> {
   syncing = true;
   try {
     await _reconcile(db);
+    emitSyncRecovery(db);
   } finally {
     syncing = false;
   }
@@ -46,6 +49,7 @@ export function startReconciliationLoop(
         source: "reconciliation",
         payload: { error: String(err) },
       });
+      emitSyncFailure(db, String(err));
     }
   }, intervalMs);
 }

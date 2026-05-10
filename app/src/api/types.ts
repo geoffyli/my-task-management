@@ -53,3 +53,42 @@ export interface WebhookStatus {
   webhookUrl: string | null;
   verified: boolean;
 }
+
+export interface PushDevice {
+  id: number;
+  endpoint: string;
+  user_agent: string | null;
+  device_name: string | null;
+  created_at: string;
+  last_used_at: string | null;
+}
+
+export interface NotificationPreferencesRow {
+  id: number;
+  device_id: number | null;
+  enabled: number;
+  sync_failure: number;
+  sync_recovery: number;
+  db_health: number;
+  tasks_due_today: number;
+  tasks_due_tomorrow: number;
+  overdue_tasks: number;
+  daily_digest: number;
+  weekly_review: number;
+  blocked_alert: number;
+  stale_alert: number;
+  due_today_time: string;
+  due_tomorrow_time: string;
+  daily_digest_time: string;
+  weekly_review_time: string;
+  blocked_alert_time: string;
+  stale_alert_time: string;
+  weekly_review_day: number;
+  blocked_threshold_days: number;
+  stale_threshold_days: number;
+}
+
+export interface NotificationPreferences {
+  global: NotificationPreferencesRow | null;
+  deviceOverrides: NotificationPreferencesRow[];
+}

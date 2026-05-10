@@ -28,6 +28,7 @@ erDiagram
     pages ||--o| tasks : "has"
     pages ||--o| projects : "has"
     pages ||--o| areas : "has"
+    push_subscriptions ||--o{ notification_preferences : "has overrides"
     
     pages {
         TEXT id PK
@@ -83,6 +84,42 @@ erDiagram
         TEXT source
         TEXT payload "JSON"
         TEXT created_at
+    }
+    
+    push_subscriptions {
+        INTEGER id PK "AUTOINCREMENT"
+        TEXT endpoint "UNIQUE"
+        TEXT keys_p256dh
+        TEXT keys_auth
+        TEXT user_agent
+        TEXT device_name
+        TEXT created_at
+        TEXT last_used_at
+    }
+    
+    notification_preferences {
+        INTEGER id PK "AUTOINCREMENT"
+        INTEGER device_id "FK -> push_subscriptions.id"
+        INTEGER enabled
+        INTEGER sync_failure
+        INTEGER sync_recovery
+        INTEGER db_health
+        INTEGER tasks_due_today
+        INTEGER tasks_due_tomorrow
+        INTEGER overdue_tasks
+        INTEGER daily_digest
+        INTEGER weekly_review
+        INTEGER blocked_alert
+        INTEGER stale_alert
+        TEXT due_today_time "HH:MM"
+        TEXT due_tomorrow_time "HH:MM"
+        TEXT daily_digest_time "HH:MM"
+        TEXT weekly_review_time "HH:MM"
+        TEXT blocked_alert_time "HH:MM"
+        TEXT stale_alert_time "HH:MM"
+        INTEGER weekly_review_day
+        INTEGER blocked_threshold_days
+        INTEGER stale_threshold_days
     }
 ```
 
@@ -163,6 +200,50 @@ Extracted task-specific fields for fast querying. Foreign key to `pages` with CA
 | `payload` | TEXT | JSON with event-specific details |
 | `created_at` | TEXT (NOT NULL) | Auto-set to `datetime('now')` |
 
+### `push_subscriptions` — Push Notification Devices
+
+Stores Web Push subscription data for each registered browser/device.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY AUTOINCREMENT | Auto-incrementing ID |
+| `endpoint` | TEXT | UNIQUE, NOT NULL | Push service endpoint URL |
+| `keys_p256dh` | TEXT | NOT NULL | Client public key (P-256) |
+| `keys_auth` | TEXT | NOT NULL | Auth secret |
+| `user_agent` | TEXT | | Raw User-Agent string |
+| `device_name` | TEXT | | Auto-detected device label |
+| `created_at` | TEXT | NOT NULL | ISO timestamp |
+| `last_used_at` | TEXT | | Last successful push delivery |
+
+### `notification_preferences` — Per-Type Notification Settings
+
+Stores global defaults (when `device_id` is NULL) and per-device overrides.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY AUTOINCREMENT | Auto-incrementing ID |
+| `device_id` | INTEGER | FK → push_subscriptions(id) ON DELETE CASCADE | NULL = global, else device override |
+| `enabled` | INTEGER | NOT NULL | Master toggle (0 or 1) |
+| `sync_failure` | INTEGER | | Toggle: sync failure alerts |
+| `sync_recovery` | INTEGER | | Toggle: sync recovery alerts |
+| `db_health` | INTEGER | | Toggle: DB health degradation |
+| `tasks_due_today` | INTEGER | | Toggle: tasks due today |
+| `tasks_due_tomorrow` | INTEGER | | Toggle: tasks due tomorrow |
+| `overdue_tasks` | INTEGER | | Toggle: overdue task alerts |
+| `daily_digest` | INTEGER | | Toggle: daily digest |
+| `weekly_review` | INTEGER | | Toggle: weekly review |
+| `blocked_alert` | INTEGER | | Toggle: blocked task alerts |
+| `stale_alert` | INTEGER | | Toggle: stale task alerts |
+| `due_today_time` | TEXT | | Delivery time (HH:MM) |
+| `due_tomorrow_time` | TEXT | | Delivery time (HH:MM) |
+| `daily_digest_time` | TEXT | | Delivery time (HH:MM) |
+| `weekly_review_time` | TEXT | | Delivery time (HH:MM) |
+| `blocked_alert_time` | TEXT | | Delivery time (HH:MM) |
+| `stale_alert_time` | TEXT | | Delivery time (HH:MM) |
+| `weekly_review_day` | INTEGER | | Day of week (0=Sun, 6=Sat) |
+| `blocked_threshold_days` | INTEGER | | Days before blocked alert fires |
+| `stale_threshold_days` | INTEGER | | Days before stale alert fires |
+
 ## Indexes
 
 | Index | Table | Column(s) | Purpose |
@@ -174,10 +255,12 @@ Extracted task-specific fields for fast querying. Foreign key to `pages` with CA
 | `idx_tasks_assigned_date` | tasks | assigned_date | Date-range queries |
 | `idx_tasks_deadline` | tasks | deadline | Deadline proximity queries |
 | `idx_sync_events_created_at` | sync_events | created_at | Paginated event log |
+| `idx_push_subscriptions_endpoint` | push_subscriptions | endpoint | Unique subscription lookup |
+| `idx_notification_preferences_device` | notification_preferences | device_id | Per-device preference queries |
 
 ## Design Decisions
 
 - **Soft deletes with pruning** — Pages are soft-deleted by setting `deleted_at`. Soft-deleted pages older than 90 days are permanently purged during reconciliation (CASCADE deletes remove typed rows). If a purged page is later undeleted in Notion, the webhook handler re-fetches and re-inserts it.
 - **Raw JSON preservation** — The full Notion response is stored in `pages.raw_json`, enabling re-extraction if the schema evolves.
 - **JSON arrays in TEXT columns** — Relation IDs (`project_ids`, `dependencies`, `area_ids`) are stored as JSON-stringified arrays. Parsed at query time.
-- **CASCADE deletes on FK** — If a page record is ever hard-deleted, its typed row is automatically removed.
+- **CASCADE deletes on FK** — If a page record is ever hard-deleted, its typed row is automatically removed. Similarly, deleting a push subscription cascades to its notification preference overrides.

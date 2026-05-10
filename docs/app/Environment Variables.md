@@ -24,6 +24,10 @@ All configuration is managed through environment variables. Copy `.env.example` 
 | `NOTION_WEBHOOK_URL` | No | — | Public webhook URL (display-only in Settings UI) |
 | `NODE_ENV` | No | — | Set to `development` to enable dev mode |
 | `DEV` | No | — | Set to `true` as alternative dev mode flag |
+| `VAPID_PUBLIC_KEY` | For push | — | Web Push VAPID public key (base64url) |
+| `VAPID_PRIVATE_KEY` | For push | — | Web Push VAPID private key (base64url) |
+| `VAPID_SUBJECT` | For push | — | VAPID contact URI (mailto:) |
+| `VITE_VAPID_PUBLIC_KEY` | For push (build-time) | — | Same as VAPID_PUBLIC_KEY, exposed to client via Vite |
 
 ## Notion API Key Resolution
 
@@ -34,6 +38,16 @@ The server resolves the Notion API key in priority order:
 3. Error thrown if neither found
 
 **Source:** `app/server/sync/notion-client.ts`
+
+## Push Notification Keys
+
+VAPID keys are required for Web Push notifications. Generate a key pair with:
+
+```bash
+npx web-push generate-vapid-keys
+```
+
+Set `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` on the server. The client needs access to the public key at build time via `VITE_VAPID_PUBLIC_KEY` (Vite exposes variables prefixed with `VITE_` to the frontend bundle).
 
 ## Development vs Production
 
@@ -57,6 +71,10 @@ TOKEN=<64-char-hex-string>
 PORT=3456
 DB_PATH=/app/data/analytics.db
 NOTION_WEBHOOK_URL=https://your-app.example.com/api/webhooks/notion
+VAPID_PUBLIC_KEY=<base64url-encoded-public-key>
+VAPID_PRIVATE_KEY=<base64url-encoded-private-key>
+VAPID_SUBJECT=mailto:admin@example.com
+VITE_VAPID_PUBLIC_KEY=<same-as-VAPID_PUBLIC_KEY>
 ```
 
 All API routes require a valid `Authorization: Bearer <TOKEN>` header.

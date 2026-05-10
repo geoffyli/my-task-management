@@ -57,7 +57,7 @@ export function EisenhowerMatrix({
   const mid = PADDING + innerSize / 2;
 
   return (
-    <div ref={containerRef} className="mx-auto w-full" style={{ aspectRatio: "1", minWidth: 400, maxWidth: 600 }}>
+    <div ref={containerRef} className="mx-auto w-full" style={{ aspectRatio: "1", maxWidth: 600 }}>
       <svg
         width={size}
         height={size}

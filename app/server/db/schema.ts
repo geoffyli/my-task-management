@@ -2,7 +2,7 @@ import { Database } from "bun:sqlite";
 import { mkdirSync } from "fs";
 import { dirname } from "path";
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 export function initializeDatabase(dbPath: string): Database {
   mkdirSync(dirname(dbPath), { recursive: true });
@@ -100,6 +100,52 @@ export function initializeDatabase(dbPath: string): Database {
     if (!cols.some((c) => c.name === "started_date")) {
       db.run("ALTER TABLE tasks ADD COLUMN started_date TEXT");
     }
+  }
+
+  if (currentVersion < 3) {
+    db.run(`
+      CREATE TABLE IF NOT EXISTS push_subscriptions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        endpoint TEXT NOT NULL UNIQUE,
+        keys_p256dh TEXT NOT NULL,
+        keys_auth TEXT NOT NULL,
+        user_agent TEXT,
+        device_name TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        last_used_at TEXT
+      )
+    `);
+
+    db.run(`
+      CREATE TABLE IF NOT EXISTS notification_preferences (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        device_id INTEGER REFERENCES push_subscriptions(id) ON DELETE CASCADE,
+        enabled INTEGER NOT NULL DEFAULT 1,
+        sync_failure INTEGER NOT NULL DEFAULT 1,
+        sync_recovery INTEGER NOT NULL DEFAULT 1,
+        db_health INTEGER NOT NULL DEFAULT 1,
+        tasks_due_today INTEGER NOT NULL DEFAULT 1,
+        tasks_due_tomorrow INTEGER NOT NULL DEFAULT 1,
+        overdue_tasks INTEGER NOT NULL DEFAULT 1,
+        daily_digest INTEGER NOT NULL DEFAULT 1,
+        weekly_review INTEGER NOT NULL DEFAULT 1,
+        blocked_alert INTEGER NOT NULL DEFAULT 1,
+        stale_alert INTEGER NOT NULL DEFAULT 1,
+        due_today_time TEXT NOT NULL DEFAULT '08:00',
+        due_tomorrow_time TEXT NOT NULL DEFAULT '08:00',
+        daily_digest_time TEXT NOT NULL DEFAULT '07:30',
+        weekly_review_time TEXT NOT NULL DEFAULT '18:00',
+        blocked_alert_time TEXT NOT NULL DEFAULT '09:00',
+        stale_alert_time TEXT NOT NULL DEFAULT '09:00',
+        weekly_review_day INTEGER NOT NULL DEFAULT 0,
+        blocked_threshold_days INTEGER NOT NULL DEFAULT 3,
+        stale_threshold_days INTEGER NOT NULL DEFAULT 7
+      )
+    `);
+
+    db.run("CREATE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint ON push_subscriptions(endpoint)");
+    db.run("CREATE INDEX IF NOT EXISTS idx_notification_preferences_device ON notification_preferences(device_id)");
+    db.run("INSERT OR IGNORE INTO notification_preferences (device_id) VALUES (NULL)");
   }
 
   if (currentVersion < SCHEMA_VERSION) {

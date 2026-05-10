@@ -50,3 +50,19 @@ export function useWebhookStatus() {
     refetchInterval: 30000,
   });
 }
+
+export function useDevices() {
+  return useQuery({
+    queryKey: ["push", "devices"],
+    queryFn: api.getDevices,
+    staleTime: 60 * 1000,
+  });
+}
+
+export function useNotificationPreferences() {
+  return useQuery({
+    queryKey: ["push", "preferences"],
+    queryFn: api.getNotificationPreferences,
+    staleTime: 60 * 1000,
+  });
+}

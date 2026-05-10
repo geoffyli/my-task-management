@@ -76,7 +76,7 @@ export function ThisWeekPage() {
   }, [tasks, today]);
 
   if (isLoading) {
-    return <LoadingState />;
+    return <LoadingState variant="page" />;
   }
 
   if (isError) {
@@ -84,10 +84,10 @@ export function ThisWeekPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       <h2 className="text-[20px] font-[590] text-foreground tracking-[-0.24px]">This Week</h2>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5 md:gap-4">
         <StatCard title="Tasks This Week" value={weekTasks.length + completedThisWeek.length} icon={CalendarDays} />
         <StatCard title="In Progress" value={inProgress.length} icon={Loader} />
         <StatCard
@@ -128,7 +128,7 @@ export function ThisWeekPage() {
                   {dayTasks.map(task => (
                     <div
                       key={task.id}
-                      className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2 transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]"
+                      className="flex items-center justify-between rounded-[6px] border border-border-subtle bg-[rgba(255,255,255,0.02)] px-3 py-2.5 min-h-[44px] transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]"
                     >
                       <div className="flex items-center gap-2.5">
                         <div

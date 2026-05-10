@@ -1,17 +1,9 @@
 import { NavLink } from "react-router-dom";
-import { CalendarDays, TrendingUp, Crosshair, FolderKanban, Activity, Settings, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHealthErrorCount } from "@/hooks/useHealthReport";
-
-const links = [
-  { to: "/", label: "This Week", icon: CalendarDays },
-  { to: "/trends", label: "Trends", icon: TrendingUp },
-  { to: "/prioritize", label: "Prioritize", icon: Crosshair },
-  { to: "/projects", label: "Projects & Areas", icon: FolderKanban },
-  { to: "/health", label: "Health", icon: Activity },
-  { to: "/settings", label: "Settings", icon: Settings },
-];
+import { navLinks } from "./nav-links";
 
 export function Sidebar() {
   const { logout } = useAuth();
@@ -23,7 +15,7 @@ export function Sidebar() {
         Task Analytics
       </h1>
       <nav className="flex flex-1 flex-col gap-0.5">
-        {links.map(({ to, label, icon: Icon }) => (
+        {navLinks.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

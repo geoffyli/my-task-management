@@ -13,6 +13,7 @@ import { getNotionUrl, computeHealthScore, getScoreColor, type HealthSeverity, t
 import { SEVERITY_COLORS, TOOLTIP_STYLE } from "@/lib/constants";
 import { CHART_THEME } from "@/lib/chart-theme";
 import { ChartContainer } from "@/components/shared/ChartContainer";
+import { LazyChart } from "@/components/shared/LazyChart";
 import { SegmentedControl } from "@/components/shared/SegmentedControl";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -295,7 +296,7 @@ export function HealthPage() {
     });
   };
 
-  if (isLoading) return <LoadingState />;
+  if (isLoading) return <LoadingState variant="page" />;
 
   return (
     <div className="space-y-6">
@@ -308,7 +309,9 @@ export function HealthPage() {
             <SeverityDonut errors={report.errors} warnings={report.warnings} info={report.info} />
           </div>
 
-          <ViolationsByRuleChart results={filteredResults} />
+          <LazyChart>
+            <ViolationsByRuleChart results={filteredResults} />
+          </LazyChart>
         </>
       )}
 
