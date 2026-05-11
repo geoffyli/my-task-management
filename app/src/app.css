@@ -191,15 +191,19 @@ body {
 
 /* iOS standalone mode overrides */
 @media (display-mode: standalone) {
-  html, body {
-    height: 100%;
-    overflow: hidden;
+  html {
+    background-color: var(--theme-surface-panel);
     overscroll-behavior: none;
+  }
+  html, body {
+    height: 100vh;
+    overflow: hidden;
   }
   body {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
+    overscroll-behavior: none;
   }
   .selectable {
     -webkit-user-select: text;

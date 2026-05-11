@@ -12,7 +12,6 @@ const tabs = [
 export function BottomTabBar() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-end border-t border-border-subtle bg-surface-panel pb-[env(safe-area-inset-bottom)]">
-      <div className="absolute left-0 right-0 top-full h-20 bg-inherit" />
       {tabs.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}

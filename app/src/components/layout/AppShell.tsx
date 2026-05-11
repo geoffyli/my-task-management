@@ -94,7 +94,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [isMobile]);
 
   return (
-    <div className="flex h-dvh min-h-[-webkit-fill-available] bg-background">
+    <div className="flex h-screen bg-background">
       {/* Desktop: full sidebar */}
       {isDesktop && <Sidebar />}
 
