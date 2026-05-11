@@ -103,62 +103,64 @@ export function DashboardPage() {
         )}
       </div>
 
-      <div className="rounded-[8px] border border-border bg-surface-card p-5">
-        <h3 className="text-[14px] font-[510] text-foreground">Blocked Tasks</h3>
-        <p className="mt-0.5 text-[13px] text-foreground-tertiary">Tasks with status set to Blocked</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-4">
+        <div className="rounded-[8px] border border-border bg-surface-card p-5">
+          <h3 className="text-[14px] font-[510] text-foreground">Blocked Tasks</h3>
+          <p className="mt-0.5 text-[13px] text-foreground-tertiary">Tasks with status set to Blocked</p>
 
-        {blocked.length === 0 ? (
-          <EmptyState message="No blocked tasks" />
-        ) : (
-          <div className="mt-4 space-y-1">
-            {blocked.map(task => (
-              <a
-                key={task.id}
-                href={getNotionUrl(task.id)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-[6px] border border-border-subtle px-3 py-2.5 min-h-[44px] transition-colors duration-150 hover:bg-interactive-hover"
-              >
-                <Badge variant="data" color={IMPORTANCE_COLORS[task.importance ?? ""]}>
-                  {task.importance ?? "–"}
-                </Badge>
-                <span className="text-[13px] text-foreground">{task.name}</span>
-              </a>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="rounded-[8px] border border-border bg-surface-card p-5">
-        <h3 className="text-[14px] font-[510] text-foreground">Waiting on Prerequisites</h3>
-        <p className="mt-0.5 text-[13px] text-foreground-tertiary">Tasks with dependencies that haven't started yet</p>
-
-        {prerequisiteWaiting.length === 0 ? (
-          <EmptyState message="No tasks waiting on prerequisites" />
-        ) : (
-          <div className="mt-4 space-y-1">
-            {prerequisiteWaiting.map(task => (
-              <a
-                key={task.id}
-                href={getNotionUrl(task.id)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between rounded-[6px] border border-border-subtle px-3 py-2.5 min-h-[44px] transition-colors duration-150 hover:bg-interactive-hover"
-              >
-                <div className="flex items-center gap-3">
+          {blocked.length === 0 ? (
+            <EmptyState message="No blocked tasks" />
+          ) : (
+            <div className="mt-4 space-y-1">
+              {blocked.map(task => (
+                <a
+                  key={task.id}
+                  href={getNotionUrl(task.id)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-[6px] border border-border-subtle px-3 py-2.5 min-h-[44px] transition-colors duration-150 hover:bg-interactive-hover"
+                >
                   <Badge variant="data" color={IMPORTANCE_COLORS[task.importance ?? ""]}>
                     {task.importance ?? "–"}
                   </Badge>
                   <span className="text-[13px] text-foreground">{task.name}</span>
-                </div>
-                <span className="text-[12px] text-foreground-quaternary truncate max-w-[200px]">
-                  {task.notStartedPrereqs.slice(0, 3).map(p => p.name).join(", ")}
-                  {task.notStartedPrereqs.length > 3 ? ` +${task.notStartedPrereqs.length - 3} more` : ""}
-                </span>
-              </a>
-            ))}
-          </div>
-        )}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-[8px] border border-border bg-surface-card p-5">
+          <h3 className="text-[14px] font-[510] text-foreground">Waiting on Prerequisites</h3>
+          <p className="mt-0.5 text-[13px] text-foreground-tertiary">Tasks with dependencies that haven't started yet</p>
+
+          {prerequisiteWaiting.length === 0 ? (
+            <EmptyState message="No tasks waiting on prerequisites" />
+          ) : (
+            <div className="mt-4 space-y-1">
+              {prerequisiteWaiting.map(task => (
+                <a
+                  key={task.id}
+                  href={getNotionUrl(task.id)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between rounded-[6px] border border-border-subtle px-3 py-2.5 min-h-[44px] transition-colors duration-150 hover:bg-interactive-hover"
+                >
+                  <div className="flex items-center gap-3">
+                    <Badge variant="data" color={IMPORTANCE_COLORS[task.importance ?? ""]}>
+                      {task.importance ?? "–"}
+                    </Badge>
+                    <span className="text-[13px] text-foreground">{task.name}</span>
+                  </div>
+                  <span className="text-[12px] text-foreground-quaternary truncate max-w-[140px]">
+                    {task.notStartedPrereqs.slice(0, 3).map(p => p.name).join(", ")}
+                    {task.notStartedPrereqs.length > 3 ? ` +${task.notStartedPrereqs.length - 3} more` : ""}
+                  </span>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
