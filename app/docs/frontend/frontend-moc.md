@@ -18,6 +18,7 @@ A React 19 single-page application with rich data visualizations, built with Typ
 
 - [[component-architecture]] — Component organization, folder structure, and composition patterns
 - [[pages]] — All routes: Dashboard, Trends, Projects & Areas, Settings
-- [[state-management]] — TanStack React Query, AuthContext, URL state
+- [[state-management]] — TanStack React Query, AuthContext, URL state, custom hooks
+- [[task-network]] — Task relationship graph visualization (React Flow, SSE streaming)
 - [[charting]] — Recharts integration, chart types, and visualization patterns
 - [[api-client]] — Fetch wrapper and React Query hooks

@@ -30,11 +30,23 @@ src/components/
 │   └── index.ts        (barrel export)
 ├── cards/            # Domain-specific card components
 │   └── StatCard.tsx    (metric display with icon, value, trend)
+├── network/          # Task network graph visualization
+│   ├── NetworkDialog.tsx    (modal container, fullscreen mobile)
+│   ├── NetworkGraph.tsx     (React Flow canvas + DAG layout)
+│   ├── NetworkNode.tsx      (custom node: status dot + name)
+│   ├── NodeTooltip.tsx      (click tooltip with Notion link)
+│   ├── NetworkLegend.tsx    (edge type legend overlay)
+│   └── index.ts             (barrel export)
 ├── settings/         # Settings page components
 │   ├── ThemeSettings.tsx      (appearance theme selector)
 │   └── NotificationSettings.tsx (push notification preferences)
 └── shared/           # Reusable non-primitive components
+    ├── TaskDetailPopover/       (unified task popover across all pages)
+    │   ├── types.ts               (TaskSummary interface + adapters)
+    │   ├── TaskDetailPopover.tsx   (popover with actions)
+    │   └── index.ts               (barrel export)
     ├── ChartContainer.tsx    (card frame for charts with title/export)
+    ├── BottomSheet.tsx       (mobile slide-up sheet)
     ├── TimeRangeSelector.tsx (segmented time filter control)
     ├── LoadingState.tsx      (centered loading indicator)
     ├── EmptyState.tsx        (no-data message)
@@ -58,6 +70,10 @@ Reusable domain-aware components used across multiple pages. Understand the app'
 ### Cards (`cards/`)
 
 Specialized display components for metrics and data summaries.
+
+### Network (`network/`)
+
+Task relationship graph visualization using React Flow. The `NetworkDialog` provides the modal container; `NetworkGraph` handles layout and rendering. See [[task-network]] for full feature documentation.
 
 ## Composition Patterns
 

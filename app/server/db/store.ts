@@ -19,7 +19,7 @@ function extractDate(prop: any): string | null {
   return prop?.date?.start ?? null;
 }
 
-function extractRelationIds(prop: any): string[] {
+export function extractRelationIds(prop: any): string[] {
   return (prop?.relation ?? []).map((r: any) => r.id);
 }
 

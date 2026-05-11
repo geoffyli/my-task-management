@@ -1,61 +1,78 @@
 import { useEffect, useRef } from "react";
-import type { MatrixPoint } from "@/lib/prioritize";
-import { STATUS_COLORS } from "@/lib/constants";
+import { ExternalLink, Network } from "lucide-react";
+import type { TaskSummary } from "./types";
+import { STATUS_COLORS, IMPORTANCE_COLORS } from "@/lib/constants";
 import { getNotionUrl } from "@/lib/health";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { BottomSheet } from "@/components/shared/BottomSheet";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 
 interface Props {
-  point: MatrixPoint;
+  task: TaskSummary;
   anchorRect: DOMRect;
   onClose: () => void;
+  onViewNetwork: (taskId: string) => void;
 }
 
-function PopoverContent({ point }: { point: MatrixPoint }) {
+function PopoverContent({ task, onViewNetwork, onClose }: { task: TaskSummary; onViewNetwork: (id: string) => void; onClose: () => void }) {
   return (
     <>
       <h4 className="text-[13px] font-[590] text-foreground leading-tight">
-        {point.name}
+        {task.name}
       </h4>
 
       <div className="mt-2 flex flex-wrap gap-1.5">
-        <Badge variant="data" style={{ background: STATUS_COLORS[point.status] + "22", color: STATUS_COLORS[point.status] }}>
-          {point.status}
+        <Badge variant="data" style={{ background: STATUS_COLORS[task.status] + "22", color: STATUS_COLORS[task.status] }}>
+          {task.status}
         </Badge>
-        <Badge variant="subtle">U: {point.urgency}</Badge>
-        <Badge variant="subtle">I: {point.importance}</Badge>
+        {task.importance && (
+          <Badge variant="data" style={{ background: (IMPORTANCE_COLORS[task.importance] ?? "#6b7280") + "22", color: IMPORTANCE_COLORS[task.importance] ?? "#6b7280" }}>
+            I: {task.importance}
+          </Badge>
+        )}
+        {task.urgency && (
+          <Badge variant="subtle">U: {task.urgency}</Badge>
+        )}
       </div>
 
-      {point.projectNames.length > 0 && (
+      {task.projectNames.length > 0 && (
         <p className="mt-2 text-[12px] text-foreground-tertiary">
-          {point.projectNames.join(", ")}
+          {task.projectNames.join(", ")}
         </p>
       )}
 
       <div className="mt-2 space-y-0.5 text-[11px] text-foreground-quaternary">
-        {point.assignedDate && (
-          <p>Assigned: {point.assignedDate} ({point.daysSinceAssigned}d ago)</p>
-        )}
-        {point.deadline && <p>Deadline: {point.deadline}</p>}
-        {point.dependencyCount > 0 && (
-          <p>{point.dependencyCount} {point.dependencyCount === 1 ? "dependency" : "dependencies"}</p>
+        {task.deadline && <p>Deadline: {task.deadline}</p>}
+        {task.dependencyCount > 0 && (
+          <p>{task.dependencyCount} {task.dependencyCount === 1 ? "dependency" : "dependencies"}</p>
         )}
       </div>
 
-      <a
-        href={getNotionUrl(point.id)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-3 inline-flex items-center rounded-[6px] bg-interactive-active px-3 py-2 text-[12px] font-[510] text-foreground-secondary hover:bg-interactive-hover hover:text-foreground transition-colors min-h-[44px]"
-      >
-        Open in Notion ↗
-      </a>
+      <div className="mt-3 flex items-center gap-2">
+        <Button
+          variant="subtle"
+          size="sm"
+          onClick={() => { onViewNetwork(task.id); onClose(); }}
+        >
+          <Network size={13} className="mr-1.5" />
+          View Network
+        </Button>
+        <a
+          href={getNotionUrl(task.id)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center rounded-[6px] px-2.5 py-1 text-[12px] font-[510] text-foreground-secondary hover:text-foreground transition-colors"
+        >
+          <ExternalLink size={12} className="mr-1.5" />
+          Open in Notion
+        </a>
+      </div>
     </>
   );
 }
 
-export function TaskPopover({ point, anchorRect, onClose }: Props) {
+export function TaskDetailPopover({ task, anchorRect, onClose, onViewNetwork }: Props) {
   const { isMobile } = useBreakpoint();
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -86,7 +103,7 @@ export function TaskPopover({ point, anchorRect, onClose }: Props) {
   if (isMobile) {
     return (
       <BottomSheet open onClose={onClose} title="Task Details">
-        <PopoverContent point={point} />
+        <PopoverContent task={task} onViewNetwork={onViewNetwork} onClose={onClose} />
       </BottomSheet>
     );
   }
@@ -110,7 +127,7 @@ export function TaskPopover({ point, anchorRect, onClose }: Props) {
       className="fixed z-50 rounded-[8px] border border-border bg-surface-elevated p-4 shadow-xl"
       style={{ left, top, width: POPOVER_WIDTH }}
     >
-      <PopoverContent point={point} />
+      <PopoverContent task={task} onViewNetwork={onViewNetwork} onClose={onClose} />
     </div>
   );
 }

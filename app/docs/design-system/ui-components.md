@@ -110,3 +110,39 @@ All UI components are re-exported from `src/components/ui/index.ts` for convenie
 ```typescript
 import { Button, Card, CardHeader, CardTitle, CardContent, Badge, Input } from "@/components/ui";
 ```
+
+## Shared Interactive Components
+
+Beyond the base primitives, the app has shared interactive components used across pages:
+
+### TaskDetailPopover
+
+**Source:** `src/components/shared/TaskDetailPopover/`
+
+Unified popover shown when clicking any task item across Dashboard, Prioritize, and Health pages.
+
+| Mode | Behavior |
+|------|----------|
+| Desktop | Fixed-position card (280px) anchored to clicked element |
+| Mobile | Falls back to `BottomSheet` (slide-up sheet) |
+
+**Content:** Task name, status/importance/urgency badges, project names, deadline, dependency count, action buttons ("View Network" + "Open in Notion").
+
+**Dismiss:** Escape key, click outside, window resize.
+
+### NetworkDialog
+
+**Source:** `src/components/network/NetworkDialog.tsx`
+
+Large overlay modal for the task network graph visualization.
+
+| Mode | Size |
+|------|------|
+| Desktop | 85vw × 85vh centered, rounded-[12px], shadow-2xl |
+| Mobile | Fullscreen with safe-area insets |
+
+**Header:** Focal task name + X close button.  
+**Dismiss:** Escape key or X button only (no backdrop dismiss — prevents accidental closure during graph exploration).  
+**Body:** React Flow graph canvas, loading state, empty state ("No connections found"), or error state.
+
+See [[task-network]] for full feature documentation.

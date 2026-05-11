@@ -10,6 +10,7 @@ import {
 import { fullSync } from "../sync";
 import { sendToDevice } from "../notifications/push-service";
 import { restartScheduler } from "../notifications/scheduler";
+import { handleNetworkStream } from "./network";
 
 export function createApiRoutes(db: Database): Hono {
   const api = new Hono();
@@ -47,6 +48,8 @@ export function createApiRoutes(db: Database): Hono {
   api.get("/api/projects", (c) => c.json(getAllProjects(db)));
   api.get("/api/areas", (c) => c.json(getAllAreas(db)));
   api.get("/api/status", (c) => c.json(getSyncStatus(db)));
+
+  api.get("/api/tasks/:id/network", (c) => handleNetworkStream(c));
 
   api.get("/api/events", (c) => {
     const limit = Math.min(Number(c.req.query("limit")) || 50, 200);

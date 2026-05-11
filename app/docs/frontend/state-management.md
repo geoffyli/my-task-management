@@ -143,3 +143,33 @@ const throughput = useMemo(() => getThroughputData(tasks, range), [tasks, range]
 ```
 
 This runs in the browser and re-computes only when dependencies change.
+
+## Custom Hooks for Features
+
+### `useTaskPopover`
+
+**Source:** `src/hooks/useTaskPopover.ts`
+
+Manages the unified task popover and network dialog state. Used by Dashboard, Prioritize, and Health pages.
+
+```typescript
+const popover = useTaskPopover();
+// popover.open(taskSummary, anchorRect) — show popover at anchor position
+// popover.close()                       — dismiss popover
+// popover.openNetwork(taskId)           — close popover, open network dialog
+// popover.closeNetwork()                — dismiss network dialog
+```
+
+### `useTaskNetwork`
+
+**Source:** `src/hooks/useTaskNetwork.ts`
+
+SSE streaming client for the task network endpoint. Uses `fetch()` with `ReadableStream` (not `EventSource`) to support Bearer auth headers.
+
+```typescript
+const { nodes, edges, status, error } = useTaskNetwork(taskId);
+// status: "idle" | "loading" | "done" | "error"
+// Aborts stream on unmount or taskId change via AbortController
+```
+
+See [[task-network]] for full feature documentation.

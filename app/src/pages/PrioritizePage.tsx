@@ -6,12 +6,14 @@ import { ChartContainer } from "@/components/shared/ChartContainer";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { ErrorFallback } from "@/components/shared/ErrorFallback";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { TaskDetailPopover, matrixPointToSummary } from "@/components/shared/TaskDetailPopover";
 import { EisenhowerMatrix } from "@/components/prioritize/EisenhowerMatrix";
 import { MatrixTooltip } from "@/components/prioritize/MatrixTooltip";
-import { TaskPopover } from "@/components/prioritize/TaskPopover";
 import { MatrixFilters } from "@/components/prioritize/MatrixFilters";
 import { MatrixInsights } from "@/components/prioritize/MatrixInsights";
 import { NullValueCallout } from "@/components/prioritize/NullValueCallout";
+import { NetworkDialog } from "@/components/network";
+import { useTaskPopover } from "@/hooks/useTaskPopover";
 import {
   computeMatrixPoints,
   computeMatrixInsights,
@@ -25,6 +27,7 @@ export function PrioritizePage() {
   const { data: projects } = useProjects();
   const { data: areas } = useAreas();
   const [searchParams, setSearchParams] = useSearchParams();
+  const popover = useTaskPopover();
 
   const projectsParam = searchParams.get("projects") ?? "";
   const areasParam = searchParams.get("areas") ?? "";
@@ -59,8 +62,6 @@ export function PrioritizePage() {
 
   const [hoveredPoint, setHoveredPoint] = useState<MatrixPoint | null>(null);
   const [hoveredRect, setHoveredRect] = useState<DOMRect | null>(null);
-  const [selectedPoint, setSelectedPoint] = useState<MatrixPoint | null>(null);
-  const [selectedRect, setSelectedRect] = useState<DOMRect | null>(null);
 
   const projectLookup = useMemo(() => {
     const map = new Map<string, Project>();
@@ -126,14 +127,8 @@ export function PrioritizePage() {
   );
 
   const handleDotClick = useCallback((point: MatrixPoint, rect: DOMRect) => {
-    setSelectedPoint((prev) => (prev?.id === point.id ? null : point));
-    setSelectedRect(rect);
-  }, []);
-
-  const handlePopoverClose = useCallback(() => {
-    setSelectedPoint(null);
-    setSelectedRect(null);
-  }, []);
+    popover.open(matrixPointToSummary(point), rect);
+  }, [popover.open]);
 
   if (isLoading) return <LoadingState variant="page" />;
   if (isError) return <ErrorFallback message="Failed to load tasks" onRetry={() => refetch()} />;
@@ -167,25 +162,31 @@ export function PrioritizePage() {
             points={points}
             fadedIds={fadedIds}
             hoveredId={hoveredPoint?.id ?? null}
-            selectedId={selectedPoint?.id ?? null}
+            selectedId={popover.selectedTask?.id ?? null}
             onDotHover={handleDotHover}
             onDotClick={handleDotClick}
           />
         )}
       </ChartContainer>
 
-      {hoveredPoint && hoveredRect && !selectedPoint && (
+      {hoveredPoint && hoveredRect && !popover.selectedTask && (
         <MatrixTooltip point={hoveredPoint} anchorRect={hoveredRect} />
       )}
 
-      {selectedPoint && selectedRect && (
-        <TaskPopover
-          point={selectedPoint}
-          anchorRect={selectedRect}
-          onClose={handlePopoverClose}
+      {popover.selectedTask && popover.anchorRect && (
+        <TaskDetailPopover
+          task={popover.selectedTask}
+          anchorRect={popover.anchorRect}
+          onClose={popover.close}
+          onViewNetwork={popover.openNetwork}
         />
       )}
 
+      <NetworkDialog
+        taskId={popover.networkTaskId}
+        taskName={popover.networkTaskName}
+        onClose={popover.closeNetwork}
+      />
     </div>
   );
 }

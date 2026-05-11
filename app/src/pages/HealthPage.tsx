@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ChevronRight, ExternalLink } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { subDays } from "date-fns";
 import {
   ResponsiveContainer, PieChart, Pie, Cell,
@@ -8,8 +8,9 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
 import { cn } from "@/lib/utils";
+import { useTasks, useProjects } from "@/api/queries";
 import { useHealthReport } from "@/hooks/useHealthReport";
-import { getNotionUrl, computeHealthScore, getScoreColor, type HealthSeverity, type HealthRuleResult } from "@/lib/health";
+import { computeHealthScore, getScoreColor, type HealthSeverity, type HealthRuleResult } from "@/lib/health";
 import { SEVERITY_COLORS } from "@/lib/constants";
 import { useChartTheme } from "@/hooks/useChartTheme";
 import { ChartContainer } from "@/components/shared/ChartContainer";
@@ -17,6 +18,9 @@ import { LazyChart } from "@/components/shared/LazyChart";
 import { SegmentedControl } from "@/components/shared/SegmentedControl";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { TaskDetailPopover, taskToSummary } from "@/components/shared/TaskDetailPopover";
+import { NetworkDialog } from "@/components/network";
+import { useTaskPopover } from "@/hooks/useTaskPopover";
 
 type SeverityFilter = "all" | HealthSeverity;
 type EntityFilter = "all" | "tasks" | "projects";
@@ -177,10 +181,12 @@ function RuleGroup({
   result,
   isExpanded,
   onToggle,
+  onViolationClick,
 }: {
   result: HealthRuleResult;
   isExpanded: boolean;
   onToggle: () => void;
+  onViolationClick: (entityId: string, e: MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
     <div className="rounded-[8px] border border-border-subtle bg-surface-card">
@@ -209,9 +215,11 @@ function RuleGroup({
           <p className="mb-2 text-[11px] text-foreground-quaternary">{result.rule.description}</p>
           <div className="space-y-1">
             {result.violations.map((v) => (
-              <div
+              <button
                 key={v.entityId}
-                className="flex items-center gap-3 rounded-[6px] px-3 py-2 transition-colors duration-150 hover:bg-surface-input"
+                type="button"
+                onClick={(e) => onViolationClick(v.entityId, e)}
+                className="flex w-full items-center gap-3 rounded-[6px] px-3 py-2 transition-colors duration-150 hover:bg-surface-input text-left"
               >
                 <span className="text-[12px] font-[510] text-foreground flex-1 truncate">
                   {v.entityName}
@@ -219,16 +227,7 @@ function RuleGroup({
                 <span className="text-[11px] text-foreground-quaternary shrink-0">
                   {v.context}
                 </span>
-                <a
-                  href={getNotionUrl(v.entityId)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="shrink-0 text-foreground-tertiary hover:text-accent-light transition-colors duration-150"
-                  title="Open in Notion"
-                >
-                  <ExternalLink size={12} strokeWidth={1.5} />
-                </a>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -239,7 +238,9 @@ function RuleGroup({
 
 export function HealthPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { chartTheme, tooltipStyle } = useChartTheme();
+  const { data: tasks } = useTasks();
+  const { data: projects } = useProjects();
+  const popover = useTaskPopover();
 
   const rawSeverity = searchParams.get("severity") ?? "all";
   const severityFilter: SeverityFilter = SEVERITY_VALUES.has(rawSeverity) ? (rawSeverity as SeverityFilter) : "all";
@@ -299,6 +300,13 @@ export function HealthPage() {
     });
   };
 
+  function handleViolationClick(entityId: string, e: MouseEvent<HTMLButtonElement>) {
+    const task = tasks?.find((t) => t.id === entityId);
+    if (!task) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    popover.open(taskToSummary(task, projects ?? []), rect);
+  }
+
   if (isLoading) return <LoadingState variant="page" />;
 
   return (
@@ -334,10 +342,26 @@ export function HealthPage() {
               result={result}
               isExpanded={expanded.has(result.rule.id)}
               onToggle={() => toggleExpanded(result.rule.id)}
+              onViolationClick={handleViolationClick}
             />
           ))}
         </div>
       )}
+
+      {popover.selectedTask && popover.anchorRect && (
+        <TaskDetailPopover
+          task={popover.selectedTask}
+          anchorRect={popover.anchorRect}
+          onClose={popover.close}
+          onViewNetwork={popover.openNetwork}
+        />
+      )}
+
+      <NetworkDialog
+        taskId={popover.networkTaskId}
+        taskName={popover.networkTaskName}
+        onClose={popover.closeNetwork}
+      />
     </div>
   );
 }

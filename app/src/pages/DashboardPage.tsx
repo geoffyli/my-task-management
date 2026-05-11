@@ -1,12 +1,15 @@
-import { useMemo } from "react";
+import { useMemo, type MouseEvent } from "react";
 import { AlertTriangle, Clock, Loader, Ban } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { useTasks } from "@/api/queries";
+import { useTasks, useProjects } from "@/api/queries";
 import { StatCard } from "@/components/cards/StatCard";
 import { ErrorFallback } from "@/components/shared/ErrorFallback";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingState } from "@/components/shared/LoadingState";
+import { TaskDetailPopover, taskToSummary } from "@/components/shared/TaskDetailPopover";
+import { NetworkDialog } from "@/components/network";
 import { Badge } from "@/components/ui/Badge";
+import { useTaskPopover } from "@/hooks/useTaskPopover";
 import {
   getOverdueTasks,
   getDueSoonTasks,
@@ -16,7 +19,6 @@ import {
   type DeadlineTier,
 } from "@/lib/metrics";
 import { IMPORTANCE_COLORS } from "@/lib/constants";
-import { getNotionUrl } from "@/lib/health";
 
 const TIER_STYLES: Record<DeadlineTier, string> = {
   overdue: "border-l-2 border-l-[#dc2626] bg-[#dc2626]/5",
@@ -32,6 +34,8 @@ const TIER_LABELS: Record<DeadlineTier, string> = {
 
 export function DashboardPage() {
   const { data: tasks, isLoading, isError, refetch } = useTasks();
+  const { data: projects } = useProjects();
+  const popover = useTaskPopover();
 
   const overdue = useMemo(() => (tasks ? getOverdueTasks(tasks) : []), [tasks]);
   const dueSoon = useMemo(() => (tasks ? getDueSoonTasks(tasks, 7) : []), [tasks]);
@@ -42,6 +46,13 @@ export function DashboardPage() {
   const blocked = useMemo(() => (tasks ? getBlockedByStatusTasks(tasks) : []), [tasks]);
   const deadlinesTiered = useMemo(() => (tasks ? getUpcomingDeadlinesTiered(tasks) : []), [tasks]);
   const prerequisiteWaiting = useMemo(() => (tasks ? getPrerequisiteWaitingTasks(tasks) : []), [tasks]);
+
+  function handleTaskClick(taskId: string, e: MouseEvent<HTMLButtonElement>) {
+    const task = tasks?.find((t) => t.id === taskId);
+    if (!task) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    popover.open(taskToSummary(task, projects ?? []), rect);
+  }
 
   if (isLoading) return <LoadingState variant="page" />;
   if (isError) return <ErrorFallback message="Failed to load tasks" onRetry={() => refetch()} />;
@@ -77,12 +88,11 @@ export function DashboardPage() {
                   </span>
                   <div className="mt-2 space-y-1">
                     {tierTasks.map(task => (
-                      <a
+                      <button
                         key={task.id}
-                        href={getNotionUrl(task.id)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`flex items-center justify-between rounded-[6px] px-3 py-2.5 min-h-[44px] transition-colors duration-150 hover:bg-interactive-hover ${TIER_STYLES[tier]}`}
+                        type="button"
+                        onClick={(e) => handleTaskClick(task.id, e)}
+                        className={`flex w-full items-center justify-between rounded-[6px] px-3 py-2.5 min-h-[44px] transition-colors duration-150 hover:bg-interactive-hover text-left ${TIER_STYLES[tier]}`}
                       >
                         <div className="flex items-center gap-3">
                           <Badge variant="data" color={IMPORTANCE_COLORS[task.importance ?? ""]}>
@@ -93,7 +103,7 @@ export function DashboardPage() {
                         <span className="text-[12px] font-mono text-foreground-quaternary">
                           {format(parseISO(task.deadline), "MMM d")}
                         </span>
-                      </a>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -113,18 +123,17 @@ export function DashboardPage() {
           ) : (
             <div className="mt-4 space-y-1">
               {blocked.map(task => (
-                <a
+                <button
                   key={task.id}
-                  href={getNotionUrl(task.id)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-[6px] border border-border-subtle px-3 py-2.5 min-h-[44px] transition-colors duration-150 hover:bg-interactive-hover"
+                  type="button"
+                  onClick={(e) => handleTaskClick(task.id, e)}
+                  className="flex w-full items-center gap-3 rounded-[6px] border border-border-subtle px-3 py-2.5 min-h-[44px] transition-colors duration-150 hover:bg-interactive-hover text-left"
                 >
                   <Badge variant="data" color={IMPORTANCE_COLORS[task.importance ?? ""]}>
                     {task.importance ?? "–"}
                   </Badge>
                   <span className="text-[13px] text-foreground">{task.name}</span>
-                </a>
+                </button>
               ))}
             </div>
           )}
@@ -139,12 +148,11 @@ export function DashboardPage() {
           ) : (
             <div className="mt-4 space-y-1">
               {prerequisiteWaiting.map(task => (
-                <a
+                <button
                   key={task.id}
-                  href={getNotionUrl(task.id)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between rounded-[6px] border border-border-subtle px-3 py-2.5 min-h-[44px] transition-colors duration-150 hover:bg-interactive-hover"
+                  type="button"
+                  onClick={(e) => handleTaskClick(task.id, e)}
+                  className="flex w-full items-center justify-between rounded-[6px] border border-border-subtle px-3 py-2.5 min-h-[44px] transition-colors duration-150 hover:bg-interactive-hover text-left"
                 >
                   <div className="flex items-center gap-3">
                     <Badge variant="data" color={IMPORTANCE_COLORS[task.importance ?? ""]}>
@@ -156,12 +164,27 @@ export function DashboardPage() {
                     {task.notStartedPrereqs.slice(0, 3).map(p => p.name).join(", ")}
                     {task.notStartedPrereqs.length > 3 ? ` +${task.notStartedPrereqs.length - 3} more` : ""}
                   </span>
-                </a>
+                </button>
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {popover.selectedTask && popover.anchorRect && (
+        <TaskDetailPopover
+          task={popover.selectedTask}
+          anchorRect={popover.anchorRect}
+          onClose={popover.close}
+          onViewNetwork={popover.openNetwork}
+        />
+      )}
+
+      <NetworkDialog
+        taskId={popover.networkTaskId}
+        taskName={popover.networkTaskName}
+        onClose={popover.closeNetwork}
+      />
     </div>
   );
 }

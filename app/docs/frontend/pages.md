@@ -45,7 +45,7 @@ All routes in the application with their data requirements and key features.
 
 **Purpose:** Operational triage dashboard — surfaces what needs attention right now.
 
-**Data hooks:** `useTasks()`
+**Data hooks:** `useTasks()`, `useProjects()`
 
 **Sections:**
 
@@ -59,14 +59,13 @@ All routes in the application with their data requirements and key features.
    - Overdue (red left border)
    - Due within 3 days (orange left border)
    - Due within 14 days (neutral)
-   - Each task links to its Notion page
 
 3. **Blocked Tasks** — Tasks with status explicitly set to "Blocked"
-   - Each task links to its Notion page
 
 4. **Waiting on Prerequisites** — Active tasks whose dependencies have status "Not Started"
    - Shows prerequisite task names (up to 3, with "+N more" overflow)
-   - Each task links to its Notion page
+
+**Task interaction:** All task items open the unified `TaskDetailPopover` on click (with "View Network" and "Open in Notion" actions). See [[task-network]].
 
 **Key metrics:** `getOverdueTasks()`, `getDueSoonTasks()`, `getBlockedByStatusTasks()`, `getUpcomingDeadlinesTiered()`, `getPrerequisiteWaitingTasks()`
 
@@ -138,7 +137,7 @@ All routes in the application with their data requirements and key features.
    - Error groups auto-expanded on load
    - Each group shows: rule name, severity dot, violation count
    - Expanded content: rule description + violation items
-   - Each violation: entity name (as Notion link), context text, external link icon
+   - Each violation item is clickable → opens `TaskDetailPopover` (with "View Network" and "Open in Notion" actions)
    - Data: `computeHealthReport(tasks, projects, cutoffDate)` from [[health-rules]]
 
 **Sidebar badge:** Error count badge appears on the "Health" nav item when errors > 0 (uses `useHealthErrorCount()` hook).

@@ -34,6 +34,7 @@ Bun provides built-in SQLite (`bun:sqlite`), fast startup, and native TypeScript
 | React Router DOM | ^7.14.2 | Client-side routing |
 | TanStack React Query | ^5.100.6 | Server state management and caching |
 | Recharts | ^3.8.1 | Data visualization (charts) |
+| @xyflow/react | ^12.10.2 | Graph visualization (task network) |
 | Lucide React | ^1.14.0 | Icon library |
 | date-fns | ^4.1.0 | Date utility functions |
 | clsx | ^2.1.1 | Conditional class names |

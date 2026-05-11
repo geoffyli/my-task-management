@@ -72,6 +72,43 @@ In development mode (`DEV=true` or `NODE_ENV=development` with no TOKEN set), au
 - **Success:** `{ "success": true, "message": "Full sync completed" }` (200)
 - **Failure:** `{ "success": false, "message": "<error>" }` (500) — error is also logged to `sync_events`
 
+## Task Network (SSE)
+
+| Method | Path | Auth | Response Type | Description |
+|--------|------|------|---------------|-------------|
+| GET | `/api/tasks/:id/network` | Bearer | `text/event-stream` | Stream task relationship graph |
+
+**Source:** `server/api/network.ts`, `server/api/network-graph.ts`
+
+Traverses the full connected component of a task's relationships by fetching live from the Notion API (not from SQLite cache). Returns results as Server-Sent Events, one event per BFS level.
+
+### SSE Event Format
+
+```
+event: level
+data: {"nodes":[...],"edges":[...],"level":0}
+
+event: done
+data: {}
+```
+
+### Events
+
+| Event | Description |
+|-------|-------------|
+| `level` | One BFS level discovered — contains new nodes and edges |
+| `done` | Traversal complete, stream ends |
+| `error` | Error occurred, contains `{ error: string }` |
+
+### Implementation
+
+- BFS starting from `:id`, following "Depends on", "Prepares for", and "Related Tasks" relations
+- Max 3 concurrent Notion API fetches per batch with 350ms inter-batch delay
+- Uses `fetchWithRetry` from `notion-client.ts` for rate-limit handling
+- Uses Hono `streamSSE` helper for event formatting
+
+See [[task-network]] for full feature documentation.
+
 ## Webhook Endpoint
 
 | Method | Path | Auth | Description |
