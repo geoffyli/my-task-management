@@ -6,7 +6,7 @@ interface Props {
   value: string | number;
   icon: LucideIcon;
   trend?: string;
-  accent?: "default" | "red" | "green";
+  accent?: "default" | "red" | "green" | "orange";
 }
 
 export function StatCard({ title, value, icon: Icon, trend, accent = "default" }: Props) {
@@ -20,6 +20,7 @@ export function StatCard({ title, value, icon: Icon, trend, accent = "default" }
           className={cn(
             accent === "red" && "text-[#dc2626]",
             accent === "green" && "text-success",
+            accent === "orange" && "text-[#d97706]",
             accent === "default" && "text-foreground-quaternary"
           )}
         />
@@ -29,6 +30,7 @@ export function StatCard({ title, value, icon: Icon, trend, accent = "default" }
           "mt-2 text-[24px] font-[590] tracking-[-0.5px]",
           accent === "red" && "text-[#dc2626]",
           accent === "green" && "text-success",
+          accent === "orange" && "text-[#d97706]",
           accent === "default" && "text-foreground"
         )}
       >

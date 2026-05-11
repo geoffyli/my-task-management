@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { CalendarDays, TrendingUp, Crosshair, FolderKanban, Activity, Settings } from "lucide-react";
+import { LayoutDashboard, TrendingUp, Crosshair, FolderKanban, Activity, Settings } from "lucide-react";
 
 export interface NavLinkItem {
   to: string;
@@ -8,7 +8,7 @@ export interface NavLinkItem {
 }
 
 export const navLinks: NavLinkItem[] = [
-  { to: "/", label: "This Week", icon: CalendarDays },
+  { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/trends", label: "Trends", icon: TrendingUp },
   { to: "/prioritize", label: "Prioritize", icon: Crosshair },
   { to: "/projects", label: "Projects & Areas", icon: FolderKanban },

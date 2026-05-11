@@ -319,7 +319,7 @@ Fixed-width navigation panel.
 
 | Route | Label | Icon |
 |-------|-------|------|
-| `/` | This Week | CalendarDays |
+| `/` | Dashboard | LayoutDashboard |
 | `/trends` | Trends | TrendingUp |
 | `/projects` | Projects & Areas | FolderKanban |
 | `/settings` | Settings | Settings |

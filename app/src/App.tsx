@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import { AppShell } from "./components/layout/AppShell";
 import { LoginPage } from "./pages/LoginPage";
-import { ThisWeekPage } from "./pages/ThisWeekPage";
+import { DashboardPage } from "./pages/DashboardPage";
 import { LoadingState } from "./components/shared/LoadingState";
 import { PageTransition } from "./components/shared/PageTransition";
 
@@ -26,7 +26,7 @@ export function App() {
       <PageTransition locationKey={location.pathname}>
         <Suspense fallback={<LoadingState variant="page" />}>
           <Routes location={location}>
-            <Route path="/" element={<ThisWeekPage />} />
+            <Route path="/" element={<DashboardPage />} />
             <Route path="/trends" element={<TrendsPage />} />
             <Route path="/prioritize" element={<PrioritizePage />} />
             <Route path="/projects" element={<ProjectsAreasPage />} />

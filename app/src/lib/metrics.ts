@@ -14,7 +14,7 @@ export interface OverviewStats {
 
 export function getOverviewStats(tasks: Task[]): OverviewStats {
   const today = new Date();
-  const todayStr = today.toISOString().slice(0, 10);
+  const todayStr = format(today, "yyyy-MM-dd");
   const oneWeekAgo = subDays(today, 7);
   const twoWeeksAgo = subDays(today, 14);
 
@@ -363,5 +363,77 @@ export function getAtRiskProjects(tasks: Task[], projects: Project[]): { project
       results.push({ project, reason: `No activity for ${staleDays} days` });
     }
   }
+  return results;
+}
+
+// --- Dashboard metric functions ---
+
+export function getOverdueTasks(tasks: Task[]): Task[] {
+  const todayStr = format(new Date(), "yyyy-MM-dd");
+  return tasks.filter(t => isActiveTask(t) && t.deadline != null && t.deadline < todayStr);
+}
+
+export function getDueSoonTasks(tasks: Task[], days = 7): Task[] {
+  const todayStr = format(new Date(), "yyyy-MM-dd");
+  const cutoff = format(addDays(new Date(), days), "yyyy-MM-dd");
+  return tasks.filter(t =>
+    isActiveTask(t) && t.deadline != null && t.deadline >= todayStr && t.deadline <= cutoff
+  );
+}
+
+export function getBlockedByStatusTasks(tasks: Task[]): Task[] {
+  return tasks.filter(t => t.status === "Blocked");
+}
+
+export type DeadlineTier = "overdue" | "critical" | "upcoming";
+
+export interface TieredDeadlineTask {
+  id: string;
+  name: string;
+  importance: Task["importance"];
+  deadline: string;
+  tier: DeadlineTier;
+}
+
+export function getUpcomingDeadlinesTiered(tasks: Task[]): TieredDeadlineTask[] {
+  const todayStr = format(new Date(), "yyyy-MM-dd");
+  const threeDays = format(addDays(new Date(), 3), "yyyy-MM-dd");
+  const fourteenDays = format(addDays(new Date(), 14), "yyyy-MM-dd");
+
+  return tasks
+    .filter(t => isActiveTask(t) && t.deadline != null && t.deadline <= fourteenDays)
+    .map(t => {
+      let tier: DeadlineTier;
+      if (t.deadline! < todayStr) tier = "overdue";
+      else if (t.deadline! <= threeDays) tier = "critical";
+      else tier = "upcoming";
+      return { id: t.id, name: t.name, importance: t.importance, deadline: t.deadline!, tier };
+    })
+    .sort((a, b) => a.deadline.localeCompare(b.deadline));
+}
+
+export interface PrerequisiteWaitingTask {
+  id: string;
+  name: string;
+  importance: Task["importance"];
+  notStartedPrereqs: { id: string; name: string }[];
+}
+
+export function getPrerequisiteWaitingTasks(tasks: Task[]): PrerequisiteWaitingTask[] {
+  const taskMap = new Map(tasks.map(t => [t.id, t]));
+  const results: PrerequisiteWaitingTask[] = [];
+
+  for (const t of tasks) {
+    if (!isActiveTask(t) || t.status === "Blocked" || t.dependencies.length === 0) continue;
+    const notStartedPrereqs = t.dependencies
+      .map(depId => taskMap.get(depId))
+      .filter((dep): dep is Task => dep != null && dep.status === "Not Started")
+      .map(dep => ({ id: dep.id, name: dep.name }));
+
+    if (notStartedPrereqs.length > 0) {
+      results.push({ id: t.id, name: t.name, importance: t.importance, notStartedPrereqs });
+    }
+  }
+
   return results;
 }

@@ -17,7 +17,7 @@ All analytics computations that power the dashboard visualizations. These run cl
 
 ### `getOverviewStats(tasks): OverviewStats`
 
-Computes headline numbers for the This Week page.
+Computes headline numbers for the analytics pages.
 
 | Metric | Logic |
 |--------|-------|
@@ -140,6 +140,35 @@ Importance distribution across active tasks.
 ### `buildTasksByProjectIndex(tasks): Map<string, Task[]>`
 
 O(n) index mapping project IDs to their tasks. A task can appear under multiple projects.
+
+## Dashboard Functions
+
+### `getOverdueTasks(tasks): Task[]`
+
+Active tasks with deadline before today.
+
+### `getDueSoonTasks(tasks, days = 7): Task[]`
+
+Active tasks with deadline between today and today + N days (exclusive of overdue).
+
+### `getBlockedByStatusTasks(tasks): Task[]`
+
+Tasks with status explicitly set to "Blocked".
+
+### `getUpcomingDeadlinesTiered(tasks): TieredDeadlineTask[]`
+
+Active tasks with deadlines within 14 days (including overdue), classified into urgency tiers:
+- `overdue` — deadline before today
+- `critical` — deadline within 3 days
+- `upcoming` — deadline within 14 days
+
+Sorted by deadline ascending. Returns: `{ id, name, importance, deadline, tier }[]`
+
+### `getPrerequisiteWaitingTasks(tasks): PrerequisiteWaitingTask[]`
+
+Active (non-Blocked) tasks whose dependencies include at least one task with status "Not Started".
+- Resolves dependency IDs against the full task list
+- Returns: `{ id, name, importance, notStartedPrereqs: { id, name }[] }[]`
 
 ## Helper Dependencies
 

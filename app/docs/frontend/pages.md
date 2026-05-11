@@ -20,7 +20,7 @@ All routes in the application with their data requirements and key features.
 
 | Path | Component | Auth Required | Description |
 |------|-----------|---------------|-------------|
-| `/` | ThisWeekPage | Yes | Weekly task overview |
+| `/` | DashboardPage | Yes | Task triage dashboard |
 | `/trends` | TrendsPage | Yes | Analytics charts and trends |
 | `/projects` | ProjectsAreasPage | Yes | Project health and area workload |
 | `/health` | HealthPage | Yes | Data health monitoring and rule violations |
@@ -41,31 +41,34 @@ All routes in the application with their data requirements and key features.
 
 **Data:** None — calls `POST /api/auth/login` directly via AuthContext.
 
-## ThisWeekPage
+## DashboardPage
 
-**Purpose:** Dashboard for current week task management.
+**Purpose:** Operational triage dashboard — surfaces what needs attention right now.
 
-**Data hooks:** `useTasks()`, `useProjects()`
+**Data hooks:** `useTasks()`
 
 **Sections:**
 
-1. **Stat cards** (5 cards in responsive grid):
-   - Tasks This Week — count of tasks assigned this week
+1. **Stat cards** (4 cards in responsive grid):
+   - Overdue — active tasks past deadline (red accent)
+   - Due Soon — tasks with deadlines within 7 days (orange accent)
    - In Progress — tasks with "In Progress" status
-   - Overdue — active tasks past deadline
-   - Completed — tasks done this week
-   - Blocked — tasks with active dependencies
+   - Blocked — tasks with status set to "Blocked" (red accent)
 
-2. **Week overview** — Tasks grouped by day (Today, Tomorrow, etc. through end of week)
-   - Color-coded status dots
-   - Importance badges
-   - Deadline indicators
+2. **Upcoming Deadlines** — Active tasks with deadlines in the next 14 days (including overdue), grouped by urgency tier:
+   - Overdue (red left border)
+   - Due within 3 days (orange left border)
+   - Due within 14 days (neutral)
+   - Each task links to its Notion page
 
-3. **Upcoming deadlines** — Active tasks with deadlines in the next 14 days, sorted by urgency
+3. **Blocked Tasks** — Tasks with status explicitly set to "Blocked"
+   - Each task links to its Notion page
 
-4. **Blocked tasks** — Tasks with unresolved dependencies, showing blocker count
+4. **Waiting on Prerequisites** — Active tasks whose dependencies have status "Not Started"
+   - Shows prerequisite task names (up to 3, with "+N more" overflow)
+   - Each task links to its Notion page
 
-**Key metrics:** `getOverviewStats()`, `getTasksThisWeek()`, `getCompletedThisWeek()`, `getBlockedTasksSummary()`, `getDeadlineProximity()`
+**Key metrics:** `getOverdueTasks()`, `getDueSoonTasks()`, `getBlockedByStatusTasks()`, `getUpcomingDeadlinesTiered()`, `getPrerequisiteWaitingTasks()`
 
 ## TrendsPage
 
