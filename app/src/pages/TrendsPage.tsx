@@ -13,7 +13,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import {
   getActiveTasks, getThroughputData, getVelocityData, getAgingDistribution,
-  getRescheduleDistribution, getCalendarHeatmapData,
+  getCalendarHeatmapData,
 } from "@/lib/metrics";
 import { IMPORTANCE_COLORS, TIME_RANGES, type TimeRange } from "@/lib/constants";
 import { useChartTheme } from "@/hooks/useChartTheme";
@@ -42,11 +42,6 @@ export function TrendsPage() {
   const aging = useMemo(
     () => getAgingDistribution(activeTasks),
     [activeTasks]
-  );
-
-  const reschedule = useMemo(
-    () => (tasks ? getRescheduleDistribution(tasks) : []),
-    [tasks]
   );
 
   const heatmap = useMemo(
@@ -102,7 +97,6 @@ export function TrendsPage() {
       </ChartContainer>
 
       <LazyChart>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 3xl:grid-cols-2">
         <ChartContainer title="Task Aging Distribution" description="How long active tasks have been open, by importance">
           {aging.length === 0 ? <EmptyState message="No active tasks" /> : (
             <ResponsiveContainer width="100%" height={220} className="md:!h-[280px]">
@@ -119,21 +113,6 @@ export function TrendsPage() {
             </ResponsiveContainer>
           )}
         </ChartContainer>
-
-        <ChartContainer title="Reschedule Patterns" description="How often tasks get pushed back">
-          {reschedule.length === 0 ? <EmptyState message="No rescheduled tasks" /> : (
-            <ResponsiveContainer width="100%" height={220} className="md:!h-[280px]">
-              <BarChart data={reschedule} margin={chartTheme.margin}>
-                <CartesianGrid {...chartTheme.grid} />
-                <XAxis dataKey="bucket" tick={chartTheme.axisTick} axisLine={chartTheme.axisLine} tickLine={false} />
-                <YAxis allowDecimals={false} tick={chartTheme.axisTick} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={tooltipStyle} cursor={chartTheme.cursorFill} />
-                <Bar dataKey="count" fill="#7170ff" radius={[3, 3, 0, 0]} name="Tasks Rescheduled" />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </ChartContainer>
-      </div>
       </LazyChart>
 
       <LazyChart>

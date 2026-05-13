@@ -22,7 +22,6 @@ interface Task {
   urgency: "High" | "Medium" | "Low" | "Overdue" | null;
   projectIds: string[];
   assignedDate: string | null;
-  initialAssignedDate: string | null;
   startedDate: string | null;
   closedDate: string | null;
   deadline: string | null;
@@ -42,7 +41,6 @@ interface Task {
 | `urgency` | High / Medium / Low / Overdue / null — time-sensitivity indicator |
 | `projectIds` | Array of related project page IDs (Notion relation) |
 | `assignedDate` | When the task is scheduled for (may be rescheduled) |
-| `initialAssignedDate` | Original assigned date (used for reschedule tracking) |
 | `deadline` | Hard due date |
 | `createdTime` | Notion creation timestamp |
 | `lastEditedTime` | Notion last edit timestamp |

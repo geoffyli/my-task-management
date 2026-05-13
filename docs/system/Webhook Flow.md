@@ -48,7 +48,7 @@ sequenceDiagram
 
 **Endpoint:** `POST https://windmill-production-8a72.up.railway.app/api/r/notion/webhook/tasks`
 
-**Purpose:** Automate lifecycle date management (Started Date, Closed Date, Initial Assigned Date)
+**Purpose:** Automate lifecycle date management (Started Date, Closed Date)
 
 **Processing steps:**
 
@@ -56,13 +56,12 @@ sequenceDiagram
 2. **Event type filter** — Only process `page.properties_updated`
 3. **Database filter** — Validate parent matches Tasks database UUID
 4. **Property filter** — Check `data.updated_properties` for:
-   - `lMKd` (Assigned Date) → triggers init-date handler
    - `pzUA` (Status) → triggers lifecycle handler
 5. **Page fetch** — GET the full page from Notion API
 6. **Handler execution** — Run matched handlers in parallel (`Promise.all`)
 7. **Write-back** — PATCH lifecycle date properties on the task page
 
-**Bounce-back safety:** The write-back to lifecycle date properties (`Started Date`, `Closed Date`, `Initial Assigned Date`) triggers a new webhook from Notion. But those property IDs don't match `lMKd` or `pzUA`, so the preprocessor skips them. No infinite loop.
+**Bounce-back safety:** The write-back to lifecycle date properties (`Started Date`, `Closed Date`) triggers a new webhook from Notion. But those property IDs don't match `pzUA`, so the preprocessor skips them. No infinite loop.
 
 ## Pipeline 2: Analytics App (Sync)
 

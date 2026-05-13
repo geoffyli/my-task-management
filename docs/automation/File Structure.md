@@ -39,10 +39,6 @@ automation/f/
     create_weekly_note.script.yaml
     create_weekly_note.script.lock
     create_weekly_note_schedule.schedule.yaml
-    set_task_init_date.ts
-    set_task_init_date.script.yaml
-    set_task_init_date.script.lock
-    set_task_init_date.http_trigger.yaml
     update_legacy_tasks.ts
     update_legacy_tasks.script.yaml
     update_legacy_tasks.script.lock

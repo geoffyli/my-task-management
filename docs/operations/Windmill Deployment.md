@@ -51,8 +51,8 @@ The `automation/wmill.yaml` configuration scopes sync to specific folders:
 |--------|---------|---------|
 | `create_repetitive_tasks` | Cron (daily) | Generate recurring tasks in Notion |
 | `create_weekly_note` | Cron (weekly) | Create weekly planning page |
-| `set_task_init_date` | Cron (periodic) | Backfill initialisation dates on tasks |
-| `update_legacy_tasks` | Webhook | Migrate legacy task properties |
+| `tasks_webhook_router` | Webhook | Route task property changes and set lifecycle dates |
+| `update_legacy_tasks` | **Disabled** | Formerly rolled overdue tasks forward |
 
 ### Scripts Managed Elsewhere
 

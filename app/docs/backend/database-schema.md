@@ -49,7 +49,7 @@ erDiagram
         TEXT importance
         TEXT urgency
         TEXT assigned_date
-        TEXT initial_assigned_date
+        TEXT initial_assigned_date "dead storage — no longer populated"
         TEXT completion_date
         TEXT deadline
         TEXT created_time
@@ -117,7 +117,7 @@ Extracted task-specific fields for fast querying. Foreign key to `pages` with CA
 | `importance` | TEXT | High, Medium, Low |
 | `urgency` | TEXT | High, Medium, Low (nullable) |
 | `assigned_date` | TEXT | ISO date — when task is scheduled |
-| `initial_assigned_date` | TEXT | ISO date — original schedule (for reschedule tracking) |
+| `initial_assigned_date` | TEXT | ISO date — legacy column, no longer populated (remains for backward compatibility) |
 | `started_date` | TEXT | ISO date — when first moved to In Progress (auto-set by webhook) |
 | `completion_date` | TEXT | ISO date — when closed (Done or Cancelled, auto-set by webhook) |
 | `deadline` | TEXT | ISO date — hard due date |

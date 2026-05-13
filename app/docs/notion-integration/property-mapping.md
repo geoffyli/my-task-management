@@ -39,7 +39,6 @@ Notion property name → SQLite column in `tasks` table.
 | Importance | select | `importance` | Values: High, Medium, Low. Default: "Medium" |
 | Urgency | select | `urgency` | Values: High, Medium, Low, Overdue. Default: "Medium" |
 | Assigned Date | date | `assigned_date` | Current scheduled date (may differ from initial) |
-| Initial Assigned Date | date | `initial_assigned_date` | Original assignment date for reschedule tracking |
 | Started Date | date | `started_date` | Auto-set by webhook when status → In Progress |
 | Closed Date | date | `completion_date` | Auto-set by webhook when status → Done/Cancelled |
 | Deadline | date | `deadline` | Hard due date |
@@ -79,7 +78,7 @@ Properties listed as "core keys" are extracted into dedicated columns. Everythin
 ```typescript
 TASK_CORE_KEYS = [
   "Task Name", "Status", "Importance", "Urgency", "Project",
-  "Assigned Date", "Initial Assigned Date", "Deadline", "Depends on",
+  "Assigned Date", "Deadline", "Depends on",
 ];
 
 PROJECT_CORE_KEYS = ["Name", "Status", "Priority", "Areas", "Date"];

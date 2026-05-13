@@ -92,14 +92,11 @@ NEW_PAGE=$(curl -s -X POST "https://api.notion.com/v1/pages" \
       \"Task Name\":             {\"title\": [{\"text\": {\"content\": \"Task title here\"}}]},
       \"Status\":                {\"select\": {\"name\": \"Not Started\"}},
       \"Importance\":              {\"select\": {\"name\": \"Medium\"}},
-      \"Assigned Date\":         {\"date\": {\"start\": \"$TODAY\"}},
-      \"Initial Assigned Date\": {\"date\": {\"start\": \"$TODAY\"}}
+      \"Assigned Date\":         {\"date\": {\"start\": \"$TODAY\"}}
     }
   }")
 TASK_PAGE_ID=$(echo "$NEW_PAGE" | python3 -c "import json,sys; print(json.load(sys.stdin)['id'])")
 ```
-
-> When setting `Assigned Date`, always also set `Initial Assigned Date` to the same value — but only if `Initial Assigned Date` is currently null. Never overwrite it once set.
 
 **Step 2 — append standard template body** (run immediately after Step 1):
 ```bash
@@ -135,7 +132,6 @@ curl -s -X PATCH "https://api.notion.com/v1/pages/TASK_PAGE_ID" \
 ### Reschedule a task (change Assigned Date only)
 
 ```bash
-# Only update Assigned Date — do NOT touch Initial Assigned Date
 curl -s -X PATCH "https://api.notion.com/v1/pages/TASK_PAGE_ID" \
   -H "Authorization: Bearer $NOTION_KEY" \
   -H "Notion-Version: 2025-09-03" \

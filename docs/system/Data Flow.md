@@ -71,7 +71,7 @@ The most common flow. User changes a task property (status, assigned date) in No
 | 2 | Notion | Fires webhook to **both** Windmill and App |
 | 3a | Windmill | `tasks_webhook_router` preprocessor checks property IDs |
 | 3b | App | Webhook handler verifies HMAC signature |
-| 4a | Windmill | Fetches page, runs lifecycle/init-date handler, writes dates back to Notion |
+| 4a | Windmill | Fetches page, runs lifecycle handler, writes dates back to Notion |
 | 4b | App | Fetches page, upserts to SQLite |
 | 5 | Notion | Windmill write-back triggers another webhook (but preprocessor skips non-matching properties) |
 | 6 | App | Dashboard reflects updated data |
@@ -86,8 +86,7 @@ User creates a new task in Notion with an Assigned Date.
 |------|-----------|--------|
 | 1 | Notion | User creates task page, sets Assigned Date |
 | 2 | Notion | Fires `page.created` + `page.properties_updated` webhooks |
-| 3 | Windmill | Detects Assigned Date populated → sets Initial Assigned Date |
-| 4 | App | Receives `page.created`, fetches page, inserts into SQLite |
+| 3 | App | Receives `page.created`, fetches page, inserts into SQLite |
 
 ## Flow 3: Repetitive Task Creation (Automated)
 
@@ -144,7 +143,7 @@ Monday cron creates a planning page.
 | Data | Owner | Consumers |
 |------|-------|-----------|
 | Task/Project/Area records | Notion | All components (read) |
-| Lifecycle dates (Started, Closed, Initial Assigned) | Windmill (writes) | Notion (stores), App (reads) |
+| Lifecycle dates (Started, Closed) | Windmill (writes) | Notion (stores), App (reads) |
 | Repetitive task instances | Windmill (creates) | Notion (stores), App (reads) |
 | Analytics metrics | App (computes) | React dashboard (displays) |
 | Sync state (last_sync_time, events) | App | App (internal) |

@@ -19,7 +19,7 @@ All data visualizations use Recharts 3, a React-native charting library built on
 
 | Recharts Component | Pages | Purpose |
 |-------------------|-------|---------|
-| `BarChart` | Trends, Projects | Throughput, aging distribution, reschedule, project health |
+| `BarChart` | Trends, Projects | Throughput, aging distribution, project health |
 | `ComposedChart` | Trends | Velocity (bar + line combination) |
 | `LineChart` | Trends | Throughput trend (alternative) |
 | Custom heatmap | Trends | Calendar activity visualization |
@@ -78,7 +78,6 @@ The `useChartTheme()` hook provides memoized, theme-aware chart configuration. I
 | Throughput | BarChart | `getThroughputData()` | created (primary), completed (secondary) |
 | Velocity | ComposedChart | `getVelocityData()` | completed bar (primary), average line (quaternary) |
 | Aging Distribution | BarChart (stacked) | `getAgingDistribution()` | high/medium/low importance |
-| Reschedule | BarChart | `getRescheduleDistribution()` | count (primary) |
 | Calendar Heatmap | Custom | `getCalendarHeatmapData()` | Intensity-based coloring |
 
 ### Projects & Areas Page

@@ -18,7 +18,6 @@ Most agent operations target this database.
 | `Type` | select | `Plan` · `Reflect` · `Explore` · `Learn` · `Maintain` · `Build` · `Fitness` · `Health` — **optional**. Marks growth-oriented tasks. Leave empty for obligation tasks (work, academic, routine). See usage convention below. |
 | `Project` | relation → Projects | Which project(s) this task belongs to |
 | `Assigned Date` | date | The day this task is scheduled to be worked on. The Today page filters on `Assigned Date ≤ today`. |
-| `Initial Assigned Date` | date | Records the *first* value of `Assigned Date`. Set automatically by webhook. **Never overwrite once set** — it is an immutable audit field. |
 | `Started Date` | date | When the task first moved to `In Progress`. Set automatically by webhook on status change. **Do not set manually.** |
 | `Closed Date` | date | When the task moved to `Done` or `Cancelled`. Set automatically by webhook on status change. Cleared if task is re-opened. **Do not set manually.** |
 | `Deadline` | date | Hard deadline. Optional — not all tasks have one. |

@@ -36,7 +36,7 @@ Collected design decisions across the system. Each entry records what was decide
 | Decision | Rationale | Source |
 |----------|-----------|--------|
 | Five states (Not Started, In Progress, Blocked, Done, Cancelled) | Blocked and Cancelled have distinct behaviors — Blocked pauses without resetting, Cancelled closes without success metrics inflation | [[Task Lifecycle]] |
-| Initial Assigned Date is immutable | Answers "when did I first plan this?" — mutability would make it indistinguishable from Assigned Date | [[Task Lifecycle]] |
+| Initial Assigned Date removed | Reschedule metric never drove behavior change; field eliminated with all related automation, health rules, and analytics (2026-05-13) | [[Task Lifecycle]] |
 | Closed Date covers both Done and Cancelled | Both represent leaving the active pool; Status field already distinguishes outcome | [[Task Lifecycle]] |
 | View-based filtering over automated rollover | Mutating data for presentation is an anti-pattern; view achieves same UX without destroying scheduling history | [[Task Lifecycle]] |
 | Dates only set when empty (no overwrite) | Prevents automation from destroying a legitimate earlier date set by a prior transition | [[Task Lifecycle]] |

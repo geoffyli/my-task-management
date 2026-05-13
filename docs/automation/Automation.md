@@ -21,5 +21,5 @@ Windmill automation scripts for Notion task management. All scripts live in the 
 
 - [[Create Repetitive Tasks]] — creates tasks from a config database based on cron/interval patterns (daily)
 - [[Create Weekly Note]] — creates a weekly planning note with 7-day date breakdown (Mondays)
-- [[Set Task Init Date]] — records the initial assigned date when a task is first scheduled (superseded — logic merged into webhook router)
+- [[Tasks Webhook Router]] — routes webhook events to lifecycle date handlers (real-time)
 - [[Update Legacy Tasks]] — rolls overdue task dates forward to today (disabled — replaced by view-based filtering)

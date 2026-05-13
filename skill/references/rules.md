@@ -36,10 +36,9 @@ Skipping Step 2 leaves an empty page that doesn't match the established structur
 ## Data Integrity
 
 1. **Read before write.** Query the relevant database before creating or updating anything.
-2. **Respect `Initial Assigned Date`.** Once set on a task, **never overwrite it** — it is an immutable audit field. Only set it when the field is currently null AND you are simultaneously setting `Assigned Date` on the same task.
-3. **Do not write to the `Formula` field.** It is computed and read-only.
-4. **Patch both sides of task dependencies explicitly.** When linking `Depends on` on Task A to Task B, also patch `Prepares for` on Task B. Notion does not auto-propagate relation inverses via API.
-5. **Do not guess or default the `Type` property.** Only set it when the user explicitly provides a growth category or the task unambiguously fits one. Leaving it empty is correct for obligation/routine tasks.
+2. **Do not write to the `Formula` field.** It is computed and read-only.
+3. **Patch both sides of task dependencies explicitly.** When linking `Depends on` on Task A to Task B, also patch `Prepares for` on Task B. Notion does not auto-propagate relation inverses via API.
+4. **Do not guess or default the `Type` property.** Only set it when the user explicitly provides a growth category or the task unambiguously fits one. Leaving it empty is correct for obligation/routine tasks.
 
 ---
 

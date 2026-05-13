@@ -40,7 +40,6 @@ export const HEALTH_RULES: HealthRule[] = [
   { id: "task-started-date-not-set", name: "Started Date not set", severity: "error", entityType: "task", description: "In Progress or Done tasks must have a Started Date" },
   { id: "task-closed-date-not-set", name: "Closed Date not set", severity: "error", entityType: "task", description: "Done or Cancelled tasks must have a Closed Date" },
   { id: "task-deadline-missed", name: "Deadline missed, no progress", severity: "error", entityType: "task", description: "Task has a past Deadline but Status is still Not Started" },
-  { id: "task-initial-assigned-not-set", name: "Initial Assigned Date not set", severity: "warning", entityType: "task", description: "Tasks with Assigned Date should also have Initial Assigned Date for reschedule tracking" },
   { id: "task-assigned-past-not-started", name: "Assigned Date in past, not started", severity: "info", entityType: "task", description: "Task was scheduled more than 1 day ago but hasn't started" },
   { id: "project-no-area", name: "No Area assigned", severity: "warning", entityType: "project", description: "Projects should be categorized into an Area" },
   { id: "project-priority-not-set", name: "Priority not set", severity: "warning", entityType: "project", description: "Active projects should have Priority set" },
@@ -91,11 +90,6 @@ export const RULE_EVALUATORS: Record<string, RuleEvaluator> = {
       .filter((t) => t.status === "Not Started" && t.deadline && t.deadline < todayStr)
       .map((t) => makeViolation("task-deadline-missed", t, "task", `Deadline: ${t.deadline}`));
   },
-
-  "task-initial-assigned-not-set": (tasks) =>
-    tasks
-      .filter((t) => t.assignedDate && !t.initialAssignedDate)
-      .map((t) => makeViolation("task-initial-assigned-not-set", t, "task", `Assigned: ${t.assignedDate}`)),
 
   "task-assigned-past-not-started": (tasks) => {
     const today = new Date();

@@ -161,30 +161,6 @@ export function getAgingDistribution(activeTasks: Task[]): AgingBucket[] {
   });
 }
 
-export interface RescheduleEntry {
-  bucket: string;
-  count: number;
-}
-
-export function getRescheduleDistribution(tasks: Task[]): RescheduleEntry[] {
-  const slips = tasks
-    .filter((t) => t.assignedDate && t.initialAssignedDate && t.assignedDate !== t.initialAssignedDate)
-    .map((t) => differenceInDays(parseISO(t.assignedDate!), parseISO(t.initialAssignedDate!)))
-    .filter((d) => d > 0);
-
-  const buckets = [
-    { label: "1-3 days", min: 1, max: 4 },
-    { label: "4-7 days", min: 4, max: 8 },
-    { label: "1-2 weeks", min: 8, max: 15 },
-    { label: "2+ weeks", min: 15, max: Infinity },
-  ];
-
-  return buckets.map(({ label, min, max }) => ({
-    bucket: label,
-    count: slips.filter((d) => d >= min && d < max).length,
-  }));
-}
-
 export interface VelocityEntry {
   week: string;
   completed: number;

@@ -2,7 +2,6 @@
 parent: "[[Automation]]"
 tags:
 related:
-  - "[[Set Task Init Date]]"
   - "[[Create Repetitive Tasks]]"
   - "[[Setting Up Triggers]]"
 ---
@@ -54,10 +53,6 @@ Rolled forward the "Assigned Date" of overdue tasks to today. Any task with an "
 |-----------|--------|-------|
 | `notion` | Windmill resource | `$res:f/notion/api` |
 | `tasks_database_id` | Schedule args | `a43c2d3d-11e5-4a66-be42-dd411a1d9727` |
-
-## Interaction with Set Task Init Date
-
-When this script updated a task's "Assigned Date", it triggered the Notion webhook that fires [[Set Task Init Date]]. However, because the task already had an "Initial Assigned Date" recorded (set when it was first scheduled), the webhook handler took no action. The original scheduling date was preserved.
 
 ## Key Functions
 

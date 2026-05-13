@@ -72,14 +72,6 @@ Active tasks bucketed by age and split by importance.
 
 Returns: `{ bucket, high, medium, low }[]`
 
-### `getRescheduleDistribution(tasks): RescheduleEntry[]`
-
-How much tasks slip from their original assigned date.
-
-- Compares `assignedDate` to `initialAssignedDate` (only where both exist and differ)
-- Computes slip in days (positive only — ignoring tasks moved earlier)
-- Buckets: 1-3 days, 4-7 days, 1-2 weeks, 2+ weeks
-
 ## Calendar Heatmap
 
 ### `getCalendarHeatmapData(tasks, range?): CalendarDayEntry[]`

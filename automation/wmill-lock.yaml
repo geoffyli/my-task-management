@@ -2,5 +2,4 @@ version: v2
 locks:
   f/notion_tasks/create_repetitive_tasks: 4deca0af3662a609c47d7f5d8b8be45a356a80fb6357d976dc981a5e43bf15cc
   f/notion_tasks/create_weekly_note: ded5190b8e5f20468eb8758c4ca295bdd75fddc8822333480fb295c3d4135b8a
-  f/notion_tasks/set_task_init_date: 9eda579e7e41c59fe7c8db5128e35c39c924d53e27450365884f01582a907e3e
   f/notion_tasks/update_legacy_tasks: 99e4cfe5e50157467d61cb4b898eb5cba1c809597e602dcd32e8d08eab8ddcdb

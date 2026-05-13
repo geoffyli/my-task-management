@@ -39,8 +39,8 @@ Verified block-level structures for key pages. All layouts confirmed via live AP
 **Button blocks:** The "Add Task" and "Add Daily Task" buttons appear as `unsupported {block_type: "button"}` in the API — they cannot be clicked, read, or replicated via API. Replicate their behaviour using the create-task operations in `references/operations.md`.
 
 **"Add Task" vs "Add Daily Task":**
-- **Add Task** — `Assigned Date` and `Initial Assigned Date` both left empty.
-- **Add Daily Task** — `Assigned Date` and `Initial Assigned Date` both set to today.
+- **Add Task** — `Assigned Date` left empty.
+- **Add Daily Task** — `Assigned Date` set to today.
 
 **Info callout:** Static daily-ops reminder for the user. Do not modify it.
 

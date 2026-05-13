@@ -4,7 +4,6 @@ import * as wmill from "windmill-client";
 const TASKS_DATABASE_ID = "a43c2d3d-11e5-4a66-be42-dd411a1d9727";
 const TASKS_DATABASE_ID_NORMALIZED = TASKS_DATABASE_ID.replace(/-/g, "").toLowerCase();
 
-const ASSIGNED_DATE_PROP_ID = "lMKd";
 const STATUS_PROP_ID = "pzUA";
 
 type Event = {
@@ -39,7 +38,6 @@ export async function preprocessor(event: Event) {
   const updatedProps: unknown[] = body?.data?.updated_properties ?? [];
   const triggers: string[] = [];
 
-  if (updatedProps.includes(ASSIGNED_DATE_PROP_ID)) triggers.push("init_date");
   if (updatedProps.includes(STATUS_PROP_ID)) triggers.push("lifecycle");
 
   if (triggers.length === 0) {
@@ -79,30 +77,6 @@ function getTodayCST(): string {
   const m = String(cst.getMonth() + 1).padStart(2, "0");
   const d = String(cst.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
-}
-
-// --- Init Date Handler ---
-
-async function handleInitDate(client: Client, page_id: string, properties: Record<string, any>) {
-  const assignedDate = extractDateProperty(properties, "Assigned Date");
-  const initialAssignedDate = extractDateProperty(properties, "Initial Assigned Date");
-
-  console.log(`[init_date] Assigned Date: ${assignedDate ?? "(empty)"}, Initial: ${initialAssignedDate ?? "(empty)"}`);
-
-  if (initialAssignedDate) {
-    return { handler: "init_date", action: "no_action_needed" };
-  }
-
-  if (!assignedDate) {
-    return { handler: "init_date", action: "no_action_needed" };
-  }
-
-  console.log(`[init_date] Setting Initial Assigned Date to ${assignedDate}`);
-  await client.pages.update({
-    page_id,
-    properties: { "Initial Assigned Date": { date: { start: assignedDate } } },
-  });
-  return { handler: "init_date", action: "initial_date_set", value: assignedDate };
 }
 
 // --- Lifecycle Handler (Started Date + Closed Date) ---
@@ -181,10 +155,6 @@ export async function main(page_id: string, triggers: string[], verification_tok
   }
 
   const handlers: Promise<any>[] = [];
-
-  if (triggers.includes("init_date")) {
-    handlers.push(handleInitDate(client, page_id, page.properties));
-  }
 
   if (triggers.includes("lifecycle")) {
     handlers.push(handleLifecycle(client, page_id, page.properties));

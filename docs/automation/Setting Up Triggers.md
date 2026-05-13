@@ -15,7 +15,7 @@ Triggers make scripts run automatically in response to time-based schedules or e
 | Type | File Pattern | Use Case | Example in This Repo |
 |------|-------------|----------|---------------------|
 | Schedule | `.schedule.yaml` | Recurring tasks | [[Create Repetitive Tasks]], [[Create Weekly Note]], [[Update Legacy Tasks]] |
-| HTTP | `.http_trigger.yaml` | Incoming webhooks | [[Set Task Init Date]] |
+| HTTP | `.http_trigger.yaml` | Incoming webhooks | [[Tasks Webhook Router]] |
 
 ## Creating a Schedule
 
@@ -77,11 +77,11 @@ Create a `.http_trigger.yaml` file to receive webhooks from external services.
 ### Example: Notion Webhook Endpoint
 
 ```yaml
-summary: Notion webhook - set task initial assigned date
-script_path: f/notion_tasks/set_task_init_date
+summary: Notion webhook - tasks webhook router
+script_path: f/notion_tasks/tasks_webhook_router
 permissioned_as: u/geoffyulongli
 is_flow: false
-route_path: notion/webhook/task-init-date
+route_path: notion/webhook/tasks
 http_method: post
 authentication_method: none
 request_type: sync
@@ -94,7 +94,7 @@ raw_string: false
 The endpoint URL will be:
 
 ```
-https://windmill-production-8a72.up.railway.app/api/r/notion/webhook/task-init-date
+https://windmill-production-8a72.up.railway.app/api/r/notion/webhook/tasks
 ```
 
 ### Authentication Options
@@ -113,7 +113,7 @@ https://windmill-production-8a72.up.railway.app/api/r/notion/webhook/task-init-d
 
 ### Preprocessor Functions
 
-HTTP triggers can use a `preprocessor` function (exported alongside `main`) to filter and transform incoming requests before the main logic runs. The [[Set Task Init Date]] script uses this to:
+HTTP triggers can use a `preprocessor` function (exported alongside `main`) to filter and transform incoming requests before the main logic runs. The [[Tasks Webhook Router]] script uses this to:
 
 - Handle Notion webhook verification handshakes
 - Filter out irrelevant event types

@@ -90,10 +90,7 @@ All routes in the application with their data requirements and key features.
 4. **Aging distribution** — Stacked bar chart: active tasks by age bucket, colored by importance
    - Data: `getAgingDistribution(activeTasks)`
 
-5. **Reschedule distribution** — Bar chart: how much tasks slip from original assignment
-   - Data: `getRescheduleDistribution(tasks)`
-
-6. **Calendar heatmap** — Custom grid showing daily activity intensity
+5. **Calendar heatmap** — Custom grid showing daily activity intensity
    - Data: `getCalendarHeatmapData(tasks, range)`
 
 ## ProjectsAreasPage

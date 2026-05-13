@@ -83,7 +83,6 @@ All task rules apply regardless of status (active + completed + cancelled), subj
 | `task-started-date-not-set` | Started Date not set | Error | Status is `"In Progress"` or `"Done"` AND `startedDate === null` | Tasks that progressed need a start date |
 | `task-closed-date-not-set` | Closed Date not set | Error | Status is `"Done"` or `"Cancelled"` AND `closedDate === null` | Terminal tasks need a closure date |
 | `task-deadline-missed` | Deadline missed, no progress | Error | `deadline` is in the past AND Status is `"Not Started"` | Operational failure: deadline passed with zero progress |
-| `task-initial-assigned-not-set` | Initial Assigned Date not set | Warning | `assignedDate` is set AND `initialAssignedDate === null` | Needed for reschedule tracking |
 | `task-assigned-past-not-started` | Assigned Date in past, not started | Info | `assignedDate` > 1 day ago AND Status is `"Not Started"` | Scheduled task hasn't been picked up |
 
 ### Project Rules
