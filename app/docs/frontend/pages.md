@@ -102,19 +102,23 @@ All routes in the application with their data requirements and key features.
 
 **Data hooks:** `useTasks()`, `useProjects()`, `useAreas()`
 
+**Filtering:** Archived projects (`status === "Archived"`) are excluded client-side before any computation. All sections below operate on active (non-archived) projects only.
+
 **Sections:**
 
 1. **Project health** — Horizontal stacked bar chart showing task status breakdown per project
-   - Data: `getProjectHealth(tasks, projects)`
+   - Data: `getProjectHealth(tasks, activeProjects)`
    - Colors: STATUS_COLORS map
 
 2. **At-risk projects** — Alert section highlighting projects with high overdue ratios or staleness
-   - Data: `getAtRiskProjects(tasks, projects)`
+   - Data: `getAtRiskProjects(tasks, activeProjects)`
    - Risk reasons displayed as text
 
 3. **Area workload** — Vertical stacked bar chart showing task distribution across areas
+   - Only counts tasks belonging to non-archived projects
 
 4. **Project progress cards** — Grid of cards showing completion percentage bars per project
+   - Only renders non-archived projects
 
 ## HealthPage
 

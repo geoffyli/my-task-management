@@ -19,26 +19,31 @@ export function ProjectsAreasPage() {
   const { data: areas, isLoading: areasLoading, isError: areasError, refetch: refetchAreas } = useAreas();
   const { chartTheme, tooltipStyle } = useChartTheme();
 
+  const activeProjects = useMemo(
+    () => projects?.filter((p) => p.status !== "Archived"),
+    [projects]
+  );
+
   const tasksByProject = useMemo(
     () => (tasks ? buildTasksByProjectIndex(tasks) : new Map<string, Task[]>()),
     [tasks]
   );
 
   const health = useMemo(
-    () => (tasks && projects ? getProjectHealth(tasks, projects) : []),
-    [tasks, projects]
+    () => (tasks && activeProjects ? getProjectHealth(tasks, activeProjects) : []),
+    [tasks, activeProjects]
   );
 
   const atRisk = useMemo(
-    () => (tasks && projects ? getAtRiskProjects(tasks, projects) : []),
-    [tasks, projects]
+    () => (tasks && activeProjects ? getAtRiskProjects(tasks, activeProjects) : []),
+    [tasks, activeProjects]
   );
 
   const areaTasksMap = useMemo(() => {
-    if (!tasks || !projects || !areas) return new Map<string, Task[]>();
+    if (!tasks || !activeProjects || !areas) return new Map<string, Task[]>();
 
     const projectToArea = new Map<string, string[]>();
-    for (const p of projects) {
+    for (const p of activeProjects) {
       for (const areaId of p.areaIds) {
         const list = projectToArea.get(areaId);
         if (list) list.push(p.id);
@@ -53,7 +58,7 @@ export function ProjectsAreasPage() {
       result.set(area.id, areaTasks);
     }
     return result;
-  }, [tasks, projects, areas]);
+  }, [tasks, activeProjects, areas]);
 
   const workload = useMemo(() => {
     if (!areas) return [];
@@ -145,7 +150,7 @@ export function ProjectsAreasPage() {
       {/* Project Progress Cards */}
       <ChartContainer title="Project Progress" description="Completion percentage per project">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4">
-          {projects?.map((p) => {
+          {activeProjects?.map((p) => {
             const projectTasks = tasksByProject.get(p.id) ?? [];
             const done = projectTasks.filter((t) => t.status === "Done").length;
             const total = projectTasks.length;
