@@ -46,9 +46,13 @@ const IMPORTANCE_POSITION: Record<string, number> = {
 const MIN_RADIUS = 6;
 const MAX_RADIUS = 24;
 const MAX_DAYS_CAP = 90;
-const MICRO_OFFSET_X_BAND = 0.12;
-const MICRO_OFFSET_Y_BAND = 0.08;
 const DRIFT_THRESHOLD_DAYS = 21;
+
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+const MAX_SPIRAL_RADIUS_NORM = 0.12;
+const MIN_SPACING_PX = 4;
+const REFERENCE_INNER_SIZE = 400;
+const SPIRAL_COMPACTION = 0.85;
 
 export function getMatrixEligibleTasks(tasks: Task[]): Task[] {
   return tasks.filter(
@@ -76,22 +80,43 @@ export function computeDotRadius(assignedDate: string | null): number {
   return MIN_RADIUS + (MAX_RADIUS - MIN_RADIUS) * Math.sqrt(normalized);
 }
 
-function computeMicroOffsetX(task: Task, groupStats: { minDays: number; maxDays: number } | null): number {
-  if (!task.deadline || !groupStats) return 0;
-  const { minDays, maxDays } = groupStats;
-  if (maxDays === minDays) return 0;
+function computeSpiralOffsets(
+  group: Task[],
+  radii: Map<string, number>,
+): Map<string, { dx: number; dy: number }> {
+  const result = new Map<string, { dx: number; dy: number }>();
+  const n = group.length;
 
-  const daysToDeadline = differenceInDays(parseISO(task.deadline), new Date());
-  const normalized = 1 - (daysToDeadline - minDays) / (maxDays - minDays);
-  return (normalized - 0.5) * MICRO_OFFSET_X_BAND * 2;
-}
+  if (n <= 1) {
+    if (n === 1) result.set(group[0]!.id, { dx: 0, dy: 0 });
+    return result;
+  }
 
-function computeMicroOffsetY(task: Task, maxDeps: number): number {
-  const depCount = task.dependencies.length;
-  if (depCount === 0 || maxDeps === 0) return 0;
+  const maxRadiusPx = Math.max(...group.map((t) => radii.get(t.id) ?? MIN_RADIUS));
+  const idealSpacingPx = maxRadiusPx + MIN_SPACING_PX;
+  const cPx = idealSpacingPx * SPIRAL_COMPACTION;
+  const cNorm = cPx / REFERENCE_INNER_SIZE;
 
-  const normalized = depCount / maxDeps;
-  return (normalized - 0.5) * MICRO_OFFSET_Y_BAND * 2;
+  const outerRadiusNorm = cNorm * Math.sqrt(n - 1);
+  const effectiveC = outerRadiusNorm > MAX_SPIRAL_RADIUS_NORM
+    ? MAX_SPIRAL_RADIUS_NORM / Math.sqrt(n - 1)
+    : cNorm;
+
+  for (let i = 0; i < n; i++) {
+    const task = group[i]!;
+    if (i === 0) {
+      result.set(task.id, { dx: 0, dy: 0 });
+    } else {
+      const angle = i * GOLDEN_ANGLE;
+      const r = effectiveC * Math.sqrt(i);
+      result.set(task.id, {
+        dx: r * Math.cos(angle),
+        dy: r * Math.sin(angle),
+      });
+    }
+  }
+
+  return result;
 }
 
 export function getQuadrant(x: number, y: number): Quadrant {
@@ -106,51 +131,47 @@ export function computeMatrixPoints(
   projectLookup: Map<string, Project>,
 ): MatrixPoint[] {
   const eligible = getMatrixEligibleTasks(tasks);
+  if (eligible.length === 0) return [];
 
-  const byUrgency = new Map<string, Task[]>();
-  const byImportance = new Map<string, Task[]>();
-  for (const t of eligible) {
-    const urg = t.urgency!;
-    const imp = t.importance!;
-    if (!byUrgency.has(urg)) byUrgency.set(urg, []);
-    byUrgency.get(urg)!.push(t);
-    if (!byImportance.has(imp)) byImportance.set(imp, []);
-    byImportance.get(imp)!.push(t);
-  }
-
-  // Precompute deadline stats per urgency group
   const today = new Date();
-  const urgencyDeadlineStats = new Map<string, { minDays: number; maxDays: number } | null>();
-  for (const [urg, group] of byUrgency) {
-    const deadlineDays = group
-      .filter((t) => t.deadline)
-      .map((t) => differenceInDays(parseISO(t.deadline!), today));
-    if (deadlineDays.length <= 1) {
-      urgencyDeadlineStats.set(urg, null);
-    } else {
-      urgencyDeadlineStats.set(urg, {
-        minDays: Math.min(...deadlineDays),
-        maxDays: Math.max(...deadlineDays),
-      });
-    }
+
+  const radii = new Map<string, number>();
+  for (const t of eligible) {
+    radii.set(t.id, computeDotRadius(t.assignedDate));
   }
 
-  // Precompute max dependency count per importance group
-  const importanceMaxDeps = new Map<string, number>();
-  for (const [imp, group] of byImportance) {
-    importanceMaxDeps.set(imp, Math.max(...group.map((t) => t.dependencies.length), 0));
+  const cellGroups = new Map<string, Task[]>();
+  for (const t of eligible) {
+    const key = `${t.urgency}|${t.importance}`;
+    if (!cellGroups.has(key)) cellGroups.set(key, []);
+    cellGroups.get(key)!.push(t);
+  }
+
+  for (const group of cellGroups.values()) {
+    group.sort((a, b) => {
+      const radiusDiff = (radii.get(b.id) ?? 0) - (radii.get(a.id) ?? 0);
+      if (radiusDiff !== 0) return radiusDiff;
+      return a.id.localeCompare(b.id);
+    });
+  }
+
+  const offsets = new Map<string, { dx: number; dy: number }>();
+  for (const [, group] of cellGroups) {
+    const groupOffsets = computeSpiralOffsets(group, radii);
+    for (const [id, offset] of groupOffsets) {
+      offsets.set(id, offset);
+    }
   }
 
   return eligible.map((task) => {
     const baseX = URGENCY_POSITION[task.urgency!]!;
     const baseY = IMPORTANCE_POSITION[task.importance!]!;
-    const offsetX = computeMicroOffsetX(task, urgencyDeadlineStats.get(task.urgency!) ?? null);
-    const offsetY = computeMicroOffsetY(task, importanceMaxDeps.get(task.importance!) ?? 0);
+    const offset = offsets.get(task.id) ?? { dx: 0, dy: 0 };
 
-    const x = Math.max(0.01, Math.min(0.99, baseX + offsetX));
-    const y = Math.max(0.01, Math.min(0.99, baseY + offsetY));
-    const radius = computeDotRadius(task.assignedDate);
-    const quadrant = getQuadrant(x, y);
+    const x = Math.max(0.01, Math.min(0.99, baseX + offset.dx));
+    const y = Math.max(0.01, Math.min(0.99, baseY + offset.dy));
+    const radius = radii.get(task.id) ?? MIN_RADIUS;
+    const quadrant = getQuadrant(baseX, baseY);
 
     const projectNames = task.projectIds
       .map((pid) => projectLookup.get(pid)?.name)

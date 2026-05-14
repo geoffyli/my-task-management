@@ -22,6 +22,7 @@ All routes in the application with their data requirements and key features.
 |------|-----------|---------------|-------------|
 | `/` | DashboardPage | Yes | Task triage dashboard |
 | `/trends` | TrendsPage | Yes | Analytics charts and trends |
+| `/prioritize` | PrioritizePage | Yes | Eisenhower Matrix for urgency/importance triage |
 | `/projects` | ProjectsAreasPage | Yes | Project health and area workload |
 | `/health` | HealthPage | Yes | Data health monitoring and rule violations |
 | `/settings` | SettingsPage | Yes | Theme, sync management, webhook config |
@@ -92,6 +93,47 @@ All routes in the application with their data requirements and key features.
 
 5. **Calendar heatmap** — Custom grid showing daily activity intensity
    - Data: `getCalendarHeatmapData(tasks, range)`
+
+## PrioritizePage
+
+**Purpose:** Eisenhower Matrix visualization — positions tasks by urgency (x-axis) and importance (y-axis) for strategic triage.
+
+**Data hooks:** `useTasks()`, `useProjects()`, `useAreas()`
+
+**State:** Project and area filters stored in URL search params (`?projects=id1,id2&areas=id3`)
+
+**Sections:**
+
+1. **Insight cards** (4 cards):
+   - Q1 — Do First count (urgent + important)
+   - Q2 — Schedule count (not urgent + important)
+   - Q2 Ratio — percentage of active tasks in Schedule quadrant (healthy ≥ 40%)
+   - Drift Alert — high urgency + high importance tasks lingering > 21 days
+
+2. **Null value callout** — Warns when active tasks are excluded from the matrix due to missing urgency or importance values
+
+3. **Eisenhower Matrix** — Custom SVG scatter plot (max 600×600px, 1:1 aspect ratio)
+   - Quadrant dividers at midpoint (dashed lines)
+   - Quadrant labels: Do First, Schedule, Delegate, Eliminate
+   - Axis labels: Urgency →, Importance →
+
+4. **Filter controls** — Project and Area multi-select dropdowns (non-matching dots fade to 10% opacity)
+
+**Task eligibility:** Only tasks with `status ∈ {Not Started, In Progress}` AND non-null `urgency ∈ {High, Medium, Low}` AND non-null `importance` appear on the matrix.
+
+**Dot layout — Sunflower Spiral:**
+
+Tasks sharing the same urgency/importance combination would overlap at identical coordinates. The layout uses a golden-angle (Fermat) spiral to spread co-located dots:
+
+- Base positions: `{Low: 0.15, Medium: 0.50, High: 0.85}` on each axis (9 possible cells)
+- Dots grouped by cell, sorted largest-radius-first (oldest tasks at center)
+- Spiral formula: `angle_i = i × φ`, `r_i = c × √i` where `φ = π(3 − √5)` ≈ 137.5°
+- Adaptive spacing compresses if the group exceeds the cell's safe radius (0.12 normalized units)
+- Dot radius scales from 6–24px based on days since assignment (√ curve, capped at 90 days)
+
+**Data functions:** `computeMatrixPoints()`, `computeMatrixInsights()`, `computeDriftCount()`, `getNullFieldExclusionCount()` — all in `src/lib/prioritize.ts`
+
+**Task interaction:** Hover shows `MatrixTooltip`; click opens `TaskDetailPopover` with "View Network" and "Open in Notion" actions.
 
 ## ProjectsAreasPage
 

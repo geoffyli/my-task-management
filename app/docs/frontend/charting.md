@@ -71,6 +71,14 @@ The `useChartTheme()` hook provides memoized, theme-aware chart configuration. I
 
 ## Charts by Page
 
+### Prioritize Page
+
+| Chart | Type | Data Function | Notes |
+|-------|------|---------------|-------|
+| Eisenhower Matrix | Custom SVG | `computeMatrixPoints()` | Not a Recharts chart — raw SVG with interactive dots, tooltip, and popover |
+
+The matrix is a bespoke SVG scatter plot (`src/components/prioritize/EisenhowerMatrix.tsx`). Dots are positioned using a sunflower spiral algorithm to prevent overlap when multiple tasks share the same urgency/importance cell. See [[pages]] → PrioritizePage for layout details.
+
 ### Trends Page
 
 | Chart | Type | Data Function | Series |
