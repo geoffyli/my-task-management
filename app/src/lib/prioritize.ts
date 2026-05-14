@@ -46,7 +46,7 @@ const IMPORTANCE_POSITION: Record<string, number> = {
 const MIN_RADIUS = 6;
 const MAX_RADIUS = 24;
 const MAX_DAYS_CAP = 90;
-const DRIFT_THRESHOLD_DAYS = 21;
+export const DRIFT_THRESHOLD_DAYS = 21;
 
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 const MAX_SPIRAL_RADIUS_NORM = 0.12;

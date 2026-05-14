@@ -2,6 +2,7 @@ import { differenceInDays, parseISO, format, eachWeekOfInterval, subDays, addDay
 import type { Task, Project } from "@/api/types";
 import type { TimeRange } from "@/lib/constants";
 import { isActiveTask } from "@/lib/constants";
+import { DRIFT_THRESHOLD_DAYS } from "@/lib/prioritize";
 import { getTimeRangeStart } from "./date-utils";
 
 export interface OverviewStats {
@@ -412,4 +413,52 @@ export function getPrerequisiteWaitingTasks(tasks: Task[]): PrerequisiteWaitingT
   }
 
   return results;
+}
+
+// --- Dashboard: Drift detection ---
+
+export interface DriftTask {
+  id: string;
+  name: string;
+  importance: Task["importance"];
+  daysSinceCreated: number;
+}
+
+export function getDriftTasks(tasks: Task[]): DriftTask[] {
+  const now = Date.now();
+  const thresholdMs = DRIFT_THRESHOLD_DAYS * 86400000;
+  const results: DriftTask[] = [];
+
+  for (const t of tasks) {
+    if (
+      (t.status === "Not Started" || t.status === "In Progress") &&
+      t.importance === "High" &&
+      t.urgency === "High"
+    ) {
+      const ageMs = now - new Date(t.createdTime).getTime();
+      if (ageMs >= thresholdMs) {
+        results.push({
+          id: t.id,
+          name: t.name,
+          importance: t.importance,
+          daysSinceCreated: Math.floor(ageMs / 86400000),
+        });
+      }
+    }
+  }
+
+  return results;
+}
+
+// --- Dashboard: Net flow (created vs completed this week) ---
+
+export function getNetFlow(tasks: Task[]): { completed: number; created: number; net: number } {
+  const data = getThroughputData(tasks, "30d");
+  const lastWeek = data[data.length - 1];
+  if (!lastWeek) return { completed: 0, created: 0, net: 0 };
+  return {
+    completed: lastWeek.completed,
+    created: lastWeek.created,
+    net: lastWeek.completed - lastWeek.created,
+  };
 }

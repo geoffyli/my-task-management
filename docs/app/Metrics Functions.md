@@ -162,6 +162,18 @@ Active (non-Blocked) tasks whose dependencies include at least one task with sta
 - Resolves dependency IDs against the full task list
 - Returns: `{ id, name, importance, notStartedPrereqs: { id, name }[] }[]`
 
+### `getDriftTasks(tasks): DriftTask[]`
+
+High-priority tasks that are stalling — importance=High AND urgency=High AND created 21+ days ago, still Not Started or In Progress.
+- Uses `DRIFT_THRESHOLD_DAYS` (21) from `prioritize.ts`
+- Returns: `{ id, name, importance, daysSinceCreated }[]`
+
+### `getNetFlow(tasks): { completed, created, net }`
+
+Net task flow for the most recent week — are you completing more than creating?
+- Built on top of `getThroughputData(tasks, "30d")`, takes the last week entry
+- `net` = completed - created (positive means reducing backlog)
+
 ## Helper Dependencies
 
 | Function | Source | Purpose |

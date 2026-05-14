@@ -41,32 +41,42 @@ All routes in the application with their data requirements and key features.
 
 ## DashboardPage
 
-**Purpose:** Operational triage dashboard — surfaces what needs attention right now.
+**Purpose:** Highlight surface — surfaces the most actionable insight from each analytics domain, with navigation to drill into deeper pages.
 
-**Data hooks:** `useTasks()`
+**Data hooks:** `useTasks()`, `useProjects()`
 
 **Sections:**
 
-1. **Stat cards** (4 cards in responsive grid):
-   - Overdue — active tasks past deadline (red accent)
-   - Due Soon — tasks with deadlines within 7 days (orange accent)
-   - In Progress — tasks with "In Progress" status
+1. **Stat strip** (4 cards in responsive grid):
+   - In Progress — tasks currently being worked on
    - Blocked — tasks with status set to "Blocked" (red accent)
+   - Net Flow — tasks completed minus created this week (green if positive, red if negative)
+   - Health — data quality score 0-100 (green/orange/red thresholds)
 
-2. **Upcoming Deadlines** — Active tasks with deadlines in the next 14 days (including overdue), grouped by urgency tier:
-   - Overdue (red left border)
-   - Due within 3 days (orange left border)
-   - Due within 14 days (neutral)
-   - Each task links to its Notion page
+2. **In Progress** — Active tasks with status "In Progress"
+   - Shows importance badge, task name, project name, and days since startedDate
+   - Each task opens a detail popover on click
 
-3. **Blocked Tasks** — Tasks with status explicitly set to "Blocked"
-   - Each task links to its Notion page
+3. **Drift Alerts** — High-importance + high-urgency tasks stalling 21+ days without completion
+   - Links to `/prioritize` for full matrix view
+   - Shows warning icon and days since creation
 
-4. **Waiting on Prerequisites** — Active tasks whose dependencies have status "Not Started"
+4. **Blocked Tasks** — Tasks with status explicitly set to "Blocked"
+   - Each task opens a detail popover on click
+
+5. **Waiting on Prerequisites** — Active tasks whose dependencies have status "Not Started"
    - Shows prerequisite task names (up to 3, with "+N more" overflow)
-   - Each task links to its Notion page
+   - Each task opens a detail popover on click
 
-**Key metrics:** `getOverdueTasks()`, `getDueSoonTasks()`, `getBlockedByStatusTasks()`, `getUpcomingDeadlinesTiered()`, `getPrerequisiteWaitingTasks()`
+6. **At-Risk Projects** — Projects with overdue task ratios >50% or no activity in 7+ days
+   - Links to `/projects` for full project health view
+   - Shows project name and risk reason
+
+7. **Data Health** — Health score with top violation detail
+   - Links to `/health` for full violation list
+   - Shows score number and top rule name with violation count
+
+**Key metrics:** `getBlockedByStatusTasks()`, `getPrerequisiteWaitingTasks()`, `getDriftTasks()`, `getNetFlow()`, `getAtRiskProjects()`, `computeHealthReport()`, `computeHealthScore()`
 
 ## TrendsPage
 
