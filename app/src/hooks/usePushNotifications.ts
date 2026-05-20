@@ -10,6 +10,15 @@ import { api } from "@/api/client";
 const ENDPOINT_STORAGE_KEY = "tasks-push-endpoint";
 const CHECK_INTERVAL_MS = 5 * 60 * 1000;
 
+async function getVapidKey(): Promise<string | null> {
+  try {
+    const { publicKey } = await api.getVapidKey();
+    return publicKey || null;
+  } catch {
+    return null;
+  }
+}
+
 export function usePushNotifications() {
   const [permission, setPermission] = useState<NotificationPermission>(
     isPushSupported() ? Notification.permission : "denied"
@@ -44,8 +53,7 @@ export function usePushNotifications() {
       const current = await reg.pushManager.getSubscription();
 
       if (!current && Notification.permission === "granted") {
-        // Subscription was invalidated — auto-resubscribe
-        const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+        const vapidKey = await getVapidKey();
         if (!vapidKey) return;
 
         try {
@@ -82,7 +90,6 @@ export function usePushNotifications() {
       } else if (current) {
         const storedEndpoint = localStorage.getItem(ENDPOINT_STORAGE_KEY);
         if (storedEndpoint && storedEndpoint !== current.endpoint) {
-          // Endpoint rotated — update server
           const json = current.toJSON();
           if (storedEndpoint) {
             await api.pushUnsubscribe(storedEndpoint).catch(() => {});
@@ -97,7 +104,6 @@ export function usePushNotifications() {
       }
     };
 
-    // Run on mount
     lastCheckRef.current = Date.now();
     checkAndRecover();
 
@@ -116,9 +122,9 @@ export function usePushNotifications() {
     if (result !== "granted") return;
 
     const registration = await navigator.serviceWorker.ready;
-    const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+    const vapidKey = await getVapidKey();
     if (!vapidKey) {
-      console.error("[push] VITE_VAPID_PUBLIC_KEY not configured");
+      console.error("[push] VAPID key not available from server");
       return;
     }
 
