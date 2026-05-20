@@ -142,21 +142,29 @@ iOS/WebKit has documented bugs (#284111, #273063) where push subscriptions are s
 | `VAPID_PUBLIC_KEY` | Yes | VAPID public key — generate with `npx web-push generate-vapid-keys` |
 | `VAPID_PRIVATE_KEY` | Yes | VAPID private key |
 | `VAPID_SUBJECT` | Yes | Contact URI, e.g. `mailto:you@example.com` |
-| `VITE_VAPID_PUBLIC_KEY` | Yes | Same public key, exposed to frontend via Vite env |
+
+Note: `VITE_VAPID_PUBLIC_KEY` is NOT needed. The frontend fetches the public key at runtime from `/api/push/vapid-key` rather than relying on a build-time env var. This avoids a Docker build limitation where Railway env vars are unavailable during the `RUN bun run build` stage.
 
 ## Testing
 
 ```bash
-# Send test notification to all devices
-curl -X POST "http://localhost:8787/api/push/test" \
+# Send test notification to all devices (broadcast)
+curl -X POST "http://localhost:3456/api/push/test-all" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json"
+
+# Send test notification to a specific device
+curl -X POST "http://localhost:3456/api/push/test" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"endpoint": "https://web.push.apple.com/..."}'
 ```
 
 ## Known Limitations
 
 - **iOS requires Home Screen install** — Web Push on iOS only works for PWAs added to Home Screen (standalone mode). The UI detects this and shows guidance.
 - **iOS silent subscription invalidation** — iOS/WebKit can silently revoke push subscriptions (bugs #284111, #273063). Apple's push service may return HTTP 201 for dead endpoints. The client-side health check auto-resubscribes on next app open, but notifications can be missed between invalidation and recovery.
+- **Docker build env vars** — Railway env vars are NOT available during `docker build`. The VAPID public key must be fetched at runtime from the server (not via `import.meta.env`). Any future client-side config that needs env vars must use the same pattern.
 - **Single instance** — The in-process scheduler assumes one running instance.
 
 ## Key Files
