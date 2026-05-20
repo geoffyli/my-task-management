@@ -108,6 +108,38 @@ export function createApiRoutes(db: Database): Hono {
     return c.json({ ok: true });
   });
 
+  api.post("/api/push/refresh", async (c) => {
+    const body = await c.req.json();
+    const { endpoint, keys, oldEndpoint, userAgent } = body;
+    if (!endpoint || !keys?.p256dh || !keys?.auth) {
+      return c.json({ error: "Missing subscription fields" }, 400);
+    }
+    const ALLOWED_PUSH_DOMAINS = [
+      "fcm.googleapis.com", "updates.push.services.mozilla.com",
+      "push.apple.com", "web.push.apple.com", "notify.windows.com",
+    ];
+    try {
+      const url = new URL(endpoint);
+      if (!ALLOWED_PUSH_DOMAINS.some((d) => url.hostname === d || url.hostname.endsWith("." + d))) {
+        return c.json({ error: "Invalid push endpoint" }, 400);
+      }
+    } catch {
+      return c.json({ error: "Invalid endpoint URL" }, 400);
+    }
+    if (oldEndpoint && oldEndpoint !== endpoint) {
+      removeSubscription(db, oldEndpoint);
+    }
+    const deviceName = parseDeviceName(userAgent || "");
+    insertSubscription(db, {
+      endpoint,
+      keys_p256dh: keys.p256dh,
+      keys_auth: keys.auth,
+      user_agent: userAgent || null,
+      device_name: deviceName,
+    });
+    return c.json({ ok: true });
+  });
+
   api.get("/api/push/devices", (c) => {
     const devices = getAllSubscriptions(db).map(({ keys_p256dh, keys_auth, ...rest }) => rest);
     return c.json(devices);

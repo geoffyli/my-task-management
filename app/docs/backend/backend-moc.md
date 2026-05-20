@@ -17,6 +17,7 @@ The backend is a Bun + Hono server that provides a JSON API, serves the compiled
 ## Contents
 
 - [[api-routes]] — All HTTP endpoints with request/response shapes
+- [[push-notifications]] — Web Push system: scheduling, delivery, iOS health check
 - [[database-schema]] — SQLite tables, columns, indexes, and relationships
 - [[database-operations]] — Store layer: upsert, property extraction, queries
 - [[auth-system]] — Bearer token authentication and dev mode bypass

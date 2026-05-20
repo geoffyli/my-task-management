@@ -127,6 +127,25 @@ In production (when `dist/` exists):
 - `GET /assets/*` — Serves compiled frontend bundles
 - `GET *` — Catch-all returns `index.html` for SPA client-side routing
 
+## Push Notification Endpoints
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/push/vapid-key` | Bearer | Get VAPID public key for browser subscription |
+| POST | `/api/push/subscribe` | Bearer | Register device push subscription |
+| DELETE | `/api/push/subscribe` | Bearer | Unsubscribe device (body: `{ endpoint }`) |
+| POST | `/api/push/refresh` | None | SW-initiated subscription refresh (domain-validated) |
+| GET | `/api/push/devices` | Bearer | List all subscribed devices |
+| PATCH | `/api/push/devices/:id` | Bearer | Update device name |
+| DELETE | `/api/push/devices/:id` | Bearer | Delete device and its preferences |
+| POST | `/api/push/test` | Bearer | Send test notification to all devices |
+| GET | `/api/push/preferences` | Bearer | Get global + device preferences |
+| PUT | `/api/push/preferences` | Bearer | Update global preferences (restarts scheduler) |
+| PUT | `/api/push/preferences/:deviceId` | Bearer | Update device-specific preference overrides |
+| DELETE | `/api/push/preferences/:deviceId` | Bearer | Delete device preferences (falls back to global) |
+
+See [[push-notifications]] for the full feature documentation.
+
 ## Error Responses
 
 All error responses follow the pattern:

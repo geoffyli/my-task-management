@@ -30,10 +30,14 @@ export function initPush(): void {
 
 export async function sendToDevice(
   subscription: { endpoint: string; keys: { p256dh: string; auth: string } },
-  payload: string
+  payload: string,
+  options?: { urgency?: "very-low" | "low" | "normal" | "high" },
 ): Promise<{ success: boolean; gone: boolean }> {
   try {
-    await webpush.sendNotification(subscription, payload, { TTL: 3600 });
+    await webpush.sendNotification(subscription, payload, {
+      TTL: 3600,
+      urgency: options?.urgency ?? "normal",
+    });
     return { success: true, gone: false };
   } catch (err: any) {
     const gone = err.statusCode === 410 || err.statusCode === 404;
@@ -47,7 +51,8 @@ export async function sendToDevice(
 export async function sendToAll(
   db: Database,
   payload: NotificationPayload,
-  notificationType: NotificationType
+  notificationType: NotificationType,
+  options?: { urgency?: "very-low" | "low" | "normal" | "high" },
 ): Promise<void> {
   const globalPrefs = getGlobalPreferences(db);
   if (globalPrefs && !globalPrefs.enabled) return;
@@ -57,26 +62,29 @@ export async function sendToAll(
 
   const payloadStr = JSON.stringify(payload);
 
-  for (const sub of subscriptions) {
+  const eligible = subscriptions.filter((sub) => {
     const devicePrefs = getDevicePreferences(db, sub.id);
     const prefs = devicePrefs ?? globalPrefs;
-
-    if (devicePrefs && !devicePrefs.enabled) continue;
-
+    if (devicePrefs && !devicePrefs.enabled) return false;
     if (prefs) {
       const enabled = prefs[notificationType as keyof typeof prefs] as number;
-      if (!enabled) continue;
+      if (!enabled) return false;
     }
+    return true;
+  });
 
-    const result = await sendToDevice(
-      { endpoint: sub.endpoint, keys: { p256dh: sub.keys_p256dh, auth: sub.keys_auth } },
-      payloadStr
-    );
-
-    if (result.success) {
-      touchLastUsed(db, sub.id);
-    } else if (result.gone) {
-      removeSubscription(db, sub.endpoint);
-    }
-  }
+  await Promise.allSettled(
+    eligible.map(async (sub) => {
+      const result = await sendToDevice(
+        { endpoint: sub.endpoint, keys: { p256dh: sub.keys_p256dh, auth: sub.keys_auth } },
+        payloadStr,
+        options,
+      );
+      if (result.success) {
+        touchLastUsed(db, sub.id);
+      } else if (result.gone) {
+        removeSubscription(db, sub.endpoint);
+      }
+    }),
+  );
 }
