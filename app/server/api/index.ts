@@ -206,5 +206,34 @@ export function createApiRoutes(db: Database): Hono {
     return c.json({ error: "Failed to send" }, 500);
   });
 
+  api.post("/api/push/test-all", async (c) => {
+    const subscriptions = getAllSubscriptions(db);
+    if (subscriptions.length === 0) return c.json({ delivered: 0, total: 0, results: [] });
+    const payload = JSON.stringify({
+      title: "Test Notification",
+      body: "If you see this, push notifications are working!",
+      tag: "test-all",
+      data: { url: "/" },
+    });
+    const results = await Promise.allSettled(
+      subscriptions.map(async (sub) => {
+        const result = await sendToDevice(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.keys_p256dh, auth: sub.keys_auth } },
+          payload,
+          { urgency: "high" },
+        );
+        return {
+          endpoint: sub.endpoint.slice(0, 60) + "...",
+          deviceName: sub.device_name,
+          success: result.success,
+          gone: result.gone,
+        };
+      }),
+    );
+    const data = results.map((r) => r.status === "fulfilled" ? r.value : { error: "rejected" });
+    const delivered = data.filter((d) => "success" in d && d.success).length;
+    return c.json({ delivered, total: subscriptions.length, results: data });
+  });
+
   return api;
 }
