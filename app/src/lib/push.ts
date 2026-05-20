@@ -1,3 +1,18 @@
+import { isIOSDevice, isStandaloneMode } from "./platform";
+
+export type PushSupportStatus =
+  | { supported: true }
+  | { supported: false; reason: "ios-needs-install" | "ios-unsupported-version" | "browser-unsupported" };
+
+export function getPushSupportStatus(): PushSupportStatus {
+  if (isPushSupported()) return { supported: true };
+  if (isIOSDevice()) {
+    if (!isStandaloneMode()) return { supported: false, reason: "ios-needs-install" };
+    return { supported: false, reason: "ios-unsupported-version" };
+  }
+  return { supported: false, reason: "browser-unsupported" };
+}
+
 export function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
