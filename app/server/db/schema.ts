@@ -2,7 +2,7 @@ import { Database } from "bun:sqlite";
 import { mkdirSync } from "fs";
 import { dirname } from "path";
 
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 
 export function initializeDatabase(dbPath: string): Database {
   mkdirSync(dirname(dbPath), { recursive: true });
@@ -139,13 +139,21 @@ export function initializeDatabase(dbPath: string): Database {
         stale_alert_time TEXT NOT NULL DEFAULT '09:00',
         weekly_review_day INTEGER NOT NULL DEFAULT 0,
         blocked_threshold_days INTEGER NOT NULL DEFAULT 3,
-        stale_threshold_days INTEGER NOT NULL DEFAULT 7
+        stale_threshold_days INTEGER NOT NULL DEFAULT 7,
+        timezone TEXT NOT NULL DEFAULT 'Asia/Hong_Kong'
       )
     `);
 
     db.run("CREATE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint ON push_subscriptions(endpoint)");
     db.run("CREATE INDEX IF NOT EXISTS idx_notification_preferences_device ON notification_preferences(device_id)");
     db.run("INSERT OR IGNORE INTO notification_preferences (device_id) VALUES (NULL)");
+  }
+
+  if (currentVersion < 4) {
+    const cols = db.prepare("PRAGMA table_info(notification_preferences)").all() as { name: string }[];
+    if (!cols.some((c) => c.name === "timezone")) {
+      db.run("ALTER TABLE notification_preferences ADD COLUMN timezone TEXT NOT NULL DEFAULT 'Asia/Hong_Kong'");
+    }
   }
 
   if (currentVersion < SCHEMA_VERSION) {

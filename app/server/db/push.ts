@@ -34,6 +34,7 @@ export interface NotificationPreferencesRow {
   weekly_review_day: number;
   blocked_threshold_days: number;
   stale_threshold_days: number;
+  timezone: string;
 }
 
 export function insertSubscription(
@@ -104,6 +105,7 @@ const ALLOWED_PREF_FIELDS = new Set([
   "due_today_time", "due_tomorrow_time", "daily_digest_time",
   "weekly_review_time", "blocked_alert_time", "stale_alert_time",
   "weekly_review_day", "blocked_threshold_days", "stale_threshold_days",
+  "timezone",
 ]);
 
 export function upsertGlobalPreferences(db: Database, prefs: Partial<Omit<NotificationPreferencesRow, "id" | "device_id">>): void {

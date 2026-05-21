@@ -23,6 +23,19 @@ function timeToCron(time: string): { minute: string; hour: string } {
   return { minute: match[2]!, hour: match[1]! };
 }
 
+function getTimeInTimezone(timezone: string): { hours: number; minutes: number } {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: timezone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date());
+
+  const hours = Number(parts.find((p) => p.type === "hour")!.value);
+  const minutes = Number(parts.find((p) => p.type === "minute")!.value);
+  return { hours, minutes };
+}
+
 function queryTasksDueOn(db: Database, dateExpr: string): { name: string; importance: string | null }[] {
   return db.query(`
     SELECT t.title as name, t.importance
@@ -124,13 +137,42 @@ function queryOverdueTasks(db: Database): { name: string; importance: string | n
   `).all() as { name: string; importance: string | null }[];
 }
 
+async function checkStartupCatchUp(db: Database, prefs: {
+  daily_digest: number;
+  daily_digest_time: string;
+  timezone: string;
+}): Promise<void> {
+  if (!prefs.daily_digest) return;
+
+  const { hours, minutes } = getTimeInTimezone(prefs.timezone);
+  const [targetH, targetM] = prefs.daily_digest_time.split(":").map(Number);
+  const nowMinutes = hours * 60 + minutes;
+  const targetMinutes = (targetH ?? 9) * 60 + (targetM ?? 0);
+
+  if (nowMinutes <= targetMinutes) {
+    console.log("[scheduler] Daily digest time not yet reached today, no catch-up needed");
+    return;
+  }
+
+  console.log("[scheduler] Catch-up: daily digest time already passed today, sending now");
+  try {
+    const summary = queryDailyDigest(db);
+    await sendToAll(db, dailyDigestTemplate(summary), "daily_digest");
+    console.log("[scheduler] Catch-up daily digest sent");
+  } catch (err) {
+    console.error("[scheduler] Catch-up daily digest failed:", err);
+  }
+}
+
 export function initScheduler(db: Database): void {
   const prefs = getGlobalPreferences(db);
   if (!prefs) return;
 
+  const timezone = prefs.timezone || "Asia/Hong_Kong";
+
   if (prefs.tasks_due_today) {
     const { minute, hour } = timeToCron(prefs.due_today_time);
-    jobs.set("tasks_due_today", new Cron(`${minute} ${hour} * * *`, async () => {
+    jobs.set("tasks_due_today", new Cron(`${minute} ${hour} * * *`, { timezone }, async () => {
       try {
         const tasks = queryTasksDueOn(db, "'now'");
         if (tasks.length > 0) {
@@ -142,7 +184,7 @@ export function initScheduler(db: Database): void {
 
   if (prefs.tasks_due_tomorrow) {
     const { minute, hour } = timeToCron(prefs.due_tomorrow_time);
-    jobs.set("tasks_due_tomorrow", new Cron(`${minute} ${hour} * * *`, async () => {
+    jobs.set("tasks_due_tomorrow", new Cron(`${minute} ${hour} * * *`, { timezone }, async () => {
       try {
         const tasks = queryTasksDueOn(db, "'now', '+1 day'");
         if (tasks.length > 0) {
@@ -154,7 +196,7 @@ export function initScheduler(db: Database): void {
 
   if (prefs.overdue_tasks) {
     const { minute, hour } = timeToCron(prefs.due_today_time);
-    jobs.set("overdue_tasks", new Cron(`${minute} ${hour} * * *`, async () => {
+    jobs.set("overdue_tasks", new Cron(`${minute} ${hour} * * *`, { timezone }, async () => {
       try {
         const tasks = queryOverdueTasks(db);
         if (tasks.length > 0) {
@@ -166,7 +208,7 @@ export function initScheduler(db: Database): void {
 
   if (prefs.daily_digest) {
     const { minute, hour } = timeToCron(prefs.daily_digest_time);
-    jobs.set("daily_digest", new Cron(`${minute} ${hour} * * *`, async () => {
+    jobs.set("daily_digest", new Cron(`${minute} ${hour} * * *`, { timezone }, async () => {
       try {
         const summary = queryDailyDigest(db);
         await sendToAll(db, dailyDigestTemplate(summary), "daily_digest");
@@ -177,7 +219,7 @@ export function initScheduler(db: Database): void {
   if (prefs.weekly_review) {
     const { minute, hour } = timeToCron(prefs.weekly_review_time);
     const day = prefs.weekly_review_day;
-    jobs.set("weekly_review", new Cron(`${minute} ${hour} * * ${day}`, async () => {
+    jobs.set("weekly_review", new Cron(`${minute} ${hour} * * ${day}`, { timezone }, async () => {
       try {
         const summary = queryWeeklyReview(db);
         await sendToAll(db, weeklyReviewTemplate(summary), "weekly_review");
@@ -187,7 +229,7 @@ export function initScheduler(db: Database): void {
 
   if (prefs.blocked_alert) {
     const { minute, hour } = timeToCron(prefs.blocked_alert_time);
-    jobs.set("blocked_alert", new Cron(`${minute} ${hour} * * *`, async () => {
+    jobs.set("blocked_alert", new Cron(`${minute} ${hour} * * *`, { timezone }, async () => {
       try {
         const tasks = queryBlockedTasks(db, prefs.blocked_threshold_days);
         if (tasks.length > 0) {
@@ -199,7 +241,7 @@ export function initScheduler(db: Database): void {
 
   if (prefs.stale_alert) {
     const { minute, hour } = timeToCron(prefs.stale_alert_time);
-    jobs.set("stale_alert", new Cron(`${minute} ${hour} * * *`, async () => {
+    jobs.set("stale_alert", new Cron(`${minute} ${hour} * * *`, { timezone }, async () => {
       try {
         const tasks = queryStaleTasks(db, prefs.stale_threshold_days);
         if (tasks.length > 0) {
@@ -209,7 +251,11 @@ export function initScheduler(db: Database): void {
     }));
   }
 
-  console.log(`[scheduler] Initialized ${jobs.size} notification jobs`);
+  console.log(`[scheduler] Initialized ${jobs.size} notification jobs (timezone: ${timezone})`);
+
+  checkStartupCatchUp(db, prefs).catch((err) => {
+    console.error("[scheduler] Startup catch-up failed:", err);
+  });
 }
 
 export function stopScheduler(): void {
