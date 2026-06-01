@@ -8,7 +8,7 @@ related:
 
 # Deploying Changes
 
-Standard workflow for pushing local changes to Windmill and versioning them in Git. The working directory for all Windmill operations is `automation/` within this monorepo.
+Standard workflow for deploying this repo's Windmill-owned content and versioning it in Git. The working directory for Windmill sync operations is `automation/` within this monorepo.
 
 ## The Standard Workflow
 
@@ -21,25 +21,21 @@ Standard workflow for pushing local changes to Windmill and versioning them in G
    wmill script generate-metadata f/notion_tasks/my_script.ts --yes
    ```
 
-   Or let the CLI handle it automatically:
-
-   ```bash
-   wmill sync push --auto-metadata
-   ```
-
-3. **Preview changes** (nothing is modified remotely):
+3. **Preview changes through the harness wrapper** (nothing is modified remotely):
 
    ```bash
    cd automation
-   wmill sync push --dry-run
+   node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs push
    ```
 
-4. **Deploy** to Windmill:
+4. **Deploy** only if the wrapper allows execution:
 
    ```bash
    cd automation
-   wmill sync push --yes
+   node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs push --execute
    ```
+
+   If the wrapper reports approval-required changes, get explicit approval first and include a specific `--approval` reason. Deletes also require `--allow-delete`.
 
 5. **Commit to Git**:
 
@@ -50,18 +46,20 @@ Standard workflow for pushing local changes to Windmill and versioning them in G
 
 ## Important: Scoped Sync
 
-This repo's `wmill.yaml` is scoped to `f/notion_tasks/**` and `f/notion/**` only. A `wmill sync push` from this directory will never affect scripts outside these folders on the Windmill instance.
+This repo owns only `f/notion_tasks/**`. It does not own `f/inbox/**`, `f/demo/**`, or `f/notion/**`.
+
+`f/notion/**` is retired. The Notion API resource for this repo is `f/notion_tasks/notion_api`.
 
 ## Deploying a Single Script
 
-For quick iterations on a single script:
+For quick iterations on a single script, prefer local preview or a wrapper-checked full sync. Avoid direct single-script production pushes unless the harness Windmill skill explicitly allows that path for the change.
 
 ```bash
 cd automation
 wmill script push f/notion_tasks/create_repetitive_tasks.ts
 ```
 
-This pushes only the specified script and its associated metadata/lockfile.
+Direct script pushes bypass the ownership preflight, so they are not the default production deployment path.
 
 ## Pulling Remote Changes
 
@@ -71,14 +69,14 @@ If changes were made in the Windmill UI:
 
    ```bash
    cd automation
-   wmill sync pull --dry-run
+   node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs pull
    ```
 
 2. **Pull** the remote state:
 
    ```bash
    cd automation
-   wmill sync pull --yes
+   node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs pull --execute
    ```
 
 3. **Commit** the pulled changes:
@@ -90,13 +88,13 @@ If changes were made in the Windmill UI:
 
 ## Handling Conflicts
 
-Conflicts arise when changes were made both locally and in the Windmill UI. Always pull first:
+Conflicts arise when changes were made both locally and in the Windmill UI. Preview through the wrapper first:
 
 ```bash
 cd automation
-wmill sync pull --yes    # Pull remote state
-git diff                 # Review differences
-wmill sync push --yes    # Push resolved state
+node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs pull
+git diff
+node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs push
 ```
 
 ## What Gets Synced

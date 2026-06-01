@@ -23,5 +23,7 @@ Windmill scripts that manage Notion tasks on schedules and webhooks.
 
 ```bash
 cd automation
-wmill sync push
+node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs push
 ```
+
+This repo owns the live Windmill `f/notion_tasks/**` folder. Production sync must use the harness Windmill skill and wrapper, not raw `wmill sync push --yes`.

@@ -51,14 +51,16 @@ The workspace is already configured in `automation/wmill.yaml`. To pull the late
 
 ```bash
 cd automation
-wmill sync pull
+node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs pull
 ```
 
 To push local changes to the Windmill instance:
 
 ```bash
-wmill sync push --yes
+node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs push
 ```
+
+The wrapper is plan-only by default. Execute only after reviewing the report and following the harness Windmill skill. This repo owns only `f/notion_tasks/**`; `f/notion/**` is retired and should not be used for new objects.
 
 ## Environment Variables
 

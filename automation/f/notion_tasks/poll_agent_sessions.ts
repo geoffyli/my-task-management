@@ -8,7 +8,7 @@ const STATUS_FAILED = "Failed";
 const TASKS_DATA_SOURCE_ID = "46f8ea4d-432a-4dd9-bc9a-dab4302c1cfe";
 
 export async function main() {
-  const notion = await wmill.getResource("f/notion/api") as { token: string };
+  const notion = await wmill.getResource("f/notion_tasks/notion_api") as { token: string };
   const opencode = await wmill.getResource("f/notion_tasks/opencode_api") as {
     base_url: string; username: string; password: string;
   };

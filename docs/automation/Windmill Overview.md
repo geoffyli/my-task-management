@@ -31,15 +31,15 @@ The Windmill workspace is `my-automation`. All scripts in this monorepo are scop
 
 ## Sync Model
 
-Windmill Community Edition does not support automatic Git sync. Instead, sync is a manual process using the `wmill` CLI.
+Windmill Community Edition does not support automatic Git sync. Instead, sync is a manual process guarded by the harness Windmill wrapper.
 
 The workflow:
 
 1. Edit scripts locally in `automation/f/notion_tasks/`.
-2. Deploy to Windmill: `cd automation && wmill sync push --yes`
+2. Preview deployment: `cd automation && node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs push`
 3. Commit to Git for version control.
 
-The `wmill.yaml` in the `automation/` directory is scoped to only sync `f/notion_tasks/**` and `f/notion/**` entities. This prevents interference with scripts managed from other repositories.
+The `wmill.yaml` in the `automation/` directory is scoped to only sync `f/notion_tasks/**` entities. This repo does not own `f/notion/**`; that folder is retired.
 
 ### Pulling Remote Changes
 
@@ -47,7 +47,7 @@ If changes were made directly in the Windmill UI:
 
 ```bash
 cd automation
-wmill sync pull --yes
+node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs pull
 ```
 
 Always pull before pushing to avoid overwriting UI-made changes.
@@ -74,7 +74,7 @@ Single-function automation units. The default runtime is TypeScript on Bun. Each
 
 ### Resources
 
-Typed JSON objects that store credentials for external services (e.g., Notion API token). Resources are referenced by path in scripts and resolved at runtime. The Notion resource used by all scripts in this repo is `f/notion/api`.
+Typed JSON objects that store credentials for external services (e.g., Notion API token). Resources are referenced by path in scripts and resolved at runtime. The Notion resource used by all scripts in this repo is `f/notion_tasks/notion_api`.
 
 ### Schedules
 

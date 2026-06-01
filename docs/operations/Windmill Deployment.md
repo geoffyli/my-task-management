@@ -35,7 +35,7 @@ Scripts are deployed manually from the monorepo:
 
 ```bash
 cd automation
-wmill sync push --yes
+node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs push
 ```
 
 ### Sync Scope
@@ -43,7 +43,8 @@ wmill sync push --yes
 The `automation/wmill.yaml` configuration scopes sync to specific folders:
 
 - `f/notion_tasks/**` — Task automation scripts
-- `f/notion/**` — Notion utility scripts
+
+`f/notion/**` is retired. The Notion API resource for task automation lives at `f/notion_tasks/notion_api`.
 
 ### Scripts Managed in This Monorepo
 
@@ -63,12 +64,13 @@ Other scripts in the workspace (e.g., `inbox`, `demo`) are managed from the sepa
 | Limitation | Impact |
 |-----------|--------|
 | 10 users with SSO | Single-developer use — not a constraint |
-| No auto-sync | Must run `wmill sync push` manually after local changes |
+| No auto-sync | Must use the harness Windmill wrapper after local changes |
 | No audit log retention | Rely on git history for change tracking |
 
 ## Deployment Workflow
 
 1. Edit scripts locally in `automation/f/`
 2. Test via Windmill UI (draft runs) or locally with Bun
-3. Run `wmill sync push --yes` to deploy
-4. Verify in Windmill UI that scripts and schedules are updated
+3. Run the harness Windmill wrapper in plan-only mode
+4. Execute through the wrapper only after the preflight report passes
+5. Verify in Windmill UI that scripts and schedules are updated

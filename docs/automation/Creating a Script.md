@@ -43,27 +43,23 @@ End-to-end workflow for writing and deploying a new Windmill automation script i
    ```bash
    cd automation
    wmill script preview f/notion_tasks/<script_name>.ts \
-     -d '{"notion":"$res:f/notion/api","database_id":"abc123"}'
+     -d '{"notion":"$res:f/notion_tasks/notion_api","database_id":"abc123"}'
    ```
 
 5. **Deploy** to Windmill:
 
    ```bash
    cd automation
-   wmill sync push --yes
+   node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs push
    ```
 
-   Or push just this script:
-
-   ```bash
-   wmill script push f/notion_tasks/<script_name>.ts
-   ```
+   The wrapper is plan-only by default. Execute only after the preflight report passes and the harness Windmill skill's deployment protocol is satisfied.
 
 6. **Verify** in the Windmill UI or run the deployed version:
 
    ```bash
    wmill script run f/notion_tasks/<script_name> \
-     -d '{"notion":"$res:f/notion/api","database_id":"abc123"}'
+     -d '{"notion":"$res:f/notion_tasks/notion_api","database_id":"abc123"}'
    ```
 
 7. **Commit to Git:**
@@ -96,7 +92,7 @@ export async function main(notion: RT.Notion, database_id: string) {
 }
 ```
 
-The `notion` parameter maps to the Windmill resource `f/notion/api`, which stores the Notion integration token. It is configured in the schedule/trigger YAML as `$res:f/notion/api`.
+The `notion` parameter maps to the Windmill resource `f/notion_tasks/notion_api`, which stores the Notion integration token. It is configured in the schedule/trigger YAML as `$res:f/notion_tasks/notion_api`.
 
 ## Next Steps
 

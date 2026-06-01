@@ -35,7 +35,7 @@ Reads a configuration database in Notion and creates task entries in the Tasks d
 
 | Parameter | Source | Value |
 |-----------|--------|-------|
-| `notion` | Windmill resource | `$res:f/notion/api` |
+| `notion` | Windmill resource | `$res:f/notion_tasks/notion_api` |
 | `config_database_id` | Schedule args | `2f2414c3-2bf8-800f-9657-f703a55f4cd3` |
 | `tasks_database_id` | Schedule args | `a43c2d3d-11e5-4a66-be42-dd411a1d9727` |
 

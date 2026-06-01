@@ -51,7 +51,7 @@ Rolled forward the "Assigned Date" of overdue tasks to today. Any task with an "
 
 | Parameter | Source | Value |
 |-----------|--------|-------|
-| `notion` | Windmill resource | `$res:f/notion/api` |
+| `notion` | Windmill resource | `$res:f/notion_tasks/notion_api` |
 | `tasks_database_id` | Schedule args | `a43c2d3d-11e5-4a66-be42-dd411a1d9727` |
 
 ## Key Functions

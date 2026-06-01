@@ -16,7 +16,7 @@ Setup requirements, deployment steps, end-to-end test procedure, and troubleshoo
 
 | Path | Type | Fields |
 |------|------|--------|
-| `f/notion/api` | (existing) | `token` — Notion integration token |
+| `f/notion_tasks/notion_api` | (existing) | `token` — Notion integration token |
 | `f/notion_tasks/opencode_api` | `opencode_server` (custom type) | `base_url`, `username`, `password` |
 
 The `opencode_server` resource type must be created in the Windmill workspace before creating the resource. Use the Windmill UI: Settings → Resource Types → New.
@@ -66,7 +66,7 @@ From the repo root:
 
 ```bash
 cd automation
-wmill sync push
+node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs push
 ```
 
 Confirm the changed scripts appear in the Windmill UI before running an end-to-end test.

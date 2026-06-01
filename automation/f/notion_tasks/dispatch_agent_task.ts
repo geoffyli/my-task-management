@@ -11,7 +11,7 @@ const STATUS_RUNNING = "Running";
 const STATUS_FAILED = "Failed";
 
 export async function main(page_id: string) {
-  const notion = await wmill.getResource("f/notion/api") as { token: string };
+  const notion = await wmill.getResource("f/notion_tasks/notion_api") as { token: string };
   const opencode = await wmill.getResource("f/notion_tasks/opencode_api") as {
     base_url: string; username: string; password: string;
   };

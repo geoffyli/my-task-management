@@ -204,7 +204,7 @@ export async function main(page_id: string, triggers: string[], verification_tok
     return { action: "skipped" };
   }
 
-  const notion = await wmill.getResource("f/notion/api") as { token: string };
+  const notion = await wmill.getResource("f/notion_tasks/notion_api") as { token: string };
   const client = new Client({ auth: notion.token });
 
   console.log(`Retrieving page ${page_id}...`);

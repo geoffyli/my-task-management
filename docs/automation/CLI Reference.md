@@ -8,19 +8,18 @@ related:
 
 # CLI Reference
 
-Quick lookup for daily `wmill` commands. All commands should be run from the `automation/` directory.
+Quick lookup for daily Windmill commands. Sync commands should be run from the `automation/` directory through the harness wrapper.
 
 ## Sync
 
 | Command | Description |
 |---|---|
-| `wmill sync pull` | Pull remote changes to local. |
-| `wmill sync pull --yes` | Pull without confirmation. |
-| `wmill sync pull --dry-run` | Preview what would be pulled. |
-| `wmill sync push` | Push local changes to remote. |
-| `wmill sync push --yes` | Push without confirmation. |
-| `wmill sync push --dry-run` | Preview what would be pushed. |
-| `wmill sync push --auto-metadata` | Regenerate stale metadata before pushing. |
+| `node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs pull` | Preview remote changes before pulling. |
+| `node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs pull --execute` | Pull only after wrapper checks pass. |
+| `node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs push` | Preview local changes before deploying. |
+| `node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs push --execute` | Deploy only after wrapper checks pass. |
+
+Do not run raw `wmill sync push --yes` or `wmill sync pull --yes` for production sync. Use the harness Windmill skill when approval-required objects such as schedules or triggers are involved.
 
 ## Scripts
 

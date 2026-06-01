@@ -1,6 +1,6 @@
 summary: Create weekly note - Monday midnight CST
 args:
-  notion: $res:f/notion/api
+  notion: $res:f/notion_tasks/notion_api
   weekly_notes_database_id: 278414c3-2bf8-8037-901c-cd198456a7a9
 cron_version: v2
 email: geoff.yulong.li@gmail.com

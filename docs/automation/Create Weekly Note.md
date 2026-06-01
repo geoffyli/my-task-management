@@ -34,7 +34,7 @@ Creates a weekly planning note in the Weekly Notes database every Monday. The no
 
 | Parameter | Source | Value |
 |-----------|--------|-------|
-| `notion` | Windmill resource | `$res:f/notion/api` |
+| `notion` | Windmill resource | `$res:f/notion_tasks/notion_api` |
 | `weekly_notes_database_id` | Schedule args | `278414c3-2bf8-8037-901c-cd198456a7a9` |
 
 ## Key Functions

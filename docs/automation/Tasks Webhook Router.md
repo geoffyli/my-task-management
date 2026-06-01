@@ -80,7 +80,7 @@ The router processes one handler per event. Both the preprocessor filter and han
 | `TASKS_DATABASE_ID` | `a43c2d3d-...` | Stable database container ID |
 | `STATUS_PROP_ID` | `pzUA` | Notion property ID for "Status" |
 
-The Notion API token is fetched at runtime from Windmill resource `f/notion/api`.
+The Notion API token is fetched at runtime from Windmill resource `f/notion_tasks/notion_api`.
 
 ## Timezone
 

@@ -30,7 +30,7 @@ Format: `seconds minutes hours day-of-month month day-of-week`
 ```yaml
 summary: My script - daily midnight CST
 args:
-  notion: $res:f/notion/api
+  notion: $res:f/notion_tasks/notion_api
   database_id: <your-database-id>
 cron_version: v2
 email: geoff.yulong.li@gmail.com
@@ -125,8 +125,10 @@ Deploy trigger files the same way as scripts:
 
 ```bash
 cd automation
-wmill sync push --yes
+node /Users/geoffyli/Projects/my-harness/shared/skills/windmill/scripts/windmill-preflight.mjs push
 ```
+
+Trigger changes require explicit approval before wrapper execution.
 
 ## Managing Schedules
 
