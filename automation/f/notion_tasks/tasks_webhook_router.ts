@@ -1,3 +1,4 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { Client } from "@notionhq/client";
 import * as wmill from "windmill-client";
 
@@ -5,10 +6,12 @@ const TASKS_DATABASE_ID = "a43c2d3d-11e5-4a66-be42-dd411a1d9727";
 const TASKS_DATABASE_ID_NORMALIZED = TASKS_DATABASE_ID.replace(/-/g, "").toLowerCase();
 
 const STATUS_PROP_ID = "pzUA";
+const AGENT_PROP_ID = "IMWB";
 
 type Event = {
   kind: "webhook" | "http" | "websocket" | "kafka" | "email" | "nats" | "postgres" | "sqs" | "mqtt" | "gcp";
   body: any;
+  raw_string?: string;
   headers: Record<string, string>;
   query: Record<string, string>;
 };
@@ -17,11 +20,47 @@ function normalizeUuid(id: string): string {
   return id.replace(/-/g, "").toLowerCase();
 }
 
+function verifyHmac(rawBody: string, signature: string, secret: string): boolean {
+  try {
+    const hmac = createHmac("sha256", secret);
+    hmac.update(rawBody);
+    const expected = hmac.digest("hex");
+    const actual = signature.startsWith("sha256=") ? signature.slice(7) : signature;
+    if (expected.length !== actual.length) return false;
+    return timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(actual, "hex"));
+  } catch {
+    return false;
+  }
+}
+
 export async function preprocessor(event: Event) {
   const body = event.body;
 
+  // One-time verification handshake — no HMAC check needed
   if (body?.verification_token) {
     return { page_id: "__verification__", triggers: [], verification_token: body.verification_token };
+  }
+
+  // HMAC verification
+  const rawString = event.raw_string;
+  if (!rawString) {
+    console.error("raw_string missing — HTTP trigger must have raw_string: true");
+    return { page_id: "__skip__", triggers: [] };
+  }
+
+  const signature = event.headers?.["x-notion-signature"] ?? "";
+  if (signature) {
+    let secret: string;
+    try {
+      secret = await wmill.getVariable("f/notion_tasks/notion_webhook_secret") as string;
+    } catch (e) {
+      console.warn("[preprocessor] Could not load webhook secret — skipping HMAC check:", e);
+      secret = "";
+    }
+    if (secret && !verifyHmac(rawString, signature, secret)) {
+      console.warn("[preprocessor] HMAC signature invalid — skipping");
+      return { page_id: "__skip__", triggers: [] };
+    }
   }
 
   if (body?.type !== "page.properties_updated") {
@@ -39,6 +78,7 @@ export async function preprocessor(event: Event) {
   const triggers: string[] = [];
 
   if (updatedProps.includes(STATUS_PROP_ID)) triggers.push("lifecycle");
+  if (updatedProps.includes(AGENT_PROP_ID)) triggers.push("agent_dispatch");
 
   if (triggers.length === 0) {
     console.log(`Skipping: updated properties ${JSON.stringify(updatedProps)} don't match any handler`);
@@ -132,6 +172,27 @@ async function handleLifecycle(client: Client, page_id: string, properties: Reco
   };
 }
 
+// --- Agent Dispatch Handler ---
+
+async function handleAgentDispatch(page_id: string, properties: Record<string, any>) {
+  const agentStatus = extractSelectProperty(properties, "Agent");
+
+  if (agentStatus !== "Queued") {
+    console.log(`[agent_dispatch] Agent = "${agentStatus}", not Queued — skipping`);
+    return { handler: "agent_dispatch", action: "skipped", agent_status: agentStatus };
+  }
+
+  console.log(`[agent_dispatch] Agent = Queued — dispatching for page ${page_id}`);
+  const jobId = await wmill.runScriptByPathAsync(
+    "f/notion_tasks/dispatch_agent_task",
+    undefined,
+    { page_id },
+  );
+
+  console.log(`[agent_dispatch] Dispatch job queued: ${jobId}`);
+  return { handler: "agent_dispatch", action: "dispatched", job_id: jobId, page_id };
+}
+
 // --- Main ---
 
 export async function main(page_id: string, triggers: string[], verification_token?: string) {
@@ -158,6 +219,10 @@ export async function main(page_id: string, triggers: string[], verification_tok
 
   if (triggers.includes("lifecycle")) {
     handlers.push(handleLifecycle(client, page_id, page.properties));
+  }
+
+  if (triggers.includes("agent_dispatch")) {
+    handlers.push(handleAgentDispatch(page_id, page.properties));
   }
 
   const results = await Promise.all(handlers);
