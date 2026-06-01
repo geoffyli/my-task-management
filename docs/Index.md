@@ -1,7 +1,6 @@
 ---
 parent: ""
 tags:
-  - moc
 related: []
 ---
 
@@ -24,6 +23,10 @@ Read these to understand the full system before scoping any work:
 - [[App]] — Analytics dashboard (Hono + SQLite + React SPA)
 - [[Automation]] — Windmill scripts (lifecycle dates, recurring tasks, weekly notes)
 - [[Operations]] — Deployment and infrastructure
+
+## Agent Orchestration
+
+- [[Agent Orchestration]] — Autonomous AI agent system: trigger, dispatch, polling, and review flow
 
 ## Onboarding
 

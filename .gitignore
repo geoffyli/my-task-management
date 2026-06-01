@@ -5,3 +5,9 @@
 
 **/.obsidian/workspace.json
 **/.history/**
+
+# Windmill resource files may contain plaintext credentials
+**/*.resource.yaml
+
+# Obsidian
+**/.obsidian/**

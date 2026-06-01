@@ -31,6 +31,8 @@ graph LR
     subgraph Windmill["Windmill (Railway)"]
         WS[Scheduled Scripts]
         WH[Webhook Script]
+        DA[Agent Dispatch]
+        PA[Agent Poller]
     end
 
     subgraph App["Web App (Railway)"]
@@ -39,8 +41,18 @@ graph LR
         FE[React Dashboard]
     end
 
+    subgraph OC["OpenCode (Railway)"]
+        OCS[AI Agent Sessions]
+    end
+
     WS -->|Create/update tasks| NDB
     NDB -->|Webhook events| API
+    NDB -->|Webhook events| WH
+    WH -->|Agent Queued| DA
+    DA -->|Create session + send prompt| OCS
+    DA -->|Write session URL + Running| NDB
+    PA -->|Check session status| OCS
+    PA -->|Review or Failed| NDB
     API -->|Sync writes| DB
     DB -->|Query| API
     API -->|JSON| FE
@@ -66,16 +78,35 @@ The web application runs on **Bun** with:
 
 ## Automation Architecture
 
-Windmill CE runs on Railway with **4 scripts** (1 active webhook, 2 scheduled, 1 disabled):
+Windmill CE runs on Railway with **6 scripts** (1 active webhook, 3 scheduled/async, 1 disabled):
 
 | Script | Trigger | Purpose |
 |--------|---------|---------|
-| `tasks_webhook_router` | Webhook (Notion) | Routes property changes; sets lifecycle dates (Started/Closed) |
+| `tasks_webhook_router` | Webhook (Notion) | Routes property changes; sets lifecycle dates (Started/Closed); triggers agent dispatch |
+| `dispatch_agent_task` | Async job (from router) | Creates OpenCode session, sends intake prompt, writes session URL to Notion |
+| `poll_agent_sessions` | Cron (every 2 min) | Detects idle OpenCode sessions; sets Agent → Review or Failed |
 | `create_repetitive_tasks` | Cron (daily) | Generate recurring tasks from config database |
 | `create_weekly_note` | Cron (weekly) | Create weekly planning page |
 | `update_legacy_tasks` | **Disabled** | Formerly rolled overdue tasks forward (retired — replaced by view-based filtering) |
 
 Scripts run in **Bun runtime** within Windmill workers and interact with the Notion API (v2025-09-03).
+
+The `dispatch_agent_task` and `poll_agent_sessions` scripts are part of the [[Agent Orchestration]] system — see that section for the full design.
+
+## OpenCode Worker Architecture
+
+The hosted OpenCode worker is deployed on Railway from the separate
+`geoffyli/my-harness` repo, under `cloud/opencode/`. This repo owns the
+Windmill dispatch and polling scripts; `my-harness` owns the OpenCode cloud
+profile, including:
+
+- `AGENTS.md` worker rules
+- `opencode.jsonc` permissions, model, and MCP servers
+- curated skill bundle
+- Railway health proxy and start command
+
+The worker installs its config globally into `/root/.config/opencode/` on
+startup. Its current MCP servers are Notion and GitHub.
 
 ## Key Design Decisions
 

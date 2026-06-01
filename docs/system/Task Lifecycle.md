@@ -111,6 +111,28 @@ The lifecycle dates power these key metrics:
 
 **Fallback logic:** For historical tasks that predate the webhook (no Closed Date), analytics fall back to Assigned Date as a proxy. This ensures continuity with pre-automation data.
 
+## Agent Property States
+
+The `Agent` property is a separate state machine on each task, independent of `Status`. It tracks autonomous AI agent execution. See [[Agent State Machine]] for the full design.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Queued : user sets Agent → Queued
+    Queued --> Running : dispatch_agent_task creates session
+    Queued --> Failed : dispatch error
+    Running --> Review : poller detects idle session
+    Running --> Failed : poller detects missing session
+```
+
+| State | Set By | Meaning |
+|-------|--------|---------|
+| **Queued** | User | Ready for agent pickup |
+| **Running** | `dispatch_agent_task` | OpenCode session active, agent executing |
+| **Review** | `poll_agent_sessions` | Agent finished — needs human review |
+| **Failed** | dispatch or poller | Error during session creation or execution |
+
+The `Agent` and `Status` properties are independent. A task can be `In Progress` (Status) and `Review` (Agent) simultaneously.
+
 ## Design Decisions
 
 **Why five states (not fewer)?**

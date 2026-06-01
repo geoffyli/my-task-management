@@ -15,6 +15,6 @@
     },
   },
   "packages": {
-    "@notionhq/client": ["@notionhq/client@5.17.0", "", {}, "sha512-hSNm3VUW5+Qs9vPOmegS6r1RT8O1jtTE/22wmSmiJc9kkb2YyddWr8SBQruvp06rALn2r2RAh9mLPirUUonsvw=="],
+    "@notionhq/client": ["@notionhq/client@5.22.0", "", {}, "sha512-lZ3JGBCd6O6MNHWn/58QcUqX1FgmlcODcx/EaUEEpuxLXF5tSi+v29Vzoz8mZ6JgDWDn5pMzzjB69QevYjQQZA=="],
   }
 }

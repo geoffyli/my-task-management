@@ -9,4 +9,4 @@ request_type: sync
 is_static_website: false
 workspaced_route: false
 wrap_body: false
-raw_string: false
+raw_string: true
