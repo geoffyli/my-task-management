@@ -185,7 +185,6 @@ async function handleAgentDispatch(page_id: string, properties: Record<string, a
   console.log(`[agent_dispatch] Agent = Queued — dispatching for page ${page_id}`);
   const jobId = await wmill.runScriptByPathAsync(
     "f/notion_tasks/dispatch_agent_task",
-    undefined,
     { page_id },
   );
 
