@@ -10,7 +10,8 @@ interface RepetitiveTaskConfig {
   dateRange: { start: string | null; end: string | null };
   mode: "Cron" | "Interval";
   value: string;
-  priority: string | null;
+  importance: string | null;
+  urgency: string | null;
   projects: string[];
 }
 
@@ -221,15 +222,18 @@ function extractConfigEntry(page: any): RepetitiveTaskConfig | null {
       ? { start: props["Date Range"]?.date?.start || null, end: props["Date Range"]?.date?.end || null }
       : { start: null, end: null };
 
-  const priority =
-    props.Priority?.type === "select" ? props.Priority?.select?.name || null : null;
+  const importance =
+    props.Importance?.type === "select" ? props.Importance?.select?.name || null : null;
+
+  const urgency =
+    props.Urgency?.type === "select" ? props.Urgency?.select?.name || null : null;
 
   const projects =
     props.Projects?.type === "relation"
       ? props.Projects?.relation.map((r: { id: string }) => r.id)
       : [];
 
-  return { id: page.id, name, dateRange, mode, value, priority, projects };
+  return { id: page.id, name, dateRange, mode, value, importance, urgency, projects };
 }
 
 function buildTaskProperties(config: RepetitiveTaskConfig, today: string): Record<string, any> {
@@ -238,8 +242,11 @@ function buildTaskProperties(config: RepetitiveTaskConfig, today: string): Recor
     "Assigned Date": { date: { start: today } },
     Status: { select: { name: "Not Started" } },
   };
-  if (config.priority) {
-    properties.Priority = { select: { name: config.priority } };
+  if (config.importance) {
+    properties.Importance = { select: { name: config.importance } };
+  }
+  if (config.urgency) {
+    properties.Urgency = { select: { name: config.urgency } };
   }
   if (config.projects.length > 0) {
     properties.Project = { relation: config.projects.map((id) => ({ id })) };

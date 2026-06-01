@@ -1,6 +1,6 @@
 summary: 'Update legacy tasks: roll overdue Notion tasks to today'
 description: Queries the Notion Tasks database for tasks with Assigned Date in
-  the past (excluding Done/Deferred/Cancelled) and updates them to today. Runs
+  the past (excluding Done/Blocked/Cancelled) and updates them to today. Runs
   daily at midnight CST.
 lock: '!inline f/notion_tasks/update_legacy_tasks.script.lock'
 kind: script
