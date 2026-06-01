@@ -3,11 +3,9 @@
 
 defaultTs: bun
 
-# Owns: agent orchestration scripts only (dispatch, poll, webhook router)
+# Owns: all Notion task management Windmill objects
 includes:
-  - "f/notion_tasks/dispatch_agent_task*"
-  - "f/notion_tasks/poll_agent_sessions*"
-  - "f/notion_tasks/tasks_webhook_router*"
+  - "f/notion_tasks/**"
 
 excludes: []
 
